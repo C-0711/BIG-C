@@ -1,98 +1,29 @@
 version: '3.8'
 
 services:
-  # Enterprise UI (React)
-  ui:
-    build:
-      context: ./packages/ui
-      dockerfile: Dockerfile
-    ports:
-      - "7073:80"
-    environment:
-      - VITE_API_URL=http://localhost:7074
-      - VITE_OPENCLAW_WS=ws://localhost:18789
-    depends_on:
-      - api
-
-  # API Server (Express)
-  api:
-    build:
-      context: ./packages/api
-      dockerfile: Dockerfile
+  # Main Application
+  0711-c-intelligence:
+    build: .
+    container_name: 0711-c-intelligence
+    restart: unless-stopped
     ports:
       - "7074:7074"
+    volumes:
+      - ~/.0711:/root/.0711
+      - ./packages/ui/dist:/app/packages/ui/dist:ro
+      - ./packages/admin/dist:/app/packages/admin/dist:ro
     environment:
+      - NODE_ENV=production
       - PORT=7074
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/intelligence
-      - REDIS_URL=redis://redis:6379
-      - OPENCLAW_GATEWAY=ws://openclaw:18789
-      - INSTANCE_NAME=0711-C Intelligence
-    depends_on:
-      - postgres
-      - redis
-      - openclaw
-
-  # OpenClaw Gateway
-  openclaw:
-    build:
-      context: ./packages/core
-      dockerfile: Dockerfile
-    ports:
-      - "18789:18789"
-    volumes:
-      - openclaw_data:/root/.openclaw
-    environment:
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-
-  # PostgreSQL Database
-  postgres:
-    image: postgres:15-alpine
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=intelligence
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - CONFIG_PATH=/root/.0711/config.json
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Redis (Queue, Cache)
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Neo4j (Graph Database)
-  neo4j:
-    image: neo4j:5
-    ports:
-      - "7474:7474"
-      - "7687:7687"
-    environment:
-      - NEO4J_AUTH=neo4j/password123
-      - NEO4J_PLUGINS=["apoc"]
-    volumes:
-      - neo4j_data:/data
-
-volumes:
-  openclaw_data:
-  postgres_data:
-  redis_data:
-  neo4j_data:
+      test: ["CMD", "curl", "-f", "http://localhost:7074/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - 0711-network
 
 networks:
-  default:
-    name: intelligence-network
+  0711-network:
+    driver: bridge
