@@ -1,5 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { icons } from '../utils/icons.js';
 import { configService, toastService, modalService, api, type Config, type Agent } from '../services/index.js';
 
 @customElement('agents-page')
@@ -52,9 +54,9 @@ export class AgentsPage extends LitElement {
     }
 
     .btn-primary {
-      background: var(--accent-color, #3b82f6);
+      background: var(--accent-primary, #22c55e);
       border: none;
-      color: white;
+      color: #000;
     }
 
     .btn-primary:hover:not(:disabled) {
@@ -88,15 +90,16 @@ export class AgentsPage extends LitElement {
     }
 
     .sidebar {
-      background: var(--bg-secondary, #1e1e2e);
-      border: 1px solid var(--border-color, #363646);
+      background: var(--bg-secondary, #16161e);
+      border: 1px solid var(--border-color, #2a2a3a);
       border-radius: 8px;
       overflow: hidden;
     }
 
     .sidebar-header {
       padding: 16px;
-      border-bottom: 1px solid var(--border-color, #363646);
+      border-bottom: 1px solid var(--border-color, #2a2a3a);
+      background: var(--bg-tertiary, #1e1e28);
     }
 
     .sidebar-header h2 {
@@ -121,19 +124,29 @@ export class AgentsPage extends LitElement {
       padding: 12px 16px;
       cursor: pointer;
       transition: background 0.2s;
-      border-bottom: 1px solid var(--border-color, #363646);
+      border-bottom: 1px solid var(--border-color, #2a2a3a);
     }
 
     .agent-item:hover {
-      background: var(--bg-tertiary, #2a2a3a);
+      background: var(--bg-hover, #252532);
     }
 
     .agent-item.active {
-      background: var(--accent-color, #3b82f6);
+      background: var(--accent-primary, #22c55e);
+      color: #000;
     }
 
-    .agent-item .emoji {
-      font-size: 20px;
+    .agent-item .icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+    }
+
+    .agent-item .icon svg {
+      width: 20px;
+      height: 20px;
     }
 
     .agent-item .info {
@@ -152,14 +165,14 @@ export class AgentsPage extends LitElement {
     .agent-item .badge {
       font-size: 10px;
       padding: 2px 6px;
-      background: var(--bg-primary, #121218);
+      background: var(--bg-primary, #0d0d12);
       border-radius: 4px;
       color: var(--text-secondary, #888);
     }
 
     .agent-item.active .badge {
-      background: rgba(255,255,255,0.2);
-      color: white;
+      background: rgba(0,0,0,0.2);
+      color: #000;
     }
 
     .add-agent-btn {
@@ -167,14 +180,14 @@ export class AgentsPage extends LitElement {
       justify-content: center;
       border-radius: 0;
       border: none;
-      border-top: 1px solid var(--border-color, #363646);
+      border-top: 1px solid var(--border-color, #2a2a3a);
       padding: 14px;
-      background: var(--bg-tertiary, #2a2a3a);
+      background: var(--bg-tertiary, #1e1e28);
     }
 
     .detail {
-      background: var(--bg-secondary, #1e1e2e);
-      border: 1px solid var(--border-color, #363646);
+      background: var(--bg-secondary, #16161e);
+      border: 1px solid var(--border-color, #2a2a3a);
       border-radius: 8px;
     }
 
@@ -183,7 +196,8 @@ export class AgentsPage extends LitElement {
       justify-content: space-between;
       align-items: center;
       padding: 20px 24px;
-      border-bottom: 1px solid var(--border-color, #363646);
+      border-bottom: 1px solid var(--border-color, #2a2a3a);
+      background: var(--bg-tertiary, #1e1e28);
     }
 
     .detail-title {
@@ -192,8 +206,20 @@ export class AgentsPage extends LitElement {
       gap: 16px;
     }
 
-    .detail-title .emoji {
-      font-size: 32px;
+    .detail-title .icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: var(--accent-primary, #22c55e);
+      border-radius: 8px;
+      color: #000;
+    }
+
+    .detail-title .icon svg {
+      width: 24px;
+      height: 24px;
     }
 
     .detail-title h2 {
@@ -248,17 +274,59 @@ export class AgentsPage extends LitElement {
 
     .tag {
       padding: 4px 10px;
-      background: var(--bg-tertiary, #2a2a3a);
+      background: var(--bg-tertiary, #1e1e28);
       border-radius: 4px;
       font-size: 12px;
     }
 
     .status-enabled {
-      color: #10b981;
+      color: #22c55e;
     }
 
     .status-disabled {
       color: #ef4444;
+    }
+
+    /* System Prompt Section */
+    .prompt-section {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color, #2a2a3a);
+    }
+
+    .prompt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .prompt-header h3 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary, #888);
+    }
+
+    .prompt-content {
+      background: var(--bg-tertiary, #1e1e28);
+      border: 1px solid var(--border-color, #2a2a3a);
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      font-family: inherit;
+      color: var(--text-primary, #fff);
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .prompt-empty {
+      color: var(--text-muted, #6b7280);
+      font-style: italic;
     }
 
     /* Modal styles */
@@ -268,7 +336,7 @@ export class AgentsPage extends LitElement {
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.7);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -276,11 +344,11 @@ export class AgentsPage extends LitElement {
     }
 
     .modal {
-      background: var(--bg-secondary, #1e1e2e);
-      border: 1px solid var(--border-color, #363646);
+      background: var(--bg-secondary, #16161e);
+      border: 1px solid var(--border-color, #2a2a3a);
       border-radius: 12px;
-      width: 500px;
-      max-height: 80vh;
+      width: 600px;
+      max-height: 85vh;
       overflow-y: auto;
     }
 
@@ -289,7 +357,8 @@ export class AgentsPage extends LitElement {
       justify-content: space-between;
       align-items: center;
       padding: 20px 24px;
-      border-bottom: 1px solid var(--border-color, #363646);
+      border-bottom: 1px solid var(--border-color, #2a2a3a);
+      background: var(--bg-tertiary, #1e1e28);
     }
 
     .modal-header h3 {
@@ -305,6 +374,10 @@ export class AgentsPage extends LitElement {
       cursor: pointer;
       padding: 0;
       line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: var(--text-primary, #fff);
     }
 
     .modal-body {
@@ -326,17 +399,35 @@ export class AgentsPage extends LitElement {
     .form-group input, .form-group select, .form-group textarea {
       width: 100%;
       padding: 10px 12px;
-      background: var(--bg-tertiary, #2a2a3a);
-      border: 1px solid var(--border-color, #363646);
+      background: var(--bg-tertiary, #1e1e28);
+      border: 1px solid var(--border-color, #2a2a3a);
       border-radius: 6px;
       color: var(--text-primary, #fff);
       font-size: 14px;
       box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-group textarea.prompt-textarea {
+      min-height: 150px;
+      font-family: inherit;
+      line-height: 1.5;
     }
 
     .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
       outline: none;
-      border-color: var(--accent-color, #3b82f6);
+      border-color: var(--accent-primary, #22c55e);
+    }
+
+    .form-group .hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--text-muted, #6b7280);
     }
 
     .form-row {
@@ -345,12 +436,24 @@ export class AgentsPage extends LitElement {
       gap: 12px;
     }
 
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .checkbox-label input {
+      width: auto;
+    }
+
     .modal-footer {
       display: flex;
       justify-content: flex-end;
       gap: 12px;
       padding: 16px 24px;
-      border-top: 1px solid var(--border-color, #363646);
+      border-top: 1px solid var(--border-color, #2a2a3a);
+      background: var(--bg-tertiary, #1e1e28);
     }
 
     .empty-state {
@@ -388,8 +491,9 @@ export class AgentsPage extends LitElement {
   // Form state
   @state() private formId = '';
   @state() private formName = '';
-  @state() private formEmoji = '🤖';
+  @state() private formEmoji = '';
   @state() private formTheme = '';
+  @state() private formSystemPrompt = '';
   @state() private formSkills = '';
   @state() private formEnabled = true;
 
@@ -404,7 +508,6 @@ export class AgentsPage extends LitElement {
         if (!this.selectedAgent && this.agents.length > 0) {
           this.selectedAgent = this.agents[0];
         }
-        // Update selected agent if it exists
         if (this.selectedAgent) {
           this.selectedAgent = this.agents.find(a => a.id === this.selectedAgent!.id) || this.agents[0] || null;
         }
@@ -425,8 +528,9 @@ export class AgentsPage extends LitElement {
     this.editingAgent = null;
     this.formId = '';
     this.formName = '';
-    this.formEmoji = '🤖';
+    this.formEmoji = '';
     this.formTheme = '';
+    this.formSystemPrompt = '';
     this.formSkills = '';
     this.formEnabled = true;
     this.showModal = true;
@@ -435,11 +539,12 @@ export class AgentsPage extends LitElement {
   private openEditModal(agent: Agent) {
     this.editingAgent = agent;
     this.formId = agent.id;
-    this.formName = agent.identity.name;
-    this.formEmoji = agent.identity.emoji;
-    this.formTheme = agent.identity.theme || '';
-    this.formSkills = agent.skills.join(', ');
-    this.formEnabled = agent.enabled;
+    this.formName = agent.identity?.name || '';
+    this.formEmoji = agent.identity?.emoji || '';
+    this.formTheme = agent.identity?.theme || '';
+    this.formSystemPrompt = (agent as any).systemPrompt || '';
+    this.formSkills = (agent.skills || []).join(', ');
+    this.formEnabled = agent.enabled !== false;
     this.showModal = true;
   }
 
@@ -456,11 +561,11 @@ export class AgentsPage extends LitElement {
 
     this.saving = true;
 
-    const agentData: Agent = {
+    const agentData: any = {
       id: this.formId,
       identity: {
         name: this.formName,
-        emoji: this.formEmoji,
+        emoji: this.formEmoji || undefined,
         theme: this.formTheme || undefined,
       },
       enabled: this.formEnabled,
@@ -468,6 +573,11 @@ export class AgentsPage extends LitElement {
       dataSources: this.editingAgent?.dataSources || [],
       outputs: this.editingAgent?.outputs || [],
     };
+
+    // Add system prompt if provided
+    if (this.formSystemPrompt.trim()) {
+      agentData.systemPrompt = this.formSystemPrompt.trim();
+    }
 
     let response;
     if (this.editingAgent) {
@@ -489,7 +599,7 @@ export class AgentsPage extends LitElement {
   }
 
   private async handleDeleteAgent(agent: Agent) {
-    const confirmed = await modalService.confirmDelete(agent.identity.name);
+    const confirmed = await modalService.confirmDelete(agent.identity?.name || agent.id);
     if (!confirmed) return;
 
     const response = await api.delete(`/agents/${agent.id}`);
@@ -521,10 +631,10 @@ export class AgentsPage extends LitElement {
       <div class="header">
         <div class="header-left">
           <h1>Agents</h1>
-          <p>Manage agent workspaces, tools, and identities.</p>
+          <p>Manage agent workspaces, prompts, and capabilities.</p>
         </div>
         <button class="btn-secondary" @click=${() => configService.load()}>
-          ⟳ Refresh
+          ${unsafeHTML(icons.refreshCw)} Refresh
         </button>
       </div>
 
@@ -540,11 +650,11 @@ export class AgentsPage extends LitElement {
                 class="agent-item ${this.selectedAgent?.id === agent.id ? 'active' : ''}"
                 @click=${() => this.selectAgent(agent)}
               >
-                <span class="emoji">${agent.identity.emoji}</span>
+                <span class="icon">${unsafeHTML(icons.bot)}</span>
                 <div class="info">
-                  <div class="name">${agent.id}</div>
+                  <div class="name">${agent.identity?.name || agent.id}</div>
                 </div>
-                <span class="badge">${agent.enabled ? 'ACTIVE' : 'OFF'}</span>
+                <span class="badge">${agent.enabled !== false ? 'ACTIVE' : 'OFF'}</span>
               </div>
             `)}
           </div>
@@ -563,18 +673,20 @@ export class AgentsPage extends LitElement {
   }
 
   private renderAgentDetail(agent: Agent) {
+    const systemPrompt = (agent as any).systemPrompt;
+    
     return html`
       <div class="detail-header">
         <div class="detail-title">
-          <span class="emoji">${agent.identity.emoji}</span>
+          <span class="icon">${unsafeHTML(icons.bot)}</span>
           <div>
-            <h2>${agent.identity.name}</h2>
+            <h2>${agent.identity?.name || agent.id}</h2>
             <span class="id">${agent.id}</span>
           </div>
         </div>
         <div class="detail-actions">
           <button class="btn-secondary btn-sm" @click=${() => this.handleToggleEnabled(agent)}>
-            ${agent.enabled ? '⏸ Disable' : '▶ Enable'}
+            ${agent.enabled !== false ? '⏸ Disable' : '▶ Enable'}
           </button>
           <button class="btn-secondary btn-sm" @click=${() => this.openEditModal(agent)}>
             ✏️ Edit
@@ -588,8 +700,8 @@ export class AgentsPage extends LitElement {
         <div class="info-grid">
           <div class="info-item">
             <span class="info-label">Status</span>
-            <span class="info-value ${agent.enabled ? 'status-enabled' : 'status-disabled'}">
-              ${agent.enabled ? '● Enabled' : '○ Disabled'}
+            <span class="info-value ${agent.enabled !== false ? 'status-enabled' : 'status-disabled'}">
+              ${agent.enabled !== false ? '● Enabled' : '○ Disabled'}
             </span>
           </div>
           <div class="info-item">
@@ -602,15 +714,15 @@ export class AgentsPage extends LitElement {
           </div>
           <div class="info-item">
             <span class="info-label">Theme</span>
-            <span class="info-value">${agent.identity.theme || '(none)'}</span>
+            <span class="info-value">${agent.identity?.theme || '(none)'}</span>
           </div>
         </div>
 
         <div class="info-item" style="margin-bottom: 20px;">
           <span class="info-label">Skills</span>
           <div class="tags" style="margin-top: 8px;">
-            ${agent.skills.length > 0 
-              ? agent.skills.map(skill => html`<span class="tag">${skill}</span>`)
+            ${(agent.skills || []).length > 0 
+              ? (agent.skills || []).map(skill => html`<span class="tag">${skill}</span>`)
               : html`<span style="color: var(--text-secondary)">No skills assigned</span>`
             }
           </div>
@@ -619,9 +731,25 @@ export class AgentsPage extends LitElement {
         <div class="info-item">
           <span class="info-label">Data Sources</span>
           <div class="tags" style="margin-top: 8px;">
-            ${agent.dataSources.length > 0 
-              ? agent.dataSources.map(ds => html`<span class="tag">${ds}</span>`)
+            ${(agent.dataSources || []).length > 0 
+              ? (agent.dataSources || []).map(ds => html`<span class="tag">${ds}</span>`)
               : html`<span style="color: var(--text-secondary)">No data sources assigned</span>`
+            }
+          </div>
+        </div>
+
+        <!-- System Prompt Section -->
+        <div class="prompt-section">
+          <div class="prompt-header">
+            <h3>System Prompt</h3>
+            <button class="btn-secondary btn-sm" @click=${() => this.openEditModal(agent)}>
+              ✏️ Edit Prompt
+            </button>
+          </div>
+          <div class="prompt-content">
+            ${systemPrompt 
+              ? systemPrompt 
+              : html`<span class="prompt-empty">No system prompt defined. Click "Edit Prompt" to add one.</span>`
             }
           </div>
         </div>
@@ -632,7 +760,7 @@ export class AgentsPage extends LitElement {
   private renderEmptyState() {
     return html`
       <div class="empty-state">
-        <div class="icon">🤖</div>
+        <div class="icon">${unsafeHTML(icons.bot)}</div>
         <h3>No Agent Selected</h3>
         <p>Select an agent from the list or create a new one.</p>
       </div>
@@ -657,7 +785,9 @@ export class AgentsPage extends LitElement {
                 ?disabled=${!!this.editingAgent}
                 placeholder="product-expert"
               />
+              <div class="hint">Unique identifier, lowercase with hyphens</div>
             </div>
+            
             <div class="form-row">
               <div class="form-group">
                 <label>Display Name *</label>
@@ -678,15 +808,30 @@ export class AgentsPage extends LitElement {
                 />
               </div>
             </div>
+            
             <div class="form-group">
-              <label>Theme / Description</label>
-              <textarea 
-                rows="2"
+              <label>Description / Theme</label>
+              <input 
+                type="text"
                 .value=${this.formTheme}
-                @input=${(e: Event) => this.formTheme = (e.target as HTMLTextAreaElement).value}
-                placeholder="What this agent does..."
-              ></textarea>
+                @input=${(e: Event) => this.formTheme = (e.target as HTMLInputElement).value}
+                placeholder="Brief description of what this agent does"
+              />
             </div>
+            
+            <div class="form-group">
+              <label>System Prompt</label>
+              <textarea 
+                class="prompt-textarea"
+                .value=${this.formSystemPrompt}
+                @input=${(e: Event) => this.formSystemPrompt = (e.target as HTMLTextAreaElement).value}
+                placeholder="You are a helpful assistant that specializes in...
+
+Define the agent's personality, capabilities, and behavior here."
+              ></textarea>
+              <div class="hint">The system prompt defines the agent's behavior and personality</div>
+            </div>
+            
             <div class="form-group">
               <label>Skills (comma-separated)</label>
               <input 
@@ -695,9 +840,11 @@ export class AgentsPage extends LitElement {
                 @input=${(e: Event) => this.formSkills = (e.target as HTMLInputElement).value}
                 placeholder="search, describe, compare"
               />
+              <div class="hint">Skills this agent can use</div>
             </div>
+            
             <div class="form-group">
-              <label>
+              <label class="checkbox-label">
                 <input 
                   type="checkbox" 
                   .checked=${this.formEnabled}

@@ -202,6 +202,28 @@ app.get("/api/skills", (req, res) => {
     bundled: config?.skills?.bundled || [],
     workspace: config?.skills?.workspace || "~/.0711/workspace/skills/"
   });
+
+app.put("/api/skills/:id", (req, res) => {
+  try {
+    const config = readConfig();
+    if (!config) return res.status(500).json({ error: "Config not found" });
+    const { id } = req.params;
+    const skillData = req.body;
+    if (!config.skills) config.skills = { bundled: [], definitions: {} };
+    if (!config.skills.definitions) config.skills.definitions = {};
+    config.skills.definitions[id] = {
+      name: skillData.name,
+      description: skillData.description,
+      prompt: skillData.prompt,
+      tools: skillData.tools || []
+    };
+    writeConfig(config);
+    broadcast("config.changed", { config });
+    res.json({ success: true, skill: config.skills.definitions[id] });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
 });
 
 // ========================================
