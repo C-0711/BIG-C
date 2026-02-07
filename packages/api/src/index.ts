@@ -1,3 +1,4 @@
+import JSON5 from 'json5';
 import express from 'express';
 import cors from 'cors';
 import fs from 'fs';
@@ -37,7 +38,7 @@ app.get('/api/config', (req, res) => {
       return res.status(404).json({ error: 'Config file not found', path: configPath });
     }
     const configData = fs.readFileSync(configPath, 'utf-8');
-    const config = JSON.parse(configData);
+    const config = JSON5.parse(configData);
     res.json(config);
   } catch (err: any) {
     res.status(500).json({ error: 'Failed to read config', message: err.message });
@@ -82,7 +83,7 @@ app.patch('/api/config', (req, res) => {
     }
     
     const configData = fs.readFileSync(configPath, 'utf-8');
-    const config = JSON.parse(configData);
+    const config = JSON5.parse(configData);
     
     // Navigate to path and update
     const pathParts = updatePath.split('.');
@@ -113,7 +114,7 @@ app.patch('/api/config', (req, res) => {
 
 app.get('/api/agents', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     res.json(config.agents?.list || []);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -122,7 +123,7 @@ app.get('/api/agents', (req, res) => {
 
 app.get('/api/agents/:id', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     const agent = config.agents?.list?.find((a: any) => a.id === req.params.id);
     if (!agent) {
       return res.status(404).json({ error: 'Agent not found' });
@@ -135,7 +136,7 @@ app.get('/api/agents/:id', (req, res) => {
 
 app.post('/api/agents', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     const newAgent = req.body;
     
     if (!newAgent.id) {
@@ -160,7 +161,7 @@ app.post('/api/agents', (req, res) => {
 
 app.put('/api/agents/:id', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     const idx = config.agents?.list?.findIndex((a: any) => a.id === req.params.id);
     
     if (idx === -1 || idx === undefined) {
@@ -178,7 +179,7 @@ app.put('/api/agents/:id', (req, res) => {
 
 app.delete('/api/agents/:id', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     const idx = config.agents?.list?.findIndex((a: any) => a.id === req.params.id);
     
     if (idx === -1 || idx === undefined) {
@@ -200,7 +201,7 @@ app.delete('/api/agents/:id', (req, res) => {
 
 app.get('/api/workflows', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     res.json(config.workflows?.list || []);
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -209,7 +210,7 @@ app.get('/api/workflows', (req, res) => {
 
 app.post('/api/workflows', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     const newWorkflow = req.body;
     
     if (!newWorkflow.id) {
@@ -230,7 +231,7 @@ app.post('/api/workflows', (req, res) => {
 
 app.put('/api/workflows/:id', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     const idx = config.workflows?.list?.findIndex((w: any) => w.id === req.params.id);
     
     if (idx === -1 || idx === undefined) {
@@ -248,7 +249,7 @@ app.put('/api/workflows/:id', (req, res) => {
 
 app.delete('/api/workflows/:id', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     const idx = config.workflows?.list?.findIndex((w: any) => w.id === req.params.id);
     
     if (idx === -1 || idx === undefined) {
@@ -266,7 +267,7 @@ app.delete('/api/workflows/:id', (req, res) => {
 
 app.post('/api/workflows/:id/run', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     const workflow = config.workflows?.list?.find((w: any) => w.id === req.params.id);
     
     if (!workflow) {
@@ -292,7 +293,7 @@ app.post('/api/workflows/:id/run', (req, res) => {
 
 app.get('/api/datasources', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     res.json(config.dataSources?.providers || {});
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -301,7 +302,7 @@ app.get('/api/datasources', (req, res) => {
 
 app.post('/api/datasources', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     const { id, ...dataSource } = req.body;
     
     if (!id) {
@@ -322,7 +323,7 @@ app.post('/api/datasources', (req, res) => {
 
 app.put('/api/datasources/:id', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     
     if (!config.dataSources?.providers?.[req.params.id]) {
       return res.status(404).json({ error: 'Data source not found' });
@@ -339,7 +340,7 @@ app.put('/api/datasources/:id', (req, res) => {
 
 app.delete('/api/datasources/:id', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     
     if (!config.dataSources?.providers?.[req.params.id]) {
       return res.status(404).json({ error: 'Data source not found' });
@@ -356,7 +357,7 @@ app.delete('/api/datasources/:id', (req, res) => {
 
 app.post('/api/datasources/:id/test', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     const dataSource = config.dataSources?.providers?.[req.params.id];
     
     if (!dataSource) {
@@ -380,7 +381,7 @@ app.post('/api/datasources/:id/test', (req, res) => {
 
 app.get('/api/outputs', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     res.json(config.outputs?.providers || {});
   } catch (err: any) {
     res.status(500).json({ error: err.message });
@@ -389,7 +390,7 @@ app.get('/api/outputs', (req, res) => {
 
 app.post('/api/outputs', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     const { id, ...output } = req.body;
     
     if (!id) {
@@ -410,7 +411,7 @@ app.post('/api/outputs', (req, res) => {
 
 app.put('/api/outputs/:id', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     
     if (!config.outputs?.providers?.[req.params.id]) {
       return res.status(404).json({ error: 'Output not found' });
@@ -427,7 +428,7 @@ app.put('/api/outputs/:id', (req, res) => {
 
 app.delete('/api/outputs/:id', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     
     if (!config.outputs?.providers?.[req.params.id]) {
       return res.status(404).json({ error: 'Output not found' });
@@ -444,7 +445,7 @@ app.delete('/api/outputs/:id', (req, res) => {
 
 app.post('/api/outputs/:id/test', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     const output = config.outputs?.providers?.[req.params.id];
     
     if (!output) {
@@ -468,7 +469,7 @@ app.post('/api/outputs/:id/test', (req, res) => {
 
 app.get('/api/skills', (req, res) => {
   try {
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    const config = JSON5.parse(fs.readFileSync(configPath, 'utf-8'));
     res.json({
       bundled: config.skills?.bundled || [],
       workspace: config.skills?.workspace || '~/.0711/workspace/skills/'
