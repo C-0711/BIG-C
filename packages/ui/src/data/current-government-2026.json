@@ -1,0 +1,193 @@
+{
+  "updated": "2026-02-01",
+  "source": "Public government records and official announcements",
+  "administration": "Trump Administration (47th Presidency)",
+  "cabinet": [
+    {
+      "name": "Donald Trump",
+      "position": "President of the United States",
+      "department": "Executive Office",
+      "role_type": "executive",
+      "significance": "HIGH"
+    },
+    {
+      "name": "JD Vance",
+      "position": "Vice President of the United States",
+      "department": "Executive Office",
+      "role_type": "executive",
+      "significance": "HIGH"
+    },
+    {
+      "name": "Marco Rubio",
+      "position": "Secretary of State",
+      "department": "State",
+      "role_type": "cabinet",
+      "significance": "HIGH"
+    },
+    {
+      "name": "Scott Bessent",
+      "position": "Secretary of the Treasury",
+      "department": "Treasury",
+      "role_type": "cabinet",
+      "significance": "HIGH"
+    },
+    {
+      "name": "Pam Bondi",
+      "position": "Attorney General",
+      "department": "Justice",
+      "role_type": "cabinet",
+      "significance": "HIGH"
+    },
+    {
+      "name": "Pete Hegseth",
+      "position": "Secretary of Defense",
+      "department": "Defense",
+      "role_type": "cabinet",
+      "significance": "HIGH"
+    },
+    {
+      "name": "Kristi Noem",
+      "position": "Secretary of Homeland Security",
+      "department": "Homeland Security",
+      "role_type": "cabinet",
+      "significance": "HIGH"
+    },
+    {
+      "name": "Doug Burgum",
+      "position": "Secretary of the Interior",
+      "department": "Interior",
+      "role_type": "cabinet",
+      "significance": "MEDIUM"
+    },
+    {
+      "name": "Lee Zeldin",
+      "position": "Administrator of the EPA",
+      "department": "Environmental Protection Agency",
+      "role_type": "cabinet",
+      "significance": "MEDIUM"
+    },
+    {
+      "name": "Chris Wright",
+      "position": "Secretary of Energy",
+      "department": "Energy",
+      "role_type": "cabinet",
+      "significance": "MEDIUM"
+    },
+    {
+      "name": "Howard Lutnick",
+      "position": "Secretary of Commerce",
+      "department": "Commerce",
+      "role_type": "cabinet",
+      "significance": "HIGH"
+    },
+    {
+      "name": "Linda McMahon",
+      "position": "Secretary of Education",
+      "department": "Education",
+      "role_type": "cabinet",
+      "significance": "MEDIUM"
+    },
+    {
+      "name": "Sean Duffy",
+      "position": "Secretary of Transportation",
+      "department": "Transportation",
+      "role_type": "cabinet",
+      "significance": "MEDIUM"
+    },
+    {
+      "name": "Robert F. Kennedy Jr.",
+      "position": "Secretary of Health and Human Services",
+      "department": "Health and Human Services",
+      "role_type": "cabinet",
+      "significance": "HIGH"
+    }
+  ],
+  "senior_advisors": [
+    {
+      "name": "Stephen Miller",
+      "position": "Deputy Chief of Staff for Policy",
+      "role_type": "advisor",
+      "significance": "HIGH"
+    },
+    {
+      "name": "Susie Wiles",
+      "position": "White House Chief of Staff",
+      "role_type": "advisor",
+      "significance": "HIGH"
+    },
+    {
+      "name": "Elon Musk",
+      "position": "DOGE Co-Lead (Department of Government Efficiency)",
+      "role_type": "advisor",
+      "significance": "HIGH",
+      "notes": "Advisory role, not official cabinet position"
+    },
+    {
+      "name": "Vivek Ramaswamy",
+      "position": "DOGE Co-Lead (Department of Government Efficiency)",
+      "role_type": "advisor",
+      "significance": "HIGH",
+      "notes": "Advisory role, not official cabinet position"
+    },
+    {
+      "name": "Kash Patel",
+      "position": "FBI Director Nominee",
+      "role_type": "agency_head",
+      "significance": "HIGH"
+    },
+    {
+      "name": "Tom Homan",
+      "position": "Border Czar",
+      "role_type": "advisor",
+      "significance": "HIGH"
+    }
+  ],
+  "trump_family": [
+    {
+      "name": "Donald Trump Jr.",
+      "position": "Executive Vice President, Trump Organization",
+      "role_type": "family_business",
+      "significance": "HIGH"
+    },
+    {
+      "name": "Eric Trump",
+      "position": "Executive Vice President, Trump Organization",
+      "role_type": "family_business",
+      "significance": "HIGH"
+    },
+    {
+      "name": "Ivanka Trump",
+      "position": "Former Senior Advisor (2017-2021)",
+      "role_type": "family_inactive",
+      "significance": "MEDIUM"
+    },
+    {
+      "name": "Jared Kushner",
+      "position": "Former Senior Advisor (2017-2021)",
+      "role_type": "family_inactive",
+      "significance": "MEDIUM"
+    },
+    {
+      "name": "Melania Trump",
+      "position": "First Lady",
+      "role_type": "family",
+      "significance": "MEDIUM"
+    }
+  ],
+  "key_congress_members": [
+    {
+      "name": "Mike Johnson",
+      "position": "Speaker of the House",
+      "chamber": "House",
+      "party": "Republican",
+      "significance": "HIGH"
+    },
+    {
+      "name": "John Thune",
+      "position": "Senate Majority Leader",
+      "chamber": "Senate",
+      "party": "Republican",
+      "significance": "HIGH"
+    }
+  ]
+}

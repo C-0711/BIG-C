@@ -1,0 +1,9 @@
+{
+  "name": "@0711/workflows",
+  "version": "1.0.0",
+  "description": "Pre-built enterprise workflows for 0711-C-Intelligence",
+  "main": "index.js",
+  "scripts": {
+    "install-skills": "node install.js"
+  }
+}

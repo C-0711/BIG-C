@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+
+# Environment
+.env
+.env.local
+.env.*.local
+config.yaml
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data
+*.csv
+*.xlsx
+uploads/
+
+# OpenClaw
+.openclaw/

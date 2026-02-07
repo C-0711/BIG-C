@@ -1,0 +1,20 @@
+{
+  "name": "0711-c-intelligence",
+  "version": "1.0.0",
+  "description": "OpenClaw + Enterprise Workflows + Data Connectors",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel dev",
+    "build": "pnpm --filter @0711/ui build && pnpm --filter @0711/api build",
+    "start": "docker-compose up -d",
+    "stop": "docker-compose down",
+    "openclaw": "cd packages/core && pnpm openclaw",
+    "gateway": "cd packages/core && pnpm gateway:watch",
+    "ui": "cd packages/ui && pnpm dev",
+    "lint": "pnpm --parallel lint",
+    "test": "pnpm --parallel test"
+  },
+  "keywords": ["ai", "enterprise", "openclaw", "data-intelligence", "agents"],
+  "author": "0711 Intelligence",
+  "license": "MIT"
+}

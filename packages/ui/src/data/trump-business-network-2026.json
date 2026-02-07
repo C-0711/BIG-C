@@ -1,0 +1,147 @@
+{
+  "updated": "2026-02-01",
+  "source": "Public business records and corporate filings",
+  "organization": "Trump Organization & Business Associates",
+  "trump_organization_executives": [
+    {
+      "name": "Donald Trump Jr.",
+      "position": "Executive Vice President",
+      "entity": "Trump Organization",
+      "relationship_type": "family_executive",
+      "active": true,
+      "significance": "HIGH"
+    },
+    {
+      "name": "Eric Trump",
+      "position": "Executive Vice President",
+      "entity": "Trump Organization",
+      "relationship_type": "family_executive",
+      "active": true,
+      "significance": "HIGH"
+    },
+    {
+      "name": "Allen Weisselberg",
+      "position": "Former CFO",
+      "entity": "Trump Organization",
+      "relationship_type": "executive",
+      "active": false,
+      "significance": "HIGH",
+      "notes": "Convicted of tax fraud 2022, served jail time"
+    },
+    {
+      "name": "Matthew Calamari",
+      "position": "Chief Operating Officer",
+      "entity": "Trump Organization",
+      "relationship_type": "executive",
+      "active": true,
+      "significance": "MEDIUM"
+    }
+  ],
+  "real_estate_partners": [
+    {
+      "name": "Phil Ruffin",
+      "relationship_type": "business_partner",
+      "connection": "Co-owner of Trump International Hotel Las Vegas",
+      "active": true,
+      "significance": "MEDIUM"
+    },
+    {
+      "name": "Richard LeFrak",
+      "relationship_type": "business_associate",
+      "connection": "Real estate development, long-time friend",
+      "active": true,
+      "significance": "MEDIUM"
+    },
+    {
+      "name": "Steve Witkoff",
+      "relationship_type": "business_associate",
+      "connection": "Real estate developer, campaign fundraiser",
+      "active": true,
+      "significance": "MEDIUM"
+    }
+  ],
+  "mar_a_lago_associates": [
+    {
+      "name": "Bernd Lembcke",
+      "relationship_type": "employee",
+      "connection": "Mar-a-Lago Managing Director",
+      "active": true,
+      "significance": "LOW"
+    }
+  ],
+  "legal_advisors": [
+    {
+      "name": "Alina Habba",
+      "relationship_type": "legal_counsel",
+      "connection": "Personal attorney, Trump Organization attorney",
+      "active": true,
+      "significance": "HIGH"
+    }
+  ],
+  "historic_associates": [
+    {
+      "name": "Roy Cohn",
+      "relationship_type": "historic_mentor",
+      "connection": "Attorney and mentor (deceased 1986)",
+      "active": false,
+      "significance": "MEDIUM",
+      "notes": "Influential figure in Trump's early career"
+    },
+    {
+      "name": "Jeffrey Epstein",
+      "relationship_type": "social_associate",
+      "connection": "Social acquaintance 1990s-2004, documented at Mar-a-Lago",
+      "active": false,
+      "significance": "HIGH",
+      "notes": "Deceased 2019, relationship ended circa 2004 per Trump statements"
+    },
+    {
+      "name": "Ghislaine Maxwell",
+      "relationship_type": "social_acquaintance",
+      "connection": "Social circles in Palm Beach and NYC 1990s-2000s",
+      "active": false,
+      "significance": "HIGH",
+      "notes": "Currently imprisoned, convicted 2021"
+    },
+    {
+      "name": "Les Wexner",
+      "relationship_type": "business_acquaintance",
+      "connection": "Retail magnate, Epstein's primary client",
+      "active": false,
+      "significance": "MEDIUM",
+      "notes": "Cut ties with Epstein 2007"
+    }
+  ],
+  "social_club_members": [
+    {
+      "name": "Christopher Ruddy",
+      "relationship_type": "friend",
+      "connection": "Newsmax CEO, Mar-a-Lago member",
+      "active": true,
+      "significance": "MEDIUM"
+    }
+  ],
+  "properties_of_significance": [
+    {
+      "name": "Mar-a-Lago",
+      "location": "Palm Beach, Florida",
+      "significance": "Trump residence and private club",
+      "epstein_connection": "Multiple documented visits by Epstein in 1990s-early 2000s",
+      "relevance": "HIGH"
+    },
+    {
+      "name": "Trump Tower",
+      "location": "New York City",
+      "significance": "Trump Organization headquarters",
+      "epstein_connection": "Epstein had NYC properties nearby, social overlap",
+      "relevance": "MEDIUM"
+    },
+    {
+      "name": "Trump International Hotel and Tower",
+      "location": "New York City",
+      "significance": "Luxury hotel and residences",
+      "epstein_connection": "Elite NYC social circle overlap",
+      "relevance": "MEDIUM"
+    }
+  ]
+}

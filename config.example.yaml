@@ -1,0 +1,73 @@
+# 0711-C-Intelligence Configuration
+# Copy to config.yaml and customize
+
+# Instance Branding
+branding:
+  name: "Intelligence"                    # Short name
+  fullName: "My Intelligence Platform"    # Full display name
+  tagline: "AI-Powered Data Intelligence"
+  logo: null                              # Path to logo file (null = default)
+  favicon: "/favicon.ico"
+  primaryColor: "#3B82F6"                 # Blue
+  secondaryColor: "#1E40AF"
+
+# Modules (enable/disable sidebar sections)
+modules:
+  assistant: true
+  dashboard: true
+  # Core
+  skills: true
+  knowledgeBase: true
+  automation: true
+  workspaces: true
+  # Data
+  integrations: true
+  publishing: true
+  gallery: true
+  reports: true
+  # Business
+  marketing: true
+  product: true
+  analytics: true
+  intelligence: true
+  productPass: true
+  service: true
+  # Settings (always enabled)
+  settings: true
+
+# OpenClaw Configuration
+openclaw:
+  gateway: "ws://localhost:18789"
+  # Channels to enable for notifications
+  channels:
+    telegram: false
+    whatsapp: false
+    slack: false
+    discord: false
+    email: false
+
+# Database
+database:
+  postgres: "postgresql://postgres:postgres@localhost:5432/intelligence"
+  redis: "redis://localhost:6379"
+  neo4j: "bolt://localhost:7687"
+
+# AI Models
+ai:
+  provider: "anthropic"                   # anthropic, openai
+  model: "claude-sonnet-4-20250514"           # Default model
+  embeddingModel: "text-embedding-3-small"
+
+# API
+api:
+  baseUrl: "/api"
+  timeout: 30000                          # Request timeout (ms)
+  rateLimit: 100                          # Requests per minute
+
+# Features
+features:
+  darkMode: true
+  commandPalette: true
+  quickAccess: true
+  userProfile: true
+  voiceInput: false

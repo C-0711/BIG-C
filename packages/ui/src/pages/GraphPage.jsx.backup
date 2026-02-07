@@ -1,0 +1,455 @@
+import { useState, useEffect, useRef } from 'react';
+import { Network } from 'vis-network';
+import LoadingSpinner from '../components/LoadingSpinner';
+import { ErrorDisplay } from '../components/ErrorBoundary';
+import { showToast } from '../components/ToastProvider';
+import GraphControls from '../components/GraphControls';
+import GraphExportMenu from '../components/GraphExportMenu';
+import { exportGraphAsJSON, exportGraphAsCSV } from '../utils/exportUtils';
+import { exportAsGephi } from '../utils/graphUtils';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
+import api from '../config/api';
+
+export default function GraphPage() {
+  const [selectedProduct, setSelectedProduct] = useState('');
+  const [graphData, setGraphData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({ minStrength: 0, searchText: '', showLabels: true, enablePhysics: true });
+  const networkRef = useRef(null);
+  const containerRef = useRef(null);
+  const renderingRef = useRef(false);
+  const renderCounterRef = useRef(0);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    zoomIn: () => networkRef.current?.moveTo({ scale: networkRef.current.getScale() * 1.2 }),
+    zoomOut: () => networkRef.current?.moveTo({ scale: networkRef.current.getScale() * 0.8 }),
+    fitView: () => networkRef.current?.fit(),
+    export: () => handleExportJSON(),
+    refresh: () => loadProductNetwork(selectedProduct),
+  });
+
+  const loadProductNetwork = async (supplierPid) => {
+    if (!supplierPid) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`${window.location.protocol}//${window.location.hostname}:8766/api/graph/network/${supplierPid}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ limit: 50, depth: 1 })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setGraphData(data);
+      renderGraph(data);
+      showToast.success(`Loaded network for ${supplierPid}`);
+    } catch (err) {
+      console.error('Error loading graph:', err);
+      setError(err);
+      showToast.error('Failed to load product network');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Don't use useEffect - render directly from loadProductNetwork to avoid double-renders
+
+  const renderGraph = (data) => {
+    if (!data || !data.nodes || !containerRef.current) return;
+
+    // Prevent concurrent renders
+    if (renderingRef.current) {
+      console.log('Render already in progress, skipping');
+      return;
+    }
+
+    renderingRef.current = true;
+
+    // Increment render counter for truly unique IDs
+    renderCounterRef.current += 1;
+    const renderKey = renderCounterRef.current;
+
+    // Completely destroy existing network and clear container
+    if (networkRef.current) {
+      try {
+        networkRef.current.destroy();
+      } catch (err) {
+        console.warn('Error destroying network:', err);
+      }
+    }
+
+    // Force clear the container
+    const container = containerRef.current;
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+
+    networkRef.current = null;
+
+    const idMap = new Map();
+
+    const nodes = data.nodes.map((n, index) => {
+      const uniqueId = `r${renderKey}-n${index}`;
+      idMap.set(n.id, uniqueId);
+      return {
+        id: uniqueId,
+          originalId: n.id,
+          label: n.label,
+          value: n.value || 10,
+          title: n.title || n.label,
+          supplier_pid: n.supplier_pid,
+          color: {
+            background: n.id === data.nodes[0]?.id ? '#EF4444' : '#4299e1',
+            border: n.id === data.nodes[0]?.id ? '#B91C1C' : '#2c5282',
+            highlight: { background: '#f56565', border: '#c53030' }
+          },
+        font: { color: '#fff', size: 14, bold: n.id === data.nodes[0]?.id }
+      };
+    });
+
+    const edges = (data.edges || []).map(e => ({
+        from: idMap.get(e.from) || e.from,
+        to: idMap.get(e.to) || e.to,
+        value: e.value || 1,
+        title: e.title || '',
+      color: { color: '#718096', highlight: '#2d3748' }
+    }));
+
+    const networkData = {
+      nodes: nodes,
+      edges: edges
+    };
+
+    const options = {
+      nodes: {
+        shape: 'dot',
+        scaling: {
+          min: 10,
+          max: 30
+        },
+        font: {
+          size: 12,
+          color: '#ffffff'
+        }
+      },
+      edges: {
+        width: 1,
+        color: { inherit: 'from' },
+        smooth: {
+          type: 'continuous'
+        },
+        scaling: {
+          min: 1,
+          max: 5
+        }
+      },
+      physics: {
+        stabilization: { iterations: 150 },
+        barnesHut: {
+          gravitationalConstant: -8000,
+          springConstant: 0.001,
+          springLength: 200
+        }
+      },
+      interaction: {
+        hover: true,
+        tooltipDelay: 100,
+        zoomView: true,
+        dragView: true
+      }
+    };
+
+    try {
+      console.log(`Creating network (render #${renderKey}) with ${nodes.length} nodes`);
+      const network = new Network(containerRef.current, networkData, options);
+      networkRef.current = network;
+
+        network.on('click', (params) => {
+          if (params.nodes.length > 0) {
+            const nodeId = params.nodes[0];
+            const node = nodes.find(n => n.id === nodeId);
+            if (node && node.supplier_pid) {
+              setSelectedProduct(node.supplier_pid);
+            }
+          }
+        });
+
+        network.on('doubleClick', (params) => {
+          if (params.nodes.length > 0) {
+            const nodeId = params.nodes[0];
+            const node = nodes.find(n => n.id === nodeId);
+            if (node && node.supplier_pid) {
+              loadProductNetwork(node.supplier_pid);
+            }
+          }
+        });
+      } catch (err) {
+        console.error('Error creating network:', err);
+        showToast.error('Failed to render graph: ' + err.message);
+      } finally {
+        renderingRef.current = false;
+      }
+  };
+
+  const handleExportJSON = () => {
+    if (!graphData || !graphData.nodes) {
+      showToast.error('No graph data to export');
+      return;
+    }
+
+    try {
+      exportGraphAsJSON(
+        graphData.nodes,
+        graphData.edges,
+        `product-network-${selectedProduct}-${Date.now()}.json`
+      );
+      showToast.success('Graph exported as JSON');
+    } catch (err) {
+      showToast.error('Export failed: ' + err.message);
+    }
+  };
+
+  const handleExportCSV = () => {
+    if (!graphData || !graphData.nodes) {
+      showToast.error('No graph data to export');
+      return;
+    }
+
+    try {
+      exportGraphAsCSV(
+        graphData.nodes,
+        graphData.edges,
+        `product-network-${selectedProduct}-${Date.now()}`
+      );
+      showToast.success('Graph exported as CSV');
+    } catch (err) {
+      showToast.error('Export failed: ' + err.message);
+    }
+  };
+
+  const handleExportPNG = async () => {
+    if (!containerRef.current) {
+      showToast.error('No graph to export');
+      return;
+    }
+
+    const canvas = containerRef.current.querySelector('canvas');
+    if (!canvas) {
+      showToast.error('Graph not rendered yet');
+      return;
+    }
+
+    try {
+      showToast.loading('Exporting as PNG...');
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `product-network-${selectedProduct}-${Date.now()}.png`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast.dismiss();
+        showToast.success('Graph exported as PNG');
+      });
+    } catch (err) {
+      showToast.dismiss();
+      showToast.error('Export failed: ' + err.message);
+    }
+  };
+
+  const handleExportGephi = () => {
+    if (!graphData || !graphData.nodes) {
+      showToast.error('No graph data to export');
+      return;
+    }
+
+    try {
+      exportAsGephi(
+        graphData.nodes,
+        graphData.edges,
+        `product-network-${selectedProduct}-${Date.now()}.gexf`
+      );
+      showToast.success('Graph exported in Gephi format');
+    } catch (err) {
+      showToast.error('Export failed: ' + err.message);
+    }
+  };
+
+  const handleZoomIn = () => {
+    networkRef.current?.moveTo({ scale: networkRef.current.getScale() * 1.2 });
+  };
+
+  const handleZoomOut = () => {
+    networkRef.current?.moveTo({ scale: networkRef.current.getScale() * 0.8 });
+  };
+
+  const handleFitView = () => {
+    networkRef.current?.fit();
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-900 text-white p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-4xl font-bold">Product Network Graph</h1>
+
+          {graphData && (
+            <GraphExportMenu
+              onExportJSON={handleExportJSON}
+              onExportCSV={handleExportCSV}
+              onExportPNG={handleExportPNG}
+              onExportGephi={handleExportGephi}
+              graphData={graphData}
+            />
+          )}
+        </div>
+
+        {error && (
+          <div className="mb-6">
+            <ErrorDisplay
+              error={error}
+              title="Failed to load graph"
+              onRetry={() => loadProductNetwork(selectedProduct)}
+              onDismiss={() => setError(null)}
+            />
+          </div>
+        )}
+
+        <div className="bg-gray-800 rounded-lg p-6 mb-6">
+          <div className="flex gap-4 items-center">
+            <input
+              type="text"
+              value={selectedProduct}
+              onChange={(e) => setSelectedProduct(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && loadProductNetwork(selectedProduct)}
+              placeholder="Enter supplier PID (e.g., 8738212050)"
+              className="flex-1 px-4 py-2 bg-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              onClick={() => loadProductNetwork(selectedProduct)}
+              disabled={!selectedProduct || loading}
+              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg font-semibold transition-colors"
+            >
+              {loading ? 'Loading...' : 'Load Network'}
+            </button>
+          </div>
+
+          {graphData && (
+            <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
+              <div className="bg-gray-900/50 rounded p-3">
+                <p className="text-gray-400 mb-1">Center Product</p>
+                <p className="text-white font-semibold">{graphData.center_product}</p>
+              </div>
+              <div className="bg-gray-900/50 rounded p-3">
+                <p className="text-gray-400 mb-1">Connections</p>
+                <p className="text-blue-400 font-semibold">{graphData.total_connections}</p>
+              </div>
+              <div className="bg-gray-900/50 rounded p-3">
+                <p className="text-gray-400 mb-1">Nodes / Edges</p>
+                <p className="text-green-400 font-semibold">
+                  {graphData.nodes?.length} / {graphData.edges?.length}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div
+          ref={containerRef}
+          className="bg-gray-800 rounded-lg"
+          style={{ height: '600px', width: '100%', position: 'relative' }}
+        >
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50 rounded-lg">
+              <LoadingSpinner message="Loading product network..." />
+            </div>
+          )}
+          {!graphData && !loading && (
+            <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+              <div className="text-center">
+                <svg className="w-16 h-16 mx-auto mb-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <p className="text-lg font-medium">Enter a supplier PID to visualize its network</p>
+                <p className="text-sm text-gray-500 mt-2">Example: 8738212050</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-6 bg-gray-800 rounded-lg p-6">
+          <h3 className="text-xl font-bold mb-4">Quick Searches</h3>
+          <div className="flex gap-3 flex-wrap">
+            {['8738212050', '8738212051', '8738212052', '7739621850', '7739621851', '7739621852'].map(pid => (
+              <button
+                key={pid}
+                onClick={() => {
+                  setSelectedProduct(pid);
+                  loadProductNetwork(pid);
+                }}
+                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+              >
+                {pid}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
+          {/* Left Sidebar - Controls */}
+          <div className="lg:col-span-1">
+            <GraphControls
+              onZoomIn={handleZoomIn}
+              onZoomOut={handleZoomOut}
+              onFitView={handleFitView}
+              onFilter={setFilters}
+              filters={filters}
+              showFilters={true}
+            />
+          </div>
+
+          {/* Right - Instructions */}
+          <div className="lg:col-span-3">
+            <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+              <h3 className="text-xl font-bold mb-3">How to Use:</h3>
+              <ul className="space-y-2 text-gray-300">
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-400">•</span>
+                  <span>Enter a supplier PID and click "Load Network" to visualize relationships</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-400">•</span>
+                  <span>Center node (red) is the selected product, connected nodes are related products</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-400">•</span>
+                  <span>Click any node to select it, double-click to load its network</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-400">•</span>
+                  <span>Drag to pan, scroll to zoom, hover for product details</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-400">•</span>
+                  <span>Use keyboard shortcuts: <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">+</kbd> zoom in, <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">-</kbd> zoom out, <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">F</kbd> fit view, <kbd className="px-2 py-1 bg-gray-700 rounded text-xs">E</kbd> export</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-400">•</span>
+                  <span>Export in multiple formats: JSON (data), CSV (spreadsheet), PNG (image), GEXF (Gephi)</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

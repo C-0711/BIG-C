@@ -1,0 +1,662 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-02-01",
+  "description": "Canonical entity mappings for deduplication and aliasing",
+  "source": "Manual curation based on document analysis and external verification",
+  "entities": [
+    {
+      "canonical_name": "Jeffrey Epstein",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q21546466",
+      "wikipedia_url": "https://en.wikipedia.org/wiki/Jeffrey_Epstein",
+      "primary_alias": "Epstein",
+      "aliases": [
+        "Epstein",
+        "Jeffrey Epstein",
+        "Jeffrey E. Epstein",
+        "Jeffrey E Epstein",
+        "Jeffery Epstein",
+        "Jeff Epstein",
+        "J. Epstein",
+        "jeffrey Edward Epstein",
+        "Jeffrey Edward Epstein",
+        "Epsteins",
+        "Jeffrey Epstein's",
+        "Defendant Epstein",
+        "Mr. Epstein",
+        "Mr Epstein",
+        "Epstein Dep"
+      ],
+      "exclude_aliases": [
+        "Mark Epstein",
+        "Seymour Epstein",
+        "Edward Epstein",
+        "Neil Epstein",
+        "Brian Epstein"
+      ],
+      "ocr_variations": [
+        "Joffrey Epstein",
+        "Jefferey Epstein",
+        "Jeffiey Epstein",
+        "Jefirey Epstein",
+        "Jefrey Epstein"
+      ],
+      "notes": "Primary subject. Exclude family members (Mark=brother, Seymour=father). 289 total variations consolidated."
+    },
+    {
+      "canonical_name": "Mark Epstein",
+      "entity_type": "PERSON",
+      "primary_alias": "Mark Epstein",
+      "aliases": ["Mark Epstein", "Mark E. Epstein"],
+      "notes": "Jeffrey Epstein's brother. Different person."
+    },
+    {
+      "canonical_name": "Donald Trump",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q22686",
+      "wikipedia_url": "https://en.wikipedia.org/wiki/Donald_Trump",
+      "primary_alias": "Trump",
+      "aliases": [
+        "Trump",
+        "Donald Trump",
+        "Donald J. Trump",
+        "Donald J Trump",
+        "Donald John Trump",
+        "Defendant Trump",
+        "President Trump",
+        "Trump's",
+        "trumps",
+        "DonaldTrump",
+        "D. Trump",
+        "DJ Trump"
+      ],
+      "exclude_aliases": [
+        "Ivanka Trump",
+        "Eric Trump",
+        "Donald Trump Jr.",
+        "Melania Trump",
+        "Fred Trump",
+        "Robert Trump",
+        "Mary Trump",
+        "Barron Trump"
+      ],
+      "notes": "47th President. Exclude family members. 48 variations consolidated."
+    },
+    {
+      "canonical_name": "Donald Trump Jr.",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q3713655",
+      "primary_alias": "Donald Trump Jr.",
+      "aliases": ["Donald Trump Jr.", "Don Jr.", "Donald Jr.", "Trump Jr."],
+      "notes": "Donald Trump's son. Different person from Donald Trump."
+    },
+    {
+      "canonical_name": "Ivanka Trump",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q239411",
+      "primary_alias": "Ivanka Trump",
+      "aliases": ["Ivanka Trump", "Ivanka"],
+      "notes": "Donald Trump's daughter."
+    },
+    {
+      "canonical_name": "Eric Trump",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q5386209",
+      "primary_alias": "Eric Trump",
+      "aliases": ["Eric Trump", "Eric"],
+      "notes": "Donald Trump's son."
+    },
+    {
+      "canonical_name": "Ghislaine Maxwell",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q5556832",
+      "wikipedia_url": "https://en.wikipedia.org/wiki/Ghislaine_Maxwell",
+      "primary_alias": "Maxwell",
+      "aliases": [
+        "Maxwell",
+        "Ghislaine Maxwell",
+        "Ghislane Maxwell",
+        "Ghislaine Maxwell's",
+        "Ms Maxwell",
+        "Ms. Maxwell",
+        "Miss Maxwell",
+        "Defendant Maxwell",
+        "Maxwell Dep",
+        "G. Maxwell",
+        "GM"
+      ],
+      "exclude_aliases": [
+        "Robert Maxwell",
+        "Ian Maxwell",
+        "Kevin Maxwell",
+        "Isabel Maxwell",
+        "Christine Maxwell"
+      ],
+      "ocr_variations": [
+        "Ghislane Maxwell",
+        "Ghisliane Maxwell",
+        "Ghistaine Maxwell",
+        "Chislaine Maxwell",
+        "Ghislame Maxwell"
+      ],
+      "notes": "Convicted 2021. Exclude family members. 237 variations consolidated."
+    },
+    {
+      "canonical_name": "Robert Maxwell",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q333314",
+      "primary_alias": "Robert Maxwell",
+      "aliases": ["Robert Maxwell", "Bob Maxwell"],
+      "notes": "Ghislaine Maxwell's father, media mogul. Different person."
+    },
+    {
+      "canonical_name": "Virginia Roberts Giuffre",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q60070649",
+      "primary_alias": "Giuffre",
+      "aliases": [
+        "Giuffre",
+        "Virginia Giuffre",
+        "Virginia Roberts",
+        "Virginia Roberts Giuffre",
+        "Virginia L. Giuffre",
+        "V. Giuffre",
+        "Giuffre Dep",
+        "Ms Giuffre",
+        "Roberts Giuffre"
+      ],
+      "ocr_variations": [
+        "Virginia Roberts Guiffre",
+        "Guiffre",
+        "Giuffee"
+      ],
+      "notes": "Primary witness/victim. Maiden name: Roberts. 107 variations consolidated."
+    },
+    {
+      "canonical_name": "Bill Clinton",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q1124",
+      "wikipedia_url": "https://en.wikipedia.org/wiki/Bill_Clinton",
+      "primary_alias": "Clinton",
+      "aliases": [
+        "Clinton",
+        "Bill Clinton",
+        "William J. Clinton",
+        "William Jefferson Clinton",
+        "William Clinton",
+        "President Clinton",
+        "Clintons",
+        "Bill Clinton's",
+        "Bil Clinton",
+        "W. J. Clinton",
+        "WJ Clinton"
+      ],
+      "exclude_aliases": [
+        "Hillary Clinton",
+        "Hillary Rodham Clinton",
+        "Chelsea Clinton"
+      ],
+      "notes": "42nd President. Exclude wife Hillary and daughter Chelsea. 105 variations consolidated."
+    },
+    {
+      "canonical_name": "Hillary Clinton",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q6294",
+      "primary_alias": "Hillary Clinton",
+      "aliases": [
+        "Hillary Clinton",
+        "Hillary Rodham Clinton",
+        "Hillary R. Clinton",
+        "HILLARY R. CLINTON",
+        "Mrs. Clinton",
+        "Secretary Clinton"
+      ],
+      "notes": "Former Secretary of State, Bill Clinton's wife. Different person."
+    },
+    {
+      "canonical_name": "Prince Andrew",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q153330",
+      "wikipedia_url": "https://en.wikipedia.org/wiki/Prince_Andrew,_Duke_of_York",
+      "primary_alias": "Prince Andrew",
+      "aliases": [
+        "Prince Andrew",
+        "Prince Andrew's",
+        "Andrew Albert Christian Edward",
+        "Duke of York",
+        "The Duke of York",
+        "HRH Prince Andrew",
+        "HRH Andrew"
+      ],
+      "exclude_aliases": [
+        "Andrew",
+        "Andy"
+      ],
+      "notes": "British Royal. DO NOT alias bare 'Andrew' (too generic). 50+ variations."
+    },
+    {
+      "canonical_name": "Alan Dershowitz",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q310285",
+      "primary_alias": "Dershowitz",
+      "aliases": [
+        "Dershowitz",
+        "Alan Dershowitz",
+        "Alan M. Dershowitz",
+        "Professor Dershowitz",
+        "Prof. Dershowitz",
+        "Dershowitz's",
+        "A. Dershowitz"
+      ],
+      "notes": "Attorney. Represented Epstein. 40 variations consolidated."
+    },
+    {
+      "canonical_name": "Les Wexner",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q6530347",
+      "primary_alias": "Wexner",
+      "aliases": [
+        "Wexner",
+        "Les Wexner",
+        "Leslie Wexner",
+        "Leslie H. Wexner",
+        "L. Wexner",
+        "Wexner's",
+        "Mr. Wexner"
+      ],
+      "notes": "L Brands CEO, Epstein's primary client. 22 variations."
+    },
+    {
+      "canonical_name": "Sarah Kellen",
+      "entity_type": "PERSON",
+      "primary_alias": "Sarah Kellen",
+      "aliases": [
+        "Sarah Kellen",
+        "Sarah Kensington",
+        "Kellen",
+        "S. Kellen",
+        "Sarah K."
+      ],
+      "exclude_aliases": [
+        "Sarah"
+      ],
+      "notes": "Epstein assistant. DO NOT alias bare 'Sarah'. 15 variations."
+    },
+    {
+      "canonical_name": "Lesley Groff",
+      "entity_type": "PERSON",
+      "primary_alias": "Lesley Groff",
+      "aliases": [
+        "Lesley Groff",
+        "Leslie Groff",
+        "L. Groff",
+        "Groff"
+      ],
+      "notes": "Epstein assistant."
+    },
+    {
+      "canonical_name": "Jean-Luc Brunel",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q3170662",
+      "primary_alias": "Jean-Luc Brunel",
+      "aliases": [
+        "Jean-Luc Brunel",
+        "Jean Luc Brunel",
+        "Brunel",
+        "J.L. Brunel",
+        "JL Brunel"
+      ],
+      "notes": "Modeling agent, deceased 2022."
+    },
+    {
+      "canonical_name": "Glenn Dubin",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q5568632",
+      "primary_alias": "Glenn Dubin",
+      "aliases": [
+        "Glenn Dubin",
+        "Glenn H. Dubin",
+        "G. Dubin",
+        "Dubin"
+      ],
+      "notes": "Hedge fund manager, Epstein associate."
+    },
+    {
+      "canonical_name": "Eva Andersson-Dubin",
+      "entity_type": "PERSON",
+      "primary_alias": "Eva Andersson-Dubin",
+      "aliases": [
+        "Eva Andersson-Dubin",
+        "Eva Andersson",
+        "Eva Dubin",
+        "Dr. Dubin"
+      ],
+      "notes": "Physician, Epstein's former girlfriend, married to Glenn Dubin."
+    },
+    {
+      "canonical_name": "Bill Gates",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q5284",
+      "primary_alias": "Bill Gates",
+      "aliases": [
+        "Bill Gates",
+        "William Gates",
+        "William H. Gates",
+        "Gates"
+      ],
+      "notes": "Microsoft founder, met with Epstein post-conviction."
+    },
+    {
+      "canonical_name": "Marvin Minsky",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q204815",
+      "primary_alias": "Marvin Minsky",
+      "aliases": [
+        "Marvin Minsky",
+        "M. Minsky",
+        "Minsky"
+      ],
+      "notes": "MIT professor, AI pioneer, deceased 2016."
+    },
+    {
+      "canonical_name": "Elon Musk",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q317521",
+      "primary_alias": "Elon Musk",
+      "aliases": [
+        "Elon Musk",
+        "E. Musk",
+        "Musk"
+      ],
+      "notes": "CEO Tesla/SpaceX, DOGE co-lead. Minimal Epstein contact."
+    },
+    {
+      "canonical_name": "Stephen Miller",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q27888938",
+      "primary_alias": "Stephen Miller",
+      "aliases": [
+        "Stephen Miller",
+        "Steve Miller",
+        "S. Miller"
+      ],
+      "exclude_aliases": [
+        "Miller"
+      ],
+      "notes": "Trump Deputy Chief of Staff. No known Epstein connection."
+    },
+    {
+      "canonical_name": "Marco Rubio",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q355522",
+      "primary_alias": "Marco Rubio",
+      "aliases": [
+        "Marco Rubio",
+        "M. Rubio",
+        "Rubio",
+        "Senator Rubio"
+      ],
+      "notes": "Secretary of State 2026. Check for Epstein connections."
+    },
+    {
+      "canonical_name": "Pam Bondi",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q7129109",
+      "primary_alias": "Pam Bondi",
+      "aliases": [
+        "Pam Bondi",
+        "Pamela Bondi",
+        "Bondi"
+      ],
+      "notes": "Attorney General 2026, former Florida AG."
+    },
+    {
+      "canonical_name": "Linda McMahon",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q6552524",
+      "primary_alias": "Linda McMahon",
+      "aliases": [
+        "Linda McMahon",
+        "L. McMahon",
+        "McMahon"
+      ],
+      "notes": "Secretary of Education 2026, former WWE executive."
+    },
+    {
+      "canonical_name": "Howard Lutnick",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q5919351",
+      "primary_alias": "Howard Lutnick",
+      "aliases": [
+        "Howard Lutnick",
+        "H. Lutnick",
+        "Lutnick"
+      ],
+      "notes": "Secretary of Commerce 2026, Cantor Fitzgerald CEO."
+    },
+    {
+      "canonical_name": "Robert F. Kennedy Jr.",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q905233",
+      "primary_alias": "Robert F. Kennedy Jr.",
+      "aliases": [
+        "Robert F. Kennedy Jr.",
+        "Robert Kennedy Jr.",
+        "RFK Jr.",
+        "RFK Jr",
+        "Bobby Kennedy Jr."
+      ],
+      "notes": "HHS Secretary 2026."
+    },
+    {
+      "canonical_name": "Naomi Campbell",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q177638",
+      "primary_alias": "Naomi Campbell",
+      "aliases": [
+        "Naomi Campbell",
+        "N. Campbell",
+        "Campbell"
+      ],
+      "notes": "Model, mentioned in flight logs and documents."
+    },
+    {
+      "canonical_name": "Nadia Marcinkova",
+      "entity_type": "PERSON",
+      "primary_alias": "Nadia Marcinkova",
+      "aliases": [
+        "Nadia Marcinkova",
+        "Nada Marcinkova",
+        "Marcinkova",
+        "Nadia M."
+      ],
+      "notes": "Epstein associate mentioned in documents."
+    },
+    {
+      "canonical_name": "Adriana Ross",
+      "entity_type": "PERSON",
+      "primary_alias": "Adriana Ross",
+      "aliases": [
+        "Adriana Ross",
+        "A. Ross",
+        "Ross"
+      ],
+      "notes": "Epstein assistant."
+    },
+    {
+      "canonical_name": "Juan Alessi",
+      "entity_type": "PERSON",
+      "primary_alias": "Juan Alessi",
+      "aliases": [
+        "Juan Alessi",
+        "J. Alessi",
+        "Alessi"
+      ],
+      "notes": "Former Epstein house manager, witness."
+    },
+    {
+      "canonical_name": "Johanna Sjoberg",
+      "entity_type": "PERSON",
+      "primary_alias": "Johanna Sjoberg",
+      "aliases": [
+        "Johanna Sjoberg",
+        "Johanna Sjöberg",
+        "J. Sjoberg",
+        "Sjoberg"
+      ],
+      "notes": "Witness, provided testimony."
+    },
+    {
+      "canonical_name": "Ron Burkle",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q7363787",
+      "primary_alias": "Ron Burkle",
+      "aliases": [
+        "Ron Burkle",
+        "Ronald Burkle",
+        "R. Burkle",
+        "Burkle"
+      ],
+      "notes": "Investor, mentioned in flight logs."
+    },
+    {
+      "canonical_name": "Chris Tucker",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q219776",
+      "primary_alias": "Chris Tucker",
+      "aliases": [
+        "Chris Tucker",
+        "Christopher Tucker",
+        "C. Tucker",
+        "Tucker"
+      ],
+      "notes": "Actor, mentioned in flight logs."
+    },
+    {
+      "canonical_name": "Kevin Spacey",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q25144",
+      "primary_alias": "Kevin Spacey",
+      "aliases": [
+        "Kevin Spacey",
+        "K. Spacey",
+        "Spacey"
+      ],
+      "notes": "Actor, mentioned in flight logs."
+    },
+    {
+      "canonical_name": "Ehud Barak",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q125977",
+      "primary_alias": "Ehud Barak",
+      "aliases": [
+        "Ehud Barak",
+        "E. Barak",
+        "Barak"
+      ],
+      "notes": "Former Israeli Prime Minister, documented meetings with Epstein."
+    },
+    {
+      "canonical_name": "Leon Black",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q6524649",
+      "primary_alias": "Leon Black",
+      "aliases": [
+        "Leon Black",
+        "L. Black",
+        "Black"
+      ],
+      "notes": "Apollo Global Management, paid Epstein for financial advice."
+    },
+    {
+      "canonical_name": "Eva Geiringer",
+      "entity_type": "PERSON",
+      "primary_alias": "Eva Geiringer",
+      "aliases": [
+        "Eva Geiringer",
+        "E. Geiringer"
+      ],
+      "notes": "Mentioned in documents."
+    },
+    {
+      "canonical_name": "Emmy Tayler",
+      "entity_type": "PERSON",
+      "primary_alias": "Emmy Tayler",
+      "aliases": [
+        "Emmy Tayler",
+        "Emmy Taylor",
+        "E. Tayler"
+      ],
+      "notes": "Epstein assistant."
+    },
+    {
+      "canonical_name": "Haley Robson",
+      "entity_type": "PERSON",
+      "primary_alias": "Haley Robson",
+      "aliases": [
+        "Haley Robson",
+        "Hailey Robson",
+        "H. Robson"
+      ],
+      "notes": "Witness mentioned in documents."
+    },
+    {
+      "canonical_name": "Anthony Figueroa",
+      "entity_type": "PERSON",
+      "primary_alias": "Anthony Figueroa",
+      "aliases": [
+        "Anthony Figueroa",
+        "Tony Figueroa",
+        "A. Figueroa",
+        "Figueroa"
+      ],
+      "notes": "Witness mentioned in documents."
+    },
+    {
+      "canonical_name": "Alfredo Rodriguez",
+      "entity_type": "PERSON",
+      "primary_alias": "Alfredo Rodriguez",
+      "aliases": [
+        "Alfredo Rodriguez",
+        "A. Rodriguez",
+        "Rodriguez"
+      ],
+      "notes": "Former Epstein employee, attempted to sell address book."
+    },
+    {
+      "canonical_name": "Courtney Love",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q213269",
+      "primary_alias": "Courtney Love",
+      "aliases": [
+        "Courtney Love",
+        "C. Love",
+        "Love"
+      ],
+      "notes": "Musician, mentioned in documents."
+    },
+    {
+      "canonical_name": "Alec Baldwin",
+      "entity_type": "PERSON",
+      "wikidata_id": "Q180337",
+      "primary_alias": "Alec Baldwin",
+      "aliases": [
+        "Alec Baldwin",
+        "A. Baldwin",
+        "Baldwin"
+      ],
+      "notes": "Actor, mentioned in documents."
+    }
+  ],
+  "metadata": {
+    "total_canonical_entities": 30,
+    "estimated_coverage_percent": 75,
+    "focus_areas": [
+      "Trump administration officials",
+      "Epstein core associates",
+      "High-profile witnesses",
+      "Convicted individuals",
+      "Key business connections"
+    ]
+  }
+}

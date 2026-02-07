@@ -1,0 +1,723 @@
+/* Palantir-Inspired Dark Theme for Epstein Documents */
+/* Intelligence-grade professional aesthetic */
+
+:root {
+  /* Palantir color palette - Darker grays and blacks */
+  --palantir-bg-primary: #05070b;      /* Darker primary background */
+  --palantir-bg-secondary: #0a0e14;    /* Darker secondary */
+  --palantir-bg-tertiary: #0f1419;     /* Darker tertiary */
+  --palantir-bg-panel: #0d1117;        /* Darker panels */
+
+  --palantir-accent-primary: #E5E7EB;     /* Near-white for Primary-Accents */
+  --palantir-accent-secondary: #9CA3AF;   /* Medium-Gray for Secondary */
+  --palantir-accent-tertiary: #6B7280;    /* Dark-Gray for Subtle */
+  --palantir-accent-interactive: #D1D5DB; /* Hover-States */
+
+  --palantir-text-primary: #C9D1D9;    /* Less contrast in text */
+  --palantir-text-secondary: #8B949E;  /* More muted secondary text */
+  --palantir-text-muted: #6B7280;
+
+  --palantir-border: #1A1F26;          /* Much darker borders */
+  --palantir-border-light: #374151;
+
+  --palantir-accent-red: #EF4444;
+  --palantir-accent-yellow: #F59E0B;
+  --palantir-accent-green: #10B981;
+  --palantir-accent-purple: #8B5CF6;
+
+  --palantir-glow: rgba(107, 114, 128, 0.15); /* Gray instead of blue */
+  --palantir-shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* Global reset with Palantir aesthetic */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--palantir-bg-primary);
+  color: var(--palantir-text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Typography - Palantir uses specific font weights */
+h1, h2, h3 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+h1 { font-size: 18px; color: var(--palantir-text-primary); }
+h2 { font-size: 15px; color: var(--palantir-text-primary); }
+h3 { font-size: 13px; color: var(--palantir-text-secondary); }
+
+/* Top Navigation - Palantir style */
+.palantir-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 20px;
+  background: var(--palantir-bg-secondary);
+  border-bottom: 1px solid var(--palantir-border);
+}
+
+.palantir-logo {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--palantir-text-primary);
+  text-transform: uppercase;
+}
+
+.palantir-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--palantir-text-muted);
+}
+
+.palantir-breadcrumb a {
+  color: var(--palantir-accent-secondary);
+  text-decoration: none;
+}
+
+.palantir-breadcrumb a:hover {
+  color: var(--palantir-accent-interactive);
+}
+
+/* Metrics Bar - Intelligence Dashboard Style */
+.palantir-metrics {
+  display: flex;
+  gap: 0;
+  background: var(--palantir-bg-panel);
+  border-bottom: 1px solid var(--palantir-border);
+}
+
+.palantir-metric {
+  flex: 1;
+  padding: 16px 20px;
+  border-right: 1px solid var(--palantir-border);
+}
+
+.palantir-metric:last-child {
+  border-right: none;
+}
+
+.palantir-metric-value {
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--palantir-accent-secondary);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.palantir-metric-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--palantir-text-muted);
+}
+
+.palantir-metric-sublabel {
+  font-size: 11px;
+  color: var(--palantir-text-secondary);
+  margin-top: 2px;
+}
+
+/* Alert Banner - Critical Information */
+.palantir-alert {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.1) 0%, transparent 100%);
+  border-left: 3px solid var(--palantir-accent-red);
+  border-bottom: 1px solid var(--palantir-border);
+  font-size: 12px;
+}
+
+.palantir-alert-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--palantir-accent-red);
+}
+
+.palantir-alert-text {
+  flex: 1;
+  color: var(--palantir-text-primary);
+  font-weight: 500;
+}
+
+.palantir-alert-count {
+  font-weight: 700;
+  color: var(--palantir-accent-red);
+}
+
+/* Main Layout - 3 Column Professional */
+.palantir-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr 360px;
+  height: calc(100vh - 48px);
+  overflow: hidden;
+}
+
+/* Left Sidebar - Controls & Filters */
+.palantir-sidebar {
+  background: var(--palantir-bg-secondary);
+  border-right: 1px solid var(--palantir-border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.palantir-section {
+  padding: 16px;
+  border-bottom: 1px solid var(--palantir-border);
+}
+
+.palantir-section-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--palantir-text-muted);
+  margin-bottom: 12px;
+}
+
+.palantir-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--palantir-text-secondary);
+}
+
+.palantir-filter-item input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--palantir-accent-secondary);
+}
+
+.palantir-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Graph Container - Center Panel */
+.palantir-graph-container {
+  position: relative;
+  background: var(--palantir-bg-primary);
+  overflow: hidden;
+}
+
+.palantir-graph-header {
+  padding: 10px 16px;
+  background: rgba(26, 31, 46, 0.8);
+  border-bottom: 1px solid var(--palantir-border);
+  backdrop-filter: blur(10px);
+  font-size: 11px;
+  color: var(--palantir-text-muted);
+}
+
+.palantir-graph-canvas {
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, #141921 0%, #0a0e14 100%);
+}
+
+/* Graph Controls - Floating */
+.palantir-graph-controls {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+
+.palantir-control-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(26, 31, 46, 0.9);
+  border: 1px solid var(--palantir-border);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--palantir-text-secondary);
+  backdrop-filter: blur(10px);
+  transition: all 0.2s;
+}
+
+.palantir-control-btn:hover {
+  background: rgba(55, 65, 81, 0.2);
+  border-color: var(--palantir-accent-secondary);
+  color: var(--palantir-accent-interactive);
+  box-shadow: 0 0 16px var(--palantir-glow);
+}
+
+/* Right Panel - Detail Inspector */
+.palantir-detail-panel {
+  background: var(--palantir-bg-secondary);
+  border-left: 1px solid var(--palantir-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.palantir-tabs {
+  display: flex;
+  background: var(--palantir-bg-tertiary);
+  border-bottom: 1px solid var(--palantir-border);
+}
+
+.palantir-tab {
+  flex: 1;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--palantir-text-muted);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.palantir-tab:hover {
+  color: var(--palantir-text-secondary);
+  background: rgba(55, 65, 81, 0.08);
+}
+
+.palantir-tab.active {
+  color: var(--palantir-accent-secondary);
+  border-bottom-color: var(--palantir-accent-secondary);
+  background: rgba(55, 65, 81, 0.12);
+}
+
+.palantir-tab-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  background: var(--palantir-accent-secondary);
+  color: var(--palantir-bg-primary);
+  border-radius: 10px;
+}
+
+.palantir-detail-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* Entity Card - Intel Report Style */
+.palantir-entity-card {
+  background: var(--palantir-bg-tertiary);
+  border: 1px solid var(--palantir-border);
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.palantir-entity-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--palantir-text-primary);
+  margin-bottom: 12px;
+}
+
+.palantir-entity-field {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 12px;
+}
+
+.palantir-entity-field:last-child {
+  border-bottom: none;
+}
+
+.palantir-field-label {
+  color: var(--palantir-text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+}
+
+.palantir-field-value {
+  color: var(--palantir-text-primary);
+  font-weight: 500;
+  font-family: 'SF Mono', 'Roboto Mono', monospace;
+}
+
+/* Status Flags - Palantir style indicators */
+.palantir-status-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.palantir-status-flag.government {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid var(--palantir-accent-red);
+  color: #FCA5A5;
+}
+
+.palantir-status-flag.business {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid var(--palantir-accent-yellow);
+  color: #FCD34D;
+}
+
+.palantir-status-flag.deceased {
+  background: rgba(107, 114, 128, 0.15);
+  border: 1px solid #6B7280;
+  color: #9CA3AF;
+}
+
+.palantir-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* Document List - Intel Report Style */
+.palantir-doc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.palantir-doc-item {
+  background: var(--palantir-bg-tertiary);
+  border-left: 3px solid transparent;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.palantir-doc-item:hover {
+  background: rgba(55, 65, 81, 0.12);
+  border-left-color: var(--palantir-accent-secondary);
+}
+
+.palantir-doc-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--palantir-text-primary);
+  margin-bottom: 6px;
+  font-family: 'SF Mono', monospace;
+}
+
+.palantir-doc-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 10px;
+  color: var(--palantir-text-muted);
+}
+
+.palantir-doc-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(55, 65, 81, 0.18);
+  border: 1px solid rgba(55, 65, 81, 0.3);
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--palantir-accent-interactive);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* Connection Visualization */
+.palantir-connection-card {
+  background: linear-gradient(135deg, rgba(55, 65, 81, 0.08) 0%, transparent 100%);
+  border: 1px solid var(--palantir-border);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 16px 0;
+}
+
+.palantir-connection-persons {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.palantir-person-node {
+  text-align: center;
+}
+
+.palantir-person-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--palantir-text-primary);
+}
+
+.palantir-person-role {
+  font-size: 10px;
+  color: var(--palantir-text-muted);
+  margin-top: 4px;
+}
+
+.palantir-connection-arrow {
+  font-size: 24px;
+  color: var(--palantir-accent-secondary);
+  filter: drop-shadow(0 0 8px var(--palantir-glow));
+}
+
+.palantir-connection-strength {
+  text-align: center;
+  padding: 12px;
+  background: rgba(55, 65, 81, 0.12);
+  border-radius: 6px;
+  border: 1px solid rgba(55, 65, 81, 0.25);
+}
+
+.palantir-connection-number {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--palantir-accent-secondary);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 16px var(--palantir-glow);
+}
+
+.palantir-connection-label {
+  font-size: 10px;
+  color: var(--palantir-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 4px;
+}
+
+/* Buttons - Palantir Style */
+.palantir-btn {
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--palantir-border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.palantir-btn-primary {
+  background: var(--palantir-accent-secondary);
+  color: var(--palantir-bg-primary);
+  border-color: var(--palantir-accent-secondary);
+}
+
+.palantir-btn-primary:hover {
+  background: var(--palantir-accent-interactive);
+  border-color: var(--palantir-accent-interactive);
+  box-shadow: 0 0 16px var(--palantir-glow);
+}
+
+.palantir-btn-secondary {
+  background: var(--palantir-bg-tertiary);
+  color: var(--palantir-text-primary);
+  border-color: var(--palantir-border);
+}
+
+.palantir-btn-secondary:hover {
+  background: rgba(55, 65, 81, 0.15);
+  border-color: var(--palantir-accent-secondary);
+  color: var(--palantir-accent-interactive);
+}
+
+/* Data Tables - Intelligence Format */
+.palantir-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12px;
+}
+
+.palantir-table thead {
+  background: var(--palantir-bg-tertiary);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.palantir-table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--palantir-text-muted);
+  border-bottom: 1px solid var(--palantir-border);
+}
+
+.palantir-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  color: var(--palantir-text-secondary);
+  font-family: 'SF Mono', monospace;
+  font-size: 11px;
+}
+
+.palantir-table tr:hover {
+  background: rgba(55, 65, 81, 0.08);
+}
+
+/* Loading States */
+.palantir-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 48px;
+}
+
+.palantir-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(55, 65, 81, 0.25);
+  border-top-color: var(--palantir-accent-secondary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.palantir-loading-text {
+  font-size: 12px;
+  color: var(--palantir-text-muted);
+  letter-spacing: 0.05em;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Timeline - Vertical Intelligence Timeline */
+.palantir-timeline {
+  position: relative;
+  padding-left: 20px;
+}
+
+.palantir-timeline::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 8px;
+  bottom: 8px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--palantir-accent-secondary) 0%, transparent 100%);
+}
+
+.palantir-timeline-item {
+  position: relative;
+  padding: 8px 0;
+  padding-left: 16px;
+}
+
+.palantir-timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 12px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--palantir-accent-secondary);
+  border: 2px solid var(--palantir-bg-secondary);
+  box-shadow: 0 0 8px var(--palantir-glow);
+}
+
+.palantir-timeline-year {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--palantir-accent-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.palantir-timeline-desc {
+  font-size: 11px;
+  color: var(--palantir-text-secondary);
+  line-height: 1.5;
+  margin-top: 2px;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--palantir-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--palantir-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--palantir-accent-tertiary);
+}
+
+/* Classification Banner (Optional - for the authentic look) */
+.palantir-classification {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 4px;
+  background: var(--palantir-accent-red);
+  color: white;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  z-index: 9999;
+}
+
+/* Graph Network Styling Overrides for vis-network */
+.vis-network {
+  background: radial-gradient(ellipse at center, #141921 0%, #0a0e14 100%) !important;
+}
+
+.vis-tooltip {
+  background: rgba(26, 31, 46, 0.98) !important;
+  border: 1px solid var(--palantir-border) !important;
+  border-radius: 6px !important;
+  padding: 8px 12px !important;
+  font-size: 11px !important;
+  color: var(--palantir-text-primary) !important;
+  font-family: 'Inter', sans-serif !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(10px) !important;
+}
