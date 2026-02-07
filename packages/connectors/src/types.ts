@@ -69,3 +69,22 @@ export interface DataConnector {
   // Preview
   preview(limit?: number): Promise<any[]>;
 }
+
+// MCP-specific types
+export interface MCPServerConfig {
+  command: string;
+  args: string[];
+  env?: Record<string, string>;
+}
+
+export interface MCPTool {
+  name: string;
+  description: string;
+  inputSchema: any;
+}
+
+export interface MCPResource {
+  uri: string;
+  name: string;
+  mimeType?: string;
+}
