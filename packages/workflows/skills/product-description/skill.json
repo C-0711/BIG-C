@@ -1,0 +1,26 @@
+{
+  "name": "product-description",
+  "version": "1.0.0",
+  "description": "Generate SEO-optimized product descriptions",
+  "author": "0711 Intelligence",
+  "category": "content",
+  "icon": "FileText",
+  "inputs": {
+    "product_name": { "type": "string", "required": true },
+    "category": { "type": "string", "required": true },
+    "features": { "type": "array", "required": false },
+    "specifications": { "type": "object", "required": false },
+    "target_audience": { "type": "string", "required": false },
+    "tone": { "type": "string", "enum": ["professional", "casual", "technical"], "default": "professional" },
+    "language": { "type": "string", "default": "de" }
+  },
+  "outputs": {
+    "description_short": { "type": "string" },
+    "description_long": { "type": "string" },
+    "bullet_points": { "type": "array" },
+    "meta_title": { "type": "string" },
+    "meta_description": { "type": "string" },
+    "keywords": { "type": "array" }
+  },
+  "prompt": "Du bist ein erfahrener E-Commerce Content Writer. Erstelle überzeugende Produktbeschreibungen.\n\nProdukt: {{product_name}}\nKategorie: {{category}}\nFeatures: {{features}}\nSpezifikationen: {{specifications}}\nZielgruppe: {{target_audience}}\nTon: {{tone}}\n\nErstelle:\n1. Kurzbeschreibung (max 160 Zeichen)\n2. Langbeschreibung (2-3 Absätze)\n3. 5-7 Bullet Points\n4. Meta Title (max 60 Zeichen)\n5. Meta Description (max 160 Zeichen)\n6. 5-10 Keywords\n\nFormat als JSON."
+}

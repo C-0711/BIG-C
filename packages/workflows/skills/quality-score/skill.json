@@ -1,0 +1,21 @@
+{
+  "name": "quality-score",
+  "version": "1.0.0",
+  "description": "Score data quality and identify issues",
+  "author": "0711 Intelligence", 
+  "category": "enrichment",
+  "icon": "CheckCircle",
+  "inputs": {
+    "product_data": { "type": "object", "required": true },
+    "required_fields": { "type": "array", "required": true },
+    "quality_rules": { "type": "array", "required": false }
+  },
+  "outputs": {
+    "overall_score": { "type": "number" },
+    "completeness_score": { "type": "number" },
+    "accuracy_score": { "type": "number" },
+    "issues": { "type": "array" },
+    "suggestions": { "type": "array" }
+  },
+  "prompt": "Bewerte die Datenqualität des folgenden Produktdatensatzes.\n\nProduktdaten: {{product_data}}\nErforderliche Felder: {{required_fields}}\nQualitätsregeln: {{quality_rules}}\n\nBewerte:\n1. Vollständigkeit (0-100)\n2. Genauigkeit (0-100)\n3. Gefundene Probleme\n4. Verbesserungsvorschläge"
+}

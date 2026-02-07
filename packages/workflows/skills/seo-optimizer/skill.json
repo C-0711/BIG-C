@@ -1,0 +1,20 @@
+{
+  "name": "seo-optimizer",
+  "version": "1.0.0",
+  "description": "Optimize content for search engines",
+  "author": "0711 Intelligence",
+  "category": "content",
+  "icon": "Search",
+  "inputs": {
+    "content": { "type": "string", "required": true },
+    "target_keywords": { "type": "array", "required": true },
+    "content_type": { "type": "string", "enum": ["product", "article", "landing"], "default": "product" }
+  },
+  "outputs": {
+    "optimized_content": { "type": "string" },
+    "seo_score": { "type": "number" },
+    "suggestions": { "type": "array" },
+    "keyword_density": { "type": "object" }
+  },
+  "prompt": "Du bist ein SEO-Experte. Analysiere und optimiere den folgenden Content für die Ziel-Keywords.\n\nContent: {{content}}\nZiel-Keywords: {{target_keywords}}\nContent-Typ: {{content_type}}\n\nGib zurück:\n1. Optimierten Content\n2. SEO Score (0-100)\n3. Verbesserungsvorschläge\n4. Keyword-Dichte pro Keyword"
+}

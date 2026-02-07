@@ -1,0 +1,21 @@
+{
+  "name": "translator",
+  "version": "1.0.0",
+  "description": "Translate product content to multiple languages",
+  "author": "0711 Intelligence",
+  "category": "content",
+  "icon": "Languages",
+  "inputs": {
+    "content": { "type": "object", "required": true, "description": "Object with fields to translate" },
+    "source_language": { "type": "string", "default": "de" },
+    "target_languages": { "type": "array", "required": true },
+    "preserve_formatting": { "type": "boolean", "default": true },
+    "glossary": { "type": "object", "required": false, "description": "Domain-specific term translations" }
+  },
+  "outputs": {
+    "translations": { "type": "object", "description": "Object keyed by language code" },
+    "detected_language": { "type": "string" },
+    "word_count": { "type": "number" }
+  },
+  "prompt": "Übersetze den folgenden Produktinhalt professionell.\n\nInhalt: {{content}}\nQuellsprache: {{source_language}}\nZielsprachen: {{target_languages}}\nGlossar: {{glossary}}\n\nBehalte Formatierung bei. Verwende branchenübliche Terminologie."
+}

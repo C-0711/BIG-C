@@ -1,0 +1,20 @@
+{
+  "name": "feed-export",
+  "version": "1.0.0",
+  "description": "Export product data to various feed formats",
+  "author": "0711 Intelligence",
+  "category": "publishing",
+  "icon": "Download",
+  "inputs": {
+    "products": { "type": "array", "required": true },
+    "format": { "type": "string", "enum": ["csv", "xml", "json", "bmecat"], "required": true },
+    "mapping": { "type": "object", "required": false },
+    "filters": { "type": "object", "required": false }
+  },
+  "outputs": {
+    "file_content": { "type": "string" },
+    "file_name": { "type": "string" },
+    "record_count": { "type": "number" },
+    "export_summary": { "type": "object" }
+  }
+}

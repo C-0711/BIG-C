@@ -1,0 +1,21 @@
+{
+  "name": "auto-categorize",
+  "version": "1.0.0", 
+  "description": "Automatically categorize products using AI",
+  "author": "0711 Intelligence",
+  "category": "enrichment",
+  "icon": "FolderTree",
+  "inputs": {
+    "product_name": { "type": "string", "required": true },
+    "description": { "type": "string", "required": false },
+    "features": { "type": "array", "required": false },
+    "category_tree": { "type": "array", "required": true, "description": "Available categories to choose from" }
+  },
+  "outputs": {
+    "primary_category": { "type": "string" },
+    "secondary_categories": { "type": "array" },
+    "confidence": { "type": "number" },
+    "reasoning": { "type": "string" }
+  },
+  "prompt": "Kategorisiere das folgende Produkt in die passendste Kategorie.\n\nProdukt: {{product_name}}\nBeschreibung: {{description}}\nFeatures: {{features}}\n\nVerfügbare Kategorien:\n{{category_tree}}\n\nWähle die beste Haupt- und Nebenkategorien. Begründe deine Wahl."
+}

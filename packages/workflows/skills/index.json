@@ -1,0 +1,51 @@
+{
+  "skills": [
+    {
+      "id": "product-description",
+      "name": "Product Description Generator", 
+      "category": "content",
+      "description": "Generate SEO-optimized product descriptions"
+    },
+    {
+      "id": "seo-optimizer",
+      "name": "SEO Optimizer",
+      "category": "content", 
+      "description": "Optimize content for search engines"
+    },
+    {
+      "id": "auto-categorize",
+      "name": "Auto-Categorizer",
+      "category": "enrichment",
+      "description": "Automatically categorize products using AI"
+    },
+    {
+      "id": "quality-score",
+      "name": "Quality Scorer",
+      "category": "enrichment",
+      "description": "Score data quality and identify issues"
+    },
+    {
+      "id": "feed-export",
+      "name": "Feed Exporter",
+      "category": "publishing",
+      "description": "Export to CSV, XML, JSON, BMEcat"
+    },
+    {
+      "id": "translator",
+      "name": "Translator",
+      "category": "content",
+      "description": "Translate content to multiple languages"
+    },
+    {
+      "id": "amazon-listing",
+      "name": "Amazon Listing Generator",
+      "category": "publishing",
+      "description": "Generate Amazon-optimized listings"
+    }
+  ],
+  "categories": [
+    { "id": "content", "name": "Content Generation", "icon": "FileText" },
+    { "id": "enrichment", "name": "Data Enrichment", "icon": "Sparkles" },
+    { "id": "publishing", "name": "Publishing", "icon": "Send" }
+  ]
+}

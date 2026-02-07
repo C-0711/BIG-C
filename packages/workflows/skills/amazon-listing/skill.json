@@ -1,0 +1,24 @@
+{
+  "name": "amazon-listing",
+  "version": "1.0.0",
+  "description": "Generate Amazon-optimized product listings",
+  "author": "0711 Intelligence",
+  "category": "publishing",
+  "icon": "ShoppingCart",
+  "inputs": {
+    "product_name": { "type": "string", "required": true },
+    "category": { "type": "string", "required": true },
+    "features": { "type": "array", "required": true },
+    "specifications": { "type": "object", "required": false },
+    "brand": { "type": "string", "required": true },
+    "marketplace": { "type": "string", "enum": ["de", "us", "uk", "fr", "it", "es"], "default": "de" }
+  },
+  "outputs": {
+    "title": { "type": "string", "description": "Max 200 chars, keyword-optimized" },
+    "bullet_points": { "type": "array", "description": "5 bullet points, max 500 chars each" },
+    "description": { "type": "string", "description": "A+ Content ready" },
+    "search_terms": { "type": "array", "description": "Backend keywords" },
+    "browse_nodes": { "type": "array" }
+  },
+  "prompt": "Erstelle ein Amazon-optimiertes Listing für:\n\nProdukt: {{product_name}}\nMarke: {{brand}}\nKategorie: {{category}}\nFeatures: {{features}}\nMarktplatz: {{marketplace}}\n\nOptimiere für:\n- Titel mit wichtigsten Keywords (max 200 Zeichen)\n- 5 Bullet Points (je max 500 Zeichen)\n- A+ Content Description\n- Backend Search Terms (max 250 Bytes)"
+}

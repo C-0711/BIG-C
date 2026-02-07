@@ -1,27 +1,27 @@
 # Product Description Generator
 
-Generate compelling product descriptions from raw product data.
+Generate compelling, SEO-optimized product descriptions from raw data.
 
-## Usage
-
-Provide product data (name, features, specifications) and get:
-- Short description (1-2 sentences)
-- Long description (paragraph)
-- Bullet points
-- SEO-optimized content
+## Capabilities
+- Short descriptions (1-2 sentences)
+- Long descriptions (full paragraphs)
+- Bullet point features
+- SEO meta titles & descriptions
+- Multi-language support
 
 ## Input
-
-- Product name
-- Category
-- Features/specifications
-- Target audience (optional)
-- Tone (professional/casual/technical)
+- product_name: string
+- category: string
+- features: array
+- specifications: object
+- target_audience?: string
+- tone?: "professional" | "casual" | "technical"
+- language?: string (default: "de")
 
 ## Output
-
-- description_short
-- description_long
-- bullet_points
-- meta_title
-- meta_description
+- description_short: string
+- description_long: string
+- bullet_points: string[]
+- meta_title: string
+- meta_description: string
+- keywords: string[]
