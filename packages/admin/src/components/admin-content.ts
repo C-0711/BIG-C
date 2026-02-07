@@ -13,6 +13,7 @@ import '../pages/skills-page.js';
 import '../pages/nodes-page.js';
 import '../pages/data-sources-page.js';
 import '../pages/widgets-page.js';
+import '../pages/dashboards-page.js';
 import '../pages/outputs-page.js';
 import '../pages/template-page.js';
 import '../pages/config-page.js';
@@ -59,6 +60,8 @@ export class AdminContent extends LitElement {
         return html`<data-sources-page></data-sources-page>`;
       case 'widgets':
         return html`<widgets-page></widgets-page>`;
+      case 'dashboards':
+        return html`<dashboards-page></dashboards-page>`;
       
       case 'outputs':
         return html`<outputs-page></outputs-page>`;
