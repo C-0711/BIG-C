@@ -2,8 +2,11 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import '../pages/overview-page';
 import '../pages/agents-page';
+import '../pages/skills-page';
+import '../pages/cron-jobs-page';
 import '../pages/data-sources-page';
 import '../pages/outputs-page';
+import '../pages/template-page';
 import '../pages/config-page';
 
 @customElement('admin-content')
@@ -18,23 +21,6 @@ export class AdminContent extends LitElement {
     .content {
       padding: 24px;
       max-width: 1400px;
-    }
-    
-    .page-header {
-      margin-bottom: 24px;
-    }
-    
-    .page-title {
-      font-size: 24px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin: 0 0 4px;
-    }
-    
-    .page-subtitle {
-      font-size: 14px;
-      color: var(--text-secondary);
-      margin: 0;
     }
     
     .placeholder {
@@ -67,10 +53,16 @@ export class AdminContent extends LitElement {
         return html`<overview-page .config=${this.config}></overview-page>`;
       case 'agents':
         return html`<agents-page .config=${this.config}></agents-page>`;
+      case 'skills':
+        return html`<skills-page .config=${this.config}></skills-page>`;
+      case 'cron-jobs':
+        return html`<cron-jobs-page .config=${this.config}></cron-jobs-page>`;
       case 'data-sources':
         return html`<data-sources-page .config=${this.config}></data-sources-page>`;
       case 'outputs':
         return html`<outputs-page .config=${this.config}></outputs-page>`;
+      case 'template':
+        return html`<template-page .config=${this.config}></template-page>`;
       case 'config':
         return html`<config-page .config=${this.config}></config-page>`;
       default:
@@ -84,10 +76,7 @@ export class AdminContent extends LitElement {
       'channels': { icon: '🔗', title: 'Channels' },
       'instances': { icon: '📡', title: 'Instances' },
       'sessions': { icon: '📊', title: 'Sessions' },
-      'cron-jobs': { icon: '⏰', title: 'Cron Jobs' },
-      'skills': { icon: '✨', title: 'Skills' },
       'nodes': { icon: '📦', title: 'Nodes' },
-      'template': { icon: '🎨', title: 'Template & UI' },
       'debug': { icon: '🐛', title: 'Debug' },
       'logs': { icon: '📋', title: 'Logs' },
       'docs': { icon: '📚', title: 'Docs' },
