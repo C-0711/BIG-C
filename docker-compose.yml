@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Enterprise UI
+  # Enterprise UI (React)
   ui:
     build:
       context: ./packages/ui
@@ -9,13 +9,12 @@ services:
     ports:
       - "7073:80"
     environment:
-      - VITE_API_URL=http://api:7074
-      - VITE_OPENCLAW_WS=ws://openclaw:18789
+      - VITE_API_URL=http://localhost:7074
+      - VITE_OPENCLAW_WS=ws://localhost:18789
     depends_on:
       - api
-      - openclaw
 
-  # API Server
+  # API Server (Express)
   api:
     build:
       context: ./packages/api
@@ -23,9 +22,11 @@ services:
     ports:
       - "7074:7074"
     environment:
+      - PORT=7074
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/intelligence
       - REDIS_URL=redis://redis:6379
       - OPENCLAW_GATEWAY=ws://openclaw:18789
+      - INSTANCE_NAME=0711-C Intelligence
     depends_on:
       - postgres
       - redis
@@ -42,8 +43,9 @@ services:
       - openclaw_data:/root/.openclaw
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
 
-  # PostgreSQL
+  # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
     ports:
@@ -54,23 +56,34 @@ services:
       - POSTGRES_DB=intelligence
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Redis (for queues, caching)
+  # Redis (Queue, Cache)
   redis:
     image: redis:7-alpine
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Neo4j (for graph relationships)
+  # Neo4j (Graph Database)
   neo4j:
     image: neo4j:5
     ports:
-      - "7474:7474"  # Browser
-      - "7687:7687"  # Bolt
+      - "7474:7474"
+      - "7687:7687"
     environment:
-      - NEO4J_AUTH=neo4j/password
+      - NEO4J_AUTH=neo4j/password123
+      - NEO4J_PLUGINS=["apoc"]
     volumes:
       - neo4j_data:/data
 
@@ -79,3 +92,7 @@ volumes:
   postgres_data:
   redis_data:
   neo4j_data:
+
+networks:
+  default:
+    name: intelligence-network
