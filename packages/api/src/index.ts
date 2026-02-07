@@ -1,5 +1,6 @@
 import JSON5 from "json5";
 import express from "express";
+import { MCPConnector } from "./services/mcp-connector";
 import cors from "cors";
 import fs from "fs";
 import path from "path";
@@ -302,6 +303,62 @@ wss.on("connection", (ws) => {
   });
 });
 
+
+// ========================================
+// MCP API
+// ========================================
+
+app.post("/api/mcp/:id/test", async (req, res) => {
+  const { id } = req.params;
+  const config = readConfig();
+  const dsConfig = config?.dataSources?.providers?.[id];
+  if (!dsConfig || dsConfig.type !== "mcp") {
+    return res.status(404).json({ error: "MCP datasource not found" });
+  }
+  try {
+    const connector = new MCPConnector(dsConfig.command, dsConfig.args || []);
+    connector.on("exit", () => {});
+    setTimeout(() => connector.dispose(), 5000);
+    res.json({ success: true, message: "MCP server started successfully" });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/mcp/:id/discover", async (req, res) => {
+  const { id } = req.params;
+  const config = readConfig();
+  const dsConfig = config?.dataSources?.providers?.[id];
+  if (!dsConfig || dsConfig.type !== "mcp") {
+    return res.status(404).json({ error: "MCP datasource not found" });
+  }
+  try {
+    const connector = new MCPConnector(dsConfig.command, dsConfig.args || []);
+    const tools = await connector.sendRequest("tools/list");
+    connector.dispose();
+    res.json({ success: true, tools });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/api/mcp/:id/call", async (req, res) => {
+  const { id } = req.params;
+  const { tool, args } = req.body;
+  const config = readConfig();
+  const dsConfig = config?.dataSources?.providers?.[id];
+  if (!dsConfig || dsConfig.type !== "mcp") {
+    return res.status(404).json({ error: "MCP datasource not found" });
+  }
+  try {
+    const connector = new MCPConnector(dsConfig.command, dsConfig.args || []);
+    const result = await connector.sendRequest("tools/call", { name: tool, arguments: args });
+    connector.dispose();
+    res.json({ success: true, result });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
 server.listen(PORT, () => {
   console.log(`🚀 0711-C-Intelligence Gateway running on port ${PORT}`);
   console.log(`📁 Config: ${configPath}`);
