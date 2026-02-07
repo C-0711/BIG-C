@@ -57,12 +57,14 @@ export class AdminApp extends LitElement {
   `;
 
   @state() private sidebarOpen = false;
+  @state() private config: any = null;
   @state() private activePage = 'overview';
 
   async connectedCallback() {
     super.connectedCallback();
     // Load config on app start
     await configService.load();
+    configService.subscribe((config) => { this.config = config; });
     
     // Handle URL routing
     this.handleRoute();
@@ -98,6 +100,7 @@ export class AdminApp extends LitElement {
           <admin-sidebar 
             class="${this.sidebarOpen ? 'open' : ''}"
             .currentRoute=${this.activePage}
+            .config=${this.config}
             @navigate=${this.handleNavigate}
           ></admin-sidebar>
           <admin-content .activePage=${this.activePage}></admin-content>
