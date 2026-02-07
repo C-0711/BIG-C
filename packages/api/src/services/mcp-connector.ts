@@ -34,7 +34,7 @@ export class MCPConnector extends EventEmitter {
   constructor(command: string, args: string[] = []) {
     super();
     this.process = spawn(command, args, { stdio: ['pipe', 'pipe', 'inherit'] });
-    this.process.stdout.on('data', this.onData.bind(this));
+    this.process.stdout?.on('data', this.onData.bind(this));
     this.process.on('exit', (code, signal) => {
       this.emit('exit', { code, signal });
     });
@@ -90,11 +90,11 @@ export class MCPConnector extends EventEmitter {
 
   private sendMessage(message: object) {
     const json = JSON.stringify(message);
-    this.process.stdin.write(json + '\n');
+    this.process.stdin?.write(json + '\n');
   }
 
   public dispose() {
-    this.process.stdin.end();
+    this.process.stdin?.end();
     this.process.kill();
   }
 }
