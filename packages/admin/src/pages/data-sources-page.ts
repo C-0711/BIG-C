@@ -284,6 +284,8 @@ export class DataSourcesPage extends LitElement {
   @state() private editingId: string | null = null;
   @state() private saving = false;
   @state() private testing: string | null = null;
+  @state() private discovering: string | null = null;
+  @state() private discoveredTools: Record<string, any[]> = {};
 
   // Form state
   @state() private formId = '';
@@ -399,6 +401,22 @@ export class DataSourcesPage extends LitElement {
     this.testing = null;
   }
 
+  private async handleDiscover(id: string) {
+    this.discovering = id;
+    try {
+      const response = await api.post(`/mcp/${id}/discover`);
+      if (response.ok && response.data?.tools) {
+        this.discoveredTools = { ...this.discoveredTools, [id]: response.data.tools };
+        toastService.success(`Found ${response.data.tools.length} tools`);
+      } else {
+        toastService.error(response.error?.message || 'Discovery failed');
+      }
+    } catch (err: any) {
+      toastService.error(err.message || 'Discovery failed');
+    }
+    this.discovering = null;
+  }
+
   render() {
     const entries = Object.entries(this.dataSources);
 
@@ -439,6 +457,15 @@ export class DataSourcesPage extends LitElement {
                   >
                     ${this.testing === id ? html`<span class="spinner"></span>` : '🔗'} Test
                   </button>
+                  ${ds.type === 'mcp' ? html`
+                    <button 
+                      class="btn-secondary btn-sm" 
+                      @click=${() => this.handleDiscover(id)}
+                      ?disabled=${this.discovering === id}
+                    >
+                      ${this.discovering === id ? html`<span class="spinner"></span>` : html`<span style="display:inline-flex">${unsafeHTML(icons.search)}</span>`} Discover
+                    </button>
+                  ` : ''}
                   <button class="btn-secondary btn-sm" @click=${() => this.openEditModal(id, ds)}>
                     ✏️ Edit
                   </button>
@@ -461,6 +488,20 @@ export class DataSourcesPage extends LitElement {
                   </div>
                 ` : ''}
               </div>
+              ${this.discoveredTools[id]?.length ? html`
+                <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color, #363646);">
+                  <div style="font-size: 11px; color: var(--text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                    Discovered Tools (${this.discoveredTools[id].length})
+                  </div>
+                  <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    ${this.discoveredTools[id].map((tool: any) => html`
+                      <span style="background: var(--bg-tertiary, #2a2a3a); padding: 4px 10px; border-radius: 4px; font-size: 12px; font-family: monospace;">
+                        ${tool.name}
+                      </span>
+                    `)}
+                  </div>
+                </div>
+              ` : ''}
             </div>
           `)}
         </div>
