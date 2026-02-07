@@ -1,24 +1,17 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useState } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import ToastProvider from "./components/ToastProvider";
 import { ConfigProvider, useConfig } from './config/ConfigProvider';
 import { OpenClawProvider } from './config/OpenClawProvider';
 import { DynamicSidebar } from './components/DynamicSidebar';
 
-// Pages
-import IntelligenceAssistant from "./pages/IntelligenceAssistant";
-import IntelligenceDashboard from "./pages/IntelligenceDashboard";
-import MarketingPage from "./pages/MarketingPage";
-import ProductPage from "./pages/ProductPage";
-import AnalyticsPage from "./pages/AnalyticsPage";
-import IntelligencePage from "./pages/IntelligencePage";
-import ServicePage from "./pages/ServicePage";
-import DigitalProductPass from "./pages/DigitalProductPass";
-import SkillsPage from "./pages/SkillsPage";
-import SettingsPage from "./pages/Settings";
+// Config-driven Pages
+import Dashboard from "./pages/Dashboard";
+import ConfigSettings from "./pages/ConfigSettings";
 
-// Enterprise Hub Pages
+// Legacy Pages (will be made config-driven later)
+import IntelligenceAssistant from "./pages/IntelligenceAssistant";
+import SkillsPage from "./pages/SkillsPage";
 import KnowledgeBase from "./pages/KnowledgeBase";
 import AutomationHub from "./pages/AutomationHub";
 import Workspaces from "./pages/Workspaces";
@@ -26,26 +19,30 @@ import Integrations from "./pages/Integrations";
 import Publishing from "./pages/Publishing";
 import Reports from "./pages/Reports";
 import Gallery from "./pages/Gallery";
+import MarketingPage from "./pages/MarketingPage";
+import ProductPage from "./pages/ProductPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
+import IntelligencePage from "./pages/IntelligencePage";
+import DigitalProductPass from "./pages/DigitalProductPass";
+import ServicePage from "./pages/ServicePage";
 
 // ─── LAYOUT ────────────────────────────────────────────────────────────────
 function Layout({ children }) {
   return (
-    <div className="flex h-screen bg-[#0a0a0a] text-white overflow-hidden">
+    <div className="flex h-screen bg-gray-50 dark:bg-[#0a0a0a] text-gray-900 dark:text-white overflow-hidden">
       <DynamicSidebar />
-      <main className="flex-1 overflow-auto">
-        {children}
-      </main>
+      <main className="flex-1 overflow-auto">{children}</main>
     </div>
   );
 }
 
 // ─── LOADING STATE ─────────────────────────────────────────────────────────
-function LoadingState() {
+function LoadingScreen() {
   return (
-    <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+    <div className="flex items-center justify-center h-screen bg-gray-50 dark:bg-[#0a0a0a]">
       <div className="text-center">
         <div className="w-12 h-12 border-4 border-green-500/30 border-t-green-500 rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-gray-400">Loading configuration...</p>
+        <p className="text-gray-500 dark:text-gray-400">Loading configuration...</p>
       </div>
     </div>
   );
@@ -55,16 +52,14 @@ function LoadingState() {
 function AppRoutes() {
   const { loading } = useConfig();
 
-  if (loading) {
-    return <LoadingState />;
-  }
+  if (loading) return <LoadingScreen />;
 
   return (
     <Layout>
       <Routes>
         {/* Main */}
         <Route path="/" element={<IntelligenceAssistant />} />
-        <Route path="/dashboard" element={<IntelligenceDashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         
         {/* Core */}
         <Route path="/skills" element={<SkillsPage />} />
@@ -87,10 +82,10 @@ function AppRoutes() {
         <Route path="/service" element={<ServicePage />} />
         
         {/* Settings */}
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/settings" element={<ConfigSettings />} />
         
         {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Layout>
   );
