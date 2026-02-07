@@ -443,7 +443,7 @@ export class DataSourcesPage extends LitElement {
             <div class="card">
               <div class="card-header">
                 <div class="card-title">
-                  <span class="icon">${this.getIcon(ds.type)}</span>
+                  <span class="icon">${unsafeHTML(this.getIcon(ds.type))}</span>
                   <div>
                     <h3>${id}</h3>
                     <span class="type">${ds.type}</span>
