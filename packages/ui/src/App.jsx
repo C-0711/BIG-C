@@ -7,7 +7,9 @@ import {
 } from "lucide-react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import ToastProvider from "./components/ToastProvider";
-import { ConfigProvider, useConfig, useBranding, useModules } from "./config/ConfigProvider";
+import { ConfigProvider, useConfig, useBranding, useModules } from './config/ConfigProvider';
+import { OpenClawProvider } from './config/OpenClawProvider';
+import OpenClawStatus from './components/OpenClawStatus';
 
 // Pages
 import IntelligenceAssistant from "./pages/IntelligenceAssistant";
@@ -310,6 +312,7 @@ export default function App() {
     <ErrorBoundary>
       <ToastProvider>
         <ConfigProvider>
+          <OpenClawProvider>
           <BrowserRouter>
             <SidebarContext.Provider value={{ expanded, setExpanded }}>
               <Sidebar />
@@ -318,6 +321,7 @@ export default function App() {
               </LayoutContent>
             </SidebarContext.Provider>
           </BrowserRouter>
+        </OpenClawProvider>
         </ConfigProvider>
       </ToastProvider>
     </ErrorBoundary>
