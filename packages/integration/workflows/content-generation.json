@@ -1,0 +1,68 @@
+{
+  "name": "Product Content Generation",
+  "description": "Generates SEO-optimized content for a single product",
+  "nodes": [
+    {
+      "id": "trigger",
+      "type": "trigger",
+      "label": "Start",
+      "config": {
+        "inputSchema": {
+          "productId": "string",
+          "channels": "string[]",
+          "language": "string"
+        }
+      }
+    },
+    {
+      "id": "load-product",
+      "type": "data",
+      "label": "Load Product",
+      "config": {
+        "source": "bosch-products",
+        "query": "SELECT * FROM products WHERE id = {{trigger.productId}}",
+        "outputVariable": "product"
+      }
+    },
+    {
+      "id": "generate-content",
+      "type": "agent",
+      "label": "SEO Writer",
+      "config": {
+        "agentId": "seo-writer",
+        "prompt": "Erstelle SEO-optimierte Produktbeschreibungen für folgendes Produkt:\n\nProdukt: {{product.name}}\nKategorie: {{product.category}}\nSpezifikationen: {{product.specifications}}\n\nKanäle: {{trigger.channels}}\nSprache: {{trigger.language}}\n\nGib die Beschreibungen als JSON zurück mit Keys für jeden Kanal.",
+        "outputVariable": "content"
+      }
+    },
+    {
+      "id": "quality-check",
+      "type": "agent",
+      "label": "QA Check",
+      "config": {
+        "agentId": "quality-checker",
+        "prompt": "Prüfe die folgenden generierten Inhalte auf Qualität:\n\nProdukt: {{product.name}}\nGenerierte Inhalte: {{content}}\n\nPrüfe auf: Vollständigkeit, SEO-Keywords, Zeichenlimits, Faktentreue.\nGib einen Qualitätsreport als JSON zurück.",
+        "outputVariable": "qaReport"
+      }
+    },
+    {
+      "id": "format-output",
+      "type": "transform",
+      "label": "Format Result",
+      "config": {
+        "expression": "{ productId: context.trigger.productId, content: context.content, quality: context.qaReport, generatedAt: new Date().toISOString() }"
+      }
+    },
+    {
+      "id": "end",
+      "type": "end",
+      "label": "Complete"
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "trigger", "target": "load-product" },
+    { "id": "e2", "source": "load-product", "target": "generate-content" },
+    { "id": "e3", "source": "generate-content", "target": "quality-check" },
+    { "id": "e4", "source": "quality-check", "target": "format-output" },
+    { "id": "e5", "source": "format-output", "target": "end" }
+  ]
+}

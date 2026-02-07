@@ -1,0 +1,86 @@
+{
+  "name": "Product Enrichment",
+  "description": "Enriches product data with AI-generated content",
+  "nodes": [
+    {
+      "id": "trigger",
+      "type": "trigger",
+      "label": "Start",
+      "config": {
+        "inputSchema": {
+          "productId": "string",
+          "fieldsToEnrich": "string[]"
+        }
+      }
+    },
+    {
+      "id": "load-product",
+      "type": "data",
+      "label": "Load Product",
+      "config": {
+        "source": "bosch-products",
+        "query": "SELECT * FROM products WHERE id = {{trigger.productId}}",
+        "outputVariable": "product"
+      }
+    },
+    {
+      "id": "enrich",
+      "type": "agent",
+      "label": "Enrich Data",
+      "config": {
+        "agentId": "product-expert",
+        "prompt": "Basierend auf den vorhandenen Produktdaten, generiere Inhalte für die fehlenden Felder:\n\nProdukt: {{product}}\nZu ergänzende Felder: {{trigger.fieldsToEnrich}}\n\nGib die generierten Werte als JSON zurück.",
+        "outputVariable": "enrichedData"
+      }
+    },
+    {
+      "id": "validate",
+      "type": "agent",
+      "label": "Validate",
+      "config": {
+        "agentId": "quality-checker",
+        "prompt": "Validiere die angereicherten Daten:\n\nOriginal: {{product}}\nAngereichert: {{enrichedData}}\n\nSind die generierten Daten korrekt und konsistent?",
+        "outputVariable": "validation"
+      }
+    },
+    {
+      "id": "check-valid",
+      "type": "condition",
+      "label": "Is Valid?",
+      "config": {
+        "expression": "context.validation.valid === true"
+      }
+    },
+    {
+      "id": "approved",
+      "type": "transform",
+      "label": "Approved",
+      "config": {
+        "expression": "{ status: 'approved', productId: context.trigger.productId, enrichedData: context.enrichedData }"
+      }
+    },
+    {
+      "id": "needs-review",
+      "type": "transform",
+      "label": "Needs Review",
+      "config": {
+        "expression": "{ status: 'needs_review', productId: context.trigger.productId, enrichedData: context.enrichedData, issues: context.validation.issues }"
+      }
+    },
+    {
+      "id": "end",
+      "type": "end",
+      "label": "Complete"
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "trigger", "target": "load-product" },
+    { "id": "e2", "source": "load-product", "target": "enrich" },
+    { "id": "e3", "source": "enrich", "target": "validate" },
+    { "id": "e4", "source": "validate", "target": "check-valid" },
+    { "id": "e5", "source": "check-valid", "target": "approved", "condition": "true" },
+    { "id": "e6", "source": "check-valid", "target": "needs-review", "condition": "false" },
+    { "id": "e7", "source": "approved", "target": "end" },
+    { "id": "e8", "source": "needs-review", "target": "end" }
+  ]
+}

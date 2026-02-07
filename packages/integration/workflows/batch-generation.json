@@ -1,0 +1,84 @@
+{
+  "name": "Batch Content Generation",
+  "description": "Generates content for multiple products in a loop",
+  "nodes": [
+    {
+      "id": "trigger",
+      "type": "trigger",
+      "label": "Start",
+      "config": {
+        "inputSchema": {
+          "productIds": "string[]",
+          "channels": "string[]",
+          "language": "string"
+        }
+      }
+    },
+    {
+      "id": "load-products",
+      "type": "data",
+      "label": "Load Products",
+      "config": {
+        "source": "bosch-products",
+        "query": "SELECT * FROM products WHERE id = ANY({{trigger.productIds}})",
+        "outputVariable": "products"
+      }
+    },
+    {
+      "id": "loop-products",
+      "type": "loop",
+      "label": "For Each Product",
+      "config": {
+        "collection": "products",
+        "itemVariable": "currentProduct"
+      }
+    },
+    {
+      "id": "generate-content",
+      "type": "agent",
+      "label": "SEO Writer",
+      "config": {
+        "agentId": "seo-writer",
+        "prompt": "Erstelle SEO-Beschreibung für: {{currentProduct.name}}\nKanäle: {{trigger.channels}}\nSprache: {{trigger.language}}",
+        "outputVariable": "generatedContent"
+      }
+    },
+    {
+      "id": "collect-results",
+      "type": "transform",
+      "label": "Collect",
+      "config": {
+        "expression": "{ productId: context.currentProduct.id, content: context.generatedContent }",
+        "appendTo": "results"
+      }
+    },
+    {
+      "id": "end-loop",
+      "type": "end",
+      "label": "Loop End",
+      "config": { "loopEnd": true }
+    },
+    {
+      "id": "summary",
+      "type": "transform",
+      "label": "Summary",
+      "config": {
+        "expression": "{ total: context.results.length, results: context.results, completedAt: new Date().toISOString() }"
+      }
+    },
+    {
+      "id": "end",
+      "type": "end",
+      "label": "Complete"
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "trigger", "target": "load-products" },
+    { "id": "e2", "source": "load-products", "target": "loop-products" },
+    { "id": "e3", "source": "loop-products", "target": "generate-content" },
+    { "id": "e4", "source": "generate-content", "target": "collect-results" },
+    { "id": "e5", "source": "collect-results", "target": "end-loop" },
+    { "id": "e6", "source": "end-loop", "target": "summary", "condition": "loopComplete" },
+    { "id": "e7", "source": "summary", "target": "end" }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "bosch-products",
+  "name": "Bosch Products Database",
+  "type": "postgres",
+  "config": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "bosch_intelligence",
+    "user": "bosch",
+    "password": ""
+  }
+}
