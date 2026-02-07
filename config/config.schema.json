@@ -1,0 +1,88 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "0711-C-Intelligence Configuration",
+  "type": "object",
+  "properties": {
+    "instance": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "default": "0711-C Intelligence" },
+        "logo": { "type": "string" },
+        "primaryColor": { "type": "string", "default": "#3B82F6" },
+        "language": { "type": "string", "enum": ["de", "en"], "default": "de" }
+      }
+    },
+    "dataSources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["csv", "excel", "bmecat", "rest", "mcp", "database"] },
+          "config": { "type": "object" },
+          "schedule": { "type": "string", "description": "Cron expression for auto-sync" },
+          "enabled": { "type": "boolean", "default": true }
+        },
+        "required": ["id", "name", "type"]
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "type": { "type": "string", "enum": ["webhook", "email", "slack", "telegram", "whatsapp", "csv-export", "api-push", "ftp"] },
+          "config": { "type": "object" },
+          "triggers": { "type": "array", "items": { "type": "string" } },
+          "enabled": { "type": "boolean", "default": true }
+        },
+        "required": ["id", "name", "type"]
+      }
+    },
+    "agents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "model": { "type": "string", "default": "claude-sonnet-4-20250514" },
+          "systemPrompt": { "type": "string" },
+          "skills": { "type": "array", "items": { "type": "string" } },
+          "dataSources": { "type": "array", "items": { "type": "string" } },
+          "outputs": { "type": "array", "items": { "type": "string" } },
+          "enabled": { "type": "boolean", "default": true }
+        },
+        "required": ["id", "name"]
+      }
+    },
+    "workflows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "trigger": { "type": "object" },
+          "steps": { "type": "array" },
+          "enabled": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "modules": {
+      "type": "object",
+      "properties": {
+        "dashboard": { "type": "boolean", "default": true },
+        "assistant": { "type": "boolean", "default": true },
+        "products": { "type": "boolean", "default": true },
+        "marketing": { "type": "boolean", "default": false },
+        "analytics": { "type": "boolean", "default": true },
+        "settings": { "type": "boolean", "default": true }
+      }
+    }
+  }
+}
