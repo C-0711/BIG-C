@@ -51,7 +51,7 @@ export class MCPConnector extends EventEmitter {
     reject: (error: any) => void;
     timeout: NodeJS.Timeout;
   }>();
-  private buffer = Buffer.alloc(0);
+  private buffer = '';
   private serverInfo: MCPServerInfo | null = null;
   private initialized = false;
 
@@ -69,15 +69,26 @@ export class MCPConnector extends EventEmitter {
 
     const { command, args = [], cwd, env } = this.config;
 
+    // Set PYTHONUNBUFFERED for Python MCP servers
+    const processEnv = { 
+      ...process.env, 
+      ...env,
+      PYTHONUNBUFFERED: '1'
+    };
+
     this.process = spawn(command, args, {
       cwd,
-      env: { ...process.env, ...env },
+      env: processEnv,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
 
     this.process.stdout?.on('data', (chunk: Buffer) => this.onData(chunk));
     this.process.stderr?.on('data', (chunk: Buffer) => {
-      console.error('[MCP stderr]', chunk.toString());
+      const msg = chunk.toString();
+      // Only log non-warning stderr
+      if (!msg.includes('UserWarning') && !msg.includes('pkg_resources')) {
+        console.error('[MCP stderr]', msg);
+      }
     });
 
     this.process.on('exit', (code, signal) => {
@@ -104,9 +115,9 @@ export class MCPConnector extends EventEmitter {
         },
       }, timeoutMs);
 
-      const serverInfo: MCPServerInfo = initResult.serverInfo && typeof initResult.serverInfo === "object" 
+      const serverInfo: MCPServerInfo = initResult.serverInfo && typeof initResult.serverInfo === 'object' 
         ? initResult.serverInfo 
-        : { name: "unknown", version: "unknown" };
+        : { name: 'unknown', version: 'unknown' };
       this.serverInfo = serverInfo;
       
       // Send initialized notification
@@ -121,41 +132,29 @@ export class MCPConnector extends EventEmitter {
   }
 
   /**
-   * Parse incoming data with Content-Length framing (LSP-style)
+   * Parse incoming data - NDJSON format (newline-delimited JSON)
+   * This is what the Python MCP SDK uses
    */
   private onData(chunk: Buffer) {
-    this.buffer = Buffer.concat([this.buffer, chunk]);
+    this.buffer += chunk.toString();
 
-    while (true) {
-      // Look for header terminator
-      const headerEnd = this.buffer.indexOf('\r\n\r\n');
-      if (headerEnd === -1) break;
+    // Process complete lines
+    let newlineIndex: number;
+    while ((newlineIndex = this.buffer.indexOf('\n')) !== -1) {
+      const line = this.buffer.slice(0, newlineIndex).trim();
+      this.buffer = this.buffer.slice(newlineIndex + 1);
 
-      // Parse Content-Length header
-      const header = this.buffer.slice(0, headerEnd).toString();
-      const match = header.match(/Content-Length:\s*(\d+)/i);
-      if (!match) {
-        console.error('[MCP] Invalid header:', header);
-        this.buffer = this.buffer.slice(headerEnd + 4);
-        continue;
-      }
+      if (!line) continue;
 
-      const contentLength = parseInt(match[1], 10);
-      const messageStart = headerEnd + 4;
-      const messageEnd = messageStart + contentLength;
-
-      // Wait for complete message
-      if (this.buffer.length < messageEnd) break;
-
-      // Extract and parse message
-      const jsonStr = this.buffer.slice(messageStart, messageEnd).toString();
-      this.buffer = this.buffer.slice(messageEnd);
+      // Skip Content-Length headers if present (some servers send both)
+      if (line.startsWith('Content-Length:')) continue;
 
       try {
-        const message = JSON.parse(jsonStr);
+        const message = JSON.parse(line);
         this.handleMessage(message);
       } catch (err) {
-        console.error('[MCP] Failed to parse JSON:', err, jsonStr);
+        // Not valid JSON - might be partial or log output
+        console.error('[MCP] Failed to parse:', line.substring(0, 100));
       }
     }
   }
@@ -176,9 +175,13 @@ export class MCPConnector extends EventEmitter {
       return;
     }
 
-    // Notification from server
+    // Notification from server (like error messages)
     if (message.method) {
       this.emit('notification', message);
+      // Log error notifications
+      if (message.method === 'notifications/message' && message.params?.level === 'error') {
+        console.error('[MCP Server Error]', message.params.data);
+      }
       return;
     }
 
@@ -229,7 +232,8 @@ export class MCPConnector extends EventEmitter {
   }
 
   /**
-   * Send message with Content-Length framing
+   * Send message as NDJSON (newline-delimited JSON)
+   * This is the format expected by the Python MCP SDK
    */
   private sendMessage(message: object) {
     if (!this.process?.stdin?.writable) {
@@ -238,10 +242,7 @@ export class MCPConnector extends EventEmitter {
     }
 
     const json = JSON.stringify(message);
-    const contentLength = Buffer.byteLength(json, 'utf8');
-    const header = `Content-Length: ${contentLength}\r\n\r\n`;
-
-    this.process.stdin.write(header + json);
+    this.process.stdin.write(json + '\n');
   }
 
   /**
