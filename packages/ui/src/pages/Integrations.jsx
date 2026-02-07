@@ -1,101 +1,158 @@
-import { useState, useEffect } from "react";
-import { Link2, Database, Cloud, ShoppingBag, FileText, RefreshCw, CheckCircle, AlertCircle, Clock, Plus, Trash2, Settings, Loader2, X } from "lucide-react";
+import React from 'react';
+import { useConfig } from '../config/ConfigProvider';
 
-const API_BASE = "http://localhost:8766";
-
-const getTypeIcon = (type) => ({ bmecat: <Database className="text-blue-600" size={24} />, amazon: <ShoppingBag className="text-orange-500" size={24} />, sap: <Database className="text-blue-700" size={24} />, cms: <FileText className="text-purple-500" size={24} />, sharepoint: <Cloud className="text-blue-400" size={24} /> }[type] || <Link2 className="text-gray-400" size={24} />);
-
-const StatusBadge = ({ status }) => {
-  const config = { connected: { icon: CheckCircle, color: "#059669", label: "Verbunden" }, warning: { icon: AlertCircle, color: "#f59e0b", label: "Warnung" }, pending: { icon: Clock, color: "#6b7280", label: "Ausstehend" } };
-  const c = config[status] || config.pending;
-  return <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: `${c.color}15`, color: c.color }}><c.icon size={12} />{c.label}</span>;
+const typeIcons = {
+  postgres: '🐘',
+  mysql: '🐬',
+  csv: '📄',
+  excel: '📊',
+  'rest-api': '🌐',
+  mcp: '🔌',
+  default: '📁'
 };
 
-const Dialog = ({ open, onClose, title, children }) => {
-  if (!open) return null;
-  return (<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={onClose}><div className="bg-white rounded-xl border border-gray-200 p-6 w-full max-w-md shadow-xl" onClick={e => e.stopPropagation()}><div className="flex justify-between items-center mb-4"><h3 className="text-lg font-semibold text-gray-900">{title}</h3><button onClick={onClose} className="text-gray-400 hover:text-gray-600"><X size={20} /></button></div>{children}</div></div>);
+const typeNames = {
+  postgres: 'PostgreSQL',
+  mysql: 'MySQL',
+  csv: 'CSV',
+  excel: 'Excel',
+  'rest-api': 'REST API',
+  mcp: 'MCP Server'
 };
 
 export default function Integrations() {
-  const [integrations, setIntegrations] = useState([]);
-  const [stats, setStats] = useState({ total: 0, connected: 0, records: 0 });
-  const [loading, setLoading] = useState(true);
-  const [showDialog, setShowDialog] = useState(false);
-  const [newIntegration, setNewIntegration] = useState({ name: "", type: "custom" });
+  const { config } = useConfig();
+  const providers = config?.dataSources?.providers || {};
+  const sources = Object.entries(providers).map(([id, source]) => ({ id, ...source }));
 
-  useEffect(() => { fetchData(); }, []);
-
-  const fetchData = async () => {
-    try { const data = await (await fetch(`${API_BASE}/api/integrations`)).json(); setIntegrations(data.integrations || []); setStats({ total: data.total, connected: data.connected, records: data.records }); }
-    catch (err) { console.error(err); } finally { setLoading(false); }
+  // Mock sync status
+  const getStatus = (source) => {
+    const statuses = ['synced', 'syncing', 'error', 'pending'];
+    return statuses[Math.floor(source.id.length % statuses.length)];
   };
 
-  const createIntegration = async () => {
-    const res = await fetch(`${API_BASE}/api/integrations`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newIntegration) });
-    const data = await res.json();
-    if (data.success) { setIntegrations([...integrations, data.integration]); setShowDialog(false); setNewIntegration({ name: "", type: "custom" }); }
+  const getLastSync = (source) => {
+    const times = ['vor 5 Min', 'vor 1 Std', 'vor 3 Std', 'Heute 08:00'];
+    return times[Math.floor(source.id.length % times.length)];
   };
-
-  const deleteIntegration = async (id) => { await fetch(`${API_BASE}/api/integrations/${id}`, { method: "DELETE" }); setIntegrations(integrations.filter(i => i.id !== id)); };
-
-  const syncIntegration = async (id) => {
-    const res = await fetch(`${API_BASE}/api/integrations/${id}/sync`, { method: "POST" });
-    const data = await res.json();
-    if (data.success) setIntegrations(integrations.map(i => i.id === id ? data.integration : i));
-  };
-
-  if (loading) return <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-[#0066cc]" size={32} /></div>;
 
   return (
-    <div className="min-h-screen bg-[#f5f7fa]">
-      <header className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div><h1 className="text-xl font-semibold text-gray-900">Integrationen</h1><p className="text-sm text-gray-500">Verbinden Sie externe Systeme und Datenquellen</p></div>
-          <button onClick={() => setShowDialog(true)} className="flex items-center gap-2 px-4 py-2 bg-[#0066cc] text-white rounded-lg hover:bg-[#0052a3]"><Plus size={18} /> Integration hinzufügen</button>
+    <div className="page-container">
+      <div className="page-header">
+        <div>
+          <h1>🔌 Integrationen</h1>
+          <p className="subtitle">Datenquellen und Verbindungen</p>
         </div>
-      </header>
+      </div>
 
-      <main className="p-6">
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          {[{ label: "Integrationen", value: stats.total, Icon: Link2, color: "#0066cc" }, { label: "Verbunden", value: stats.connected, Icon: CheckCircle, color: "#059669" }, { label: "Datensätze", value: stats.records.toLocaleString(), Icon: Database, color: "#7c3aed" }].map((s, i) => (
-            <div key={i} className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
-              <div className="flex items-center justify-between mb-2"><s.Icon size={20} style={{ color: s.color }} /><span className="text-xs text-gray-500">{s.label}</span></div>
-              <div className="text-2xl font-semibold text-gray-900">{s.value}</div>
-            </div>
-          ))}
+      {/* KPIs */}
+      <div className="kpi-grid">
+        <div className="kpi-card">
+          <div className="kpi-icon">🔌</div>
+          <div className="kpi-content">
+            <span className="kpi-value">{sources.length}</span>
+            <span className="kpi-label">Datenquellen</span>
+          </div>
         </div>
+        <div className="kpi-card">
+          <div className="kpi-icon">✅</div>
+          <div className="kpi-content">
+            <span className="kpi-value">{sources.filter(s => getStatus(s) === 'synced').length}</span>
+            <span className="kpi-label">Synchronisiert</span>
+          </div>
+        </div>
+        <div className="kpi-card">
+          <div className="kpi-icon">🔄</div>
+          <div className="kpi-content">
+            <span className="kpi-value">{sources.filter(s => s.sync?.schedule).length}</span>
+            <span className="kpi-label">Auto-Sync</span>
+          </div>
+        </div>
+        <div className="kpi-card">
+          <div className="kpi-icon">⚠️</div>
+          <div className="kpi-content">
+            <span className="kpi-value">{sources.filter(s => getStatus(s) === 'error').length}</span>
+            <span className="kpi-label">Fehler</span>
+          </div>
+        </div>
+      </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Verbundene Systeme</h2>
-          <div className="grid grid-cols-2 gap-4">
-            {integrations.map(int => (
-              <div key={int.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 group">
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex items-center gap-3">{getTypeIcon(int.type)}<div><h3 className="text-gray-900 font-medium">{int.name}</h3><p className="text-gray-500 text-sm capitalize">{int.type}</p></div></div>
-                  <StatusBadge status={int.status} />
+      {/* Data Sources List */}
+      <div className="sources-list">
+        {sources.length === 0 ? (
+          <div className="empty-state">
+            <span className="empty-icon">📭</span>
+            <h3>Keine Datenquellen</h3>
+            <p>Datenquellen werden im Admin Dashboard konfiguriert.</p>
+            <a href="/admin" className="btn-link">Admin Dashboard öffnen →</a>
+          </div>
+        ) : (
+          sources.map(source => {
+            const status = getStatus(source);
+            const icon = typeIcons[source.type] || typeIcons.default;
+            const typeName = typeNames[source.type] || source.type;
+            
+            return (
+              <div key={source.id} className="source-card">
+                <div className="source-icon">{icon}</div>
+                <div className="source-info">
+                  <h3>{source.id}</h3>
+                  <span className="source-type">{typeName}</span>
                 </div>
-                <div className="flex items-center justify-between text-sm text-gray-500 mb-3"><span>{int.records.toLocaleString()} Datensätze</span><span>Sync: {int.lastSync}</span></div>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => syncIntegration(int.id)} className="flex-1 flex items-center justify-center gap-2 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50"><RefreshCw size={14} /> Sync</button>
-                  <button className="p-2 bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-50"><Settings size={14} /></button>
-                  {!int.builtin && <button onClick={() => deleteIntegration(int.id)} className="p-2 bg-white border border-gray-200 text-red-500 rounded-lg hover:bg-gray-50 opacity-0 group-hover:opacity-100"><Trash2 size={14} /></button>}
+                <div className="source-meta">
+                  <span className="meta-label">Letzter Sync</span>
+                  <span className="meta-value">{getLastSync(source)}</span>
                 </div>
-                {!int.builtin && <span className="text-xs text-blue-500 mt-2 block">Custom</span>}
+                <div className="source-schedule">
+                  <span className="meta-label">Schedule</span>
+                  <span className="meta-value">{source.sync?.schedule || '—'}</span>
+                </div>
+                <div className={`source-status status-${status}`}>
+                  {status === 'synced' && '✓ Synchronisiert'}
+                  {status === 'syncing' && '🔄 Läuft...'}
+                  {status === 'error' && '⚠️ Fehler'}
+                  {status === 'pending' && '⏳ Ausstehend'}
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </main>
+            );
+          })
+        )}
+      </div>
 
-      <Dialog open={showDialog} onClose={() => setShowDialog(false)} title="Neue Integration hinzufügen">
-        <div className="space-y-4">
-          <div><label className="text-sm text-gray-600 block mb-1">Name</label><input type="text" value={newIntegration.name} onChange={e => setNewIntegration({...newIntegration, name: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="Integration Name" /></div>
-          <div><label className="text-sm text-gray-600 block mb-1">Typ</label>
-            <select value={newIntegration.type} onChange={e => setNewIntegration({...newIntegration, type: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded-lg"><option value="custom">Custom API</option><option value="bmecat">BMEcat</option><option value="amazon">Amazon</option><option value="sap">SAP</option><option value="cms">CMS</option><option value="sharepoint">SharePoint</option></select>
-          </div>
-          <button onClick={createIntegration} className="w-full py-2 bg-[#0066cc] text-white rounded-lg hover:bg-[#0052a3]">Integration hinzufügen</button>
-        </div>
-      </Dialog>
+      <style>{`
+        .page-container { padding: 24px; max-width: 1200px; margin: 0 auto; }
+        .page-header { margin-bottom: 24px; }
+        .page-header h1 { margin: 0; font-size: 28px; }
+        .subtitle { color: #888; margin-top: 4px; }
+        
+        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+        .kpi-card { background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px; }
+        .kpi-icon { font-size: 32px; }
+        .kpi-content { display: flex; flex-direction: column; }
+        .kpi-value { font-size: 24px; font-weight: 600; color: #22c55e; }
+        .kpi-label { font-size: 13px; color: #888; }
+        
+        .sources-list { display: flex; flex-direction: column; gap: 12px; }
+        .source-card { display: flex; align-items: center; gap: 20px; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 20px; }
+        .source-icon { font-size: 32px; }
+        .source-info { flex: 1; }
+        .source-info h3 { margin: 0; font-size: 16px; }
+        .source-type { font-size: 12px; color: #888; }
+        .source-meta, .source-schedule { text-align: center; min-width: 100px; }
+        .meta-label { display: block; font-size: 11px; color: #666; margin-bottom: 2px; }
+        .meta-value { font-size: 13px; color: #ccc; }
+        .source-status { padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 500; }
+        .status-synced { background: #22c55e20; color: #22c55e; }
+        .status-syncing { background: #3b82f620; color: #3b82f6; }
+        .status-error { background: #ef444420; color: #ef4444; }
+        .status-pending { background: #f59e0b20; color: #f59e0b; }
+        
+        .empty-state { text-align: center; padding: 48px; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; }
+        .empty-icon { font-size: 48px; }
+        .empty-state h3 { margin: 16px 0 8px; }
+        .empty-state p { color: #888; margin: 0; }
+        .btn-link { color: #22c55e; text-decoration: none; display: inline-block; margin-top: 16px; }
+      `}</style>
     </div>
   );
 }
