@@ -1,0 +1,226 @@
+/**
+ * Widget Styles - User Frontend
+ */
+
+/* Base Widget */
+.widget {
+  background: var(--bg-secondary, #1e1e2e);
+  border: 1px solid var(--border-color, #363646);
+  border-radius: 12px;
+  padding: 20px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.widget-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary, #888);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.widget-loading,
+.widget-error,
+.widget-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80px;
+  color: var(--text-secondary, #888);
+  font-size: 14px;
+}
+
+.widget-error {
+  color: #ef4444;
+}
+
+.widget-raw {
+  font-size: 11px;
+  overflow: auto;
+  max-height: 200px;
+  background: var(--bg-tertiary, #2a2a3a);
+  padding: 12px;
+  border-radius: 6px;
+  margin: 0;
+}
+
+/* Spinner */
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border-color, #363646);
+  border-top-color: var(--accent-color, #3b82f6);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Stats Card */
+.stats-card {
+  text-align: center;
+  padding: 10px 0;
+}
+
+.stats-value {
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--text-primary, #fff);
+  line-height: 1.2;
+}
+
+.stats-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary, #888);
+  margin-top: 4px;
+}
+
+.stats-trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 12px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: var(--bg-tertiary, #2a2a3a);
+}
+
+.stats-trend.up {
+  color: #10b981;
+  background: #10b98120;
+}
+
+.stats-trend.down {
+  color: #ef4444;
+  background: #ef444420;
+}
+
+/* Data Table */
+.data-table-widget {
+  overflow-x: auto;
+}
+
+.data-table-widget table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.data-table-widget th {
+  text-align: left;
+  padding: 10px 12px;
+  background: var(--bg-tertiary, #2a2a3a);
+  font-weight: 600;
+  color: var(--text-secondary, #888);
+  border-bottom: 2px solid var(--border-color, #363646);
+  white-space: nowrap;
+}
+
+.data-table-widget td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-color, #363646);
+  color: var(--text-primary, #fff);
+}
+
+.data-table-widget tr:hover {
+  background: var(--bg-tertiary, #2a2a3a);
+}
+
+.table-footer {
+  padding: 12px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-secondary, #888);
+  border-top: 1px solid var(--border-color, #363646);
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 12px;
+  background: var(--accent-color, #3b82f6);
+  color: white;
+}
+
+/* List Widget */
+.list-widget ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.list-widget li {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color, #363646);
+  font-size: 14px;
+  color: var(--text-primary, #fff);
+}
+
+.list-widget li:last-child {
+  border-bottom: none;
+}
+
+.list-widget li:hover {
+  color: var(--accent-color, #3b82f6);
+}
+
+.list-footer {
+  padding: 10px 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-secondary, #888);
+}
+
+/* Dashboard Grid */
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  padding: 20px;
+}
+
+.dashboard-widget {
+  min-height: 150px;
+}
+
+.dashboard-widget.w-1 { grid-column: span 1; }
+.dashboard-widget.w-2 { grid-column: span 2; }
+.dashboard-widget.w-3 { grid-column: span 3; }
+.dashboard-widget.w-4 { grid-column: span 4; }
+
+.dashboard-widget.h-2 { grid-row: span 2; }
+
+@media (max-width: 1200px) {
+  .dashboard {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dashboard-widget.w-3,
+  .dashboard-widget.w-4 {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+  .dashboard-widget.w-2,
+  .dashboard-widget.w-3,
+  .dashboard-widget.w-4 {
+    grid-column: span 1;
+  }
+}

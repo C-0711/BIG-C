@@ -1,6 +1,7 @@
 import JSON5 from "json5";
 import express from "express";
 import { MCPConnector } from "./services/mcp-connector";
+import widgetRoutes from "./routes/widgets";
 import cors from "cors";
 import fs from "fs";
 import path from "path";
@@ -36,6 +37,13 @@ const writeConfig = (config: any) => {
 };
 
 app.use(cors());
+
+// Attach config to request
+app.use((req: any, res, next) => {
+  req.config = readConfig();
+  req.isAdmin = req.path.startsWith('/api/admin');
+  next();
+});
 app.use(express.json({ limit: "10mb" }));
 
 // Static files
@@ -303,6 +311,12 @@ wss.on("connection", (ws) => {
   });
 });
 
+
+// ========================================
+// WIDGET API
+// ========================================
+
+app.use("/api/widgets", widgetRoutes);
 
 // ========================================
 // MCP API
