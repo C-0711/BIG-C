@@ -1,183 +1,328 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as yaml from 'js-yaml';
+import JSON5 from 'json5';
+import Ajv from 'ajv';
+import { watch, FSWatcher } from 'chokidar';
+import { EventEmitter } from 'events';
 
-const CONFIG_PATH = path.join(__dirname, '../../../../config/config.yaml');
-const SCHEMA_PATH = path.join(__dirname, '../../../../config/config.schema.json');
+// ─── PATHS ───────────────────────────────────────────────────────────────────
+const CONFIG_DIR = process.env.CONFIG_DIR || path.join(process.env.HOME || '~', '.0711');
+const CONFIG_PATH = path.join(CONFIG_DIR, 'config.json');
+const SCHEMA_PATH = path.join(CONFIG_DIR, 'config.schema.json');
 
+// ─── TYPES ───────────────────────────────────────────────────────────────────
 export interface IntelligenceConfig {
   instance: {
     name: string;
-    logo?: string;
-    primaryColor: string;
-    language: string;
+    logo?: string | null;
+    template: string;
+    locale: string;
   };
-  dataSources: DataSourceConfig[];
-  outputs: OutputConfig[];
-  agents: AgentConfig[];
-  workflows: WorkflowConfig[];
-  modules: ModulesConfig;
+  dataSources: {
+    providers: Record<string, DataSourceProvider>;
+  };
+  outputs: {
+    providers: Record<string, OutputProvider>;
+  };
+  agents: {
+    defaults: AgentDefaults;
+    list: AgentConfig[];
+  };
+  workflows: {
+    list: WorkflowConfig[];
+  };
+  skills: {
+    bundled: string[];
+    workspace: string;
+  };
+  ui: UIConfig;
+  auth: AuthConfig;
 }
 
-export interface DataSourceConfig {
-  id: string;
-  name: string;
-  type: 'csv' | 'excel' | 'bmecat' | 'rest' | 'mcp' | 'database';
-  config: Record<string, any>;
-  schedule?: string;
-  enabled: boolean;
+export interface DataSourceProvider {
+  type: 'postgres' | 'mysql' | 'sqlite' | 'csv' | 'excel' | 'rest-api' | 'graphql' | 'mcp';
+  connection?: string;
+  path?: string;
+  endpoint?: string;
+  auth?: Record<string, any>;
+  sync?: { schedule?: string; enabled?: boolean };
+  enabled?: boolean;
 }
 
-export interface OutputConfig {
-  id: string;
-  name: string;
-  type: 'webhook' | 'email' | 'slack' | 'telegram' | 'whatsapp' | 'csv-export' | 'api-push' | 'ftp';
-  config: Record<string, any>;
-  triggers: string[];
-  enabled: boolean;
+export interface OutputProvider {
+  type: 'slack' | 'telegram' | 'whatsapp' | 'email' | 'api' | 'webhook' | 'ftp' | 'csv-export';
+  webhook?: string;
+  endpoint?: string;
+  auth?: Record<string, any>;
+  enabled?: boolean;
+}
+
+export interface AgentDefaults {
+  workspace: string;
+  model: { primary: string; fallbacks?: string[] };
+  thinkingDefault: string;
 }
 
 export interface AgentConfig {
   id: string;
-  name: string;
-  description?: string;
-  model: string;
-  systemPrompt?: string;
-  skills: string[];
-  dataSources: string[];
-  outputs: string[];
+  identity: { name: string; emoji?: string; theme?: string };
+  model?: string;
+  dataSources?: string[];
+  outputs?: string[];
+  skills?: string[];
   enabled: boolean;
 }
 
 export interface WorkflowConfig {
   id: string;
   name: string;
-  trigger: Record<string, any>;
+  trigger: { type: 'cron' | 'event' | 'manual'; schedule?: string; event?: string; path?: string };
   steps: any[];
   enabled: boolean;
 }
 
-export interface ModulesConfig {
-  dashboard: boolean;
-  assistant: boolean;
-  products: boolean;
-  marketing: boolean;
-  analytics: boolean;
-  settings: boolean;
+export interface UIConfig {
+  template: string;
+  theme: 'light' | 'dark' | 'auto';
+  branding: { primaryColor: string; accentColor?: string };
+  dashboard: { showKPIs: boolean; showRecentActivity: boolean; showQuickActions: boolean };
 }
 
-class ConfigService {
-  private config: IntelligenceConfig | null = null;
-  private lastModified: number = 0;
+export interface AuthConfig {
+  mode: 'password' | 'sso' | 'token';
+  sso?: Record<string, any>;
+}
 
+// ─── CONFIG SERVICE ──────────────────────────────────────────────────────────
+class ConfigService extends EventEmitter {
+  private config: IntelligenceConfig | null = null;
+  private schema: any = null;
+  private ajv: Ajv;
+  private watcher: FSWatcher | null = null;
+  private lastHash: string = '';
+
+  constructor() {
+    super();
+    this.ajv = new Ajv({ allErrors: true, useDefaults: true });
+  }
+
+  // ─── LOAD CONFIG ─────────────────────────────────────────────────────────
   loadConfig(): IntelligenceConfig {
     try {
-      const stat = fs.statSync(CONFIG_PATH);
+      const raw = fs.readFileSync(CONFIG_PATH, 'utf-8');
+      let parsed = JSON5.parse(raw);
       
-      // Reload if file changed
-      if (stat.mtimeMs > this.lastModified || !this.config) {
-        const content = fs.readFileSync(CONFIG_PATH, 'utf-8');
-        this.config = yaml.load(content) as IntelligenceConfig;
-        this.lastModified = stat.mtimeMs;
-        
-        // Apply defaults
-        this.config.dataSources = this.config.dataSources || [];
-        this.config.outputs = this.config.outputs || [];
-        this.config.agents = this.config.agents || [];
-        this.config.workflows = this.config.workflows || [];
+      // Process $include directives
+      parsed = this.processIncludes(parsed, CONFIG_DIR);
+      
+      // Substitute environment variables
+      parsed = this.substituteEnvVars(parsed);
+      
+      // Validate against schema
+      if (this.schema) {
+        const validate = this.ajv.compile(this.schema);
+        if (!validate(parsed)) {
+          console.warn('[Config] Validation warnings:', validate.errors);
+        }
       }
       
-      return this.config!;
-    } catch (e) {
-      console.error('Failed to load config:', e);
+      this.config = parsed as IntelligenceConfig;
+      this.lastHash = this.hashConfig(raw);
+      
+      console.log(`[Config] Loaded: ${this.config.instance.name}`);
+      return this.config;
+    } catch (e: any) {
+      console.error('[Config] Failed to load:', e.message);
       return this.getDefaultConfig();
     }
   }
 
+  // ─── $INCLUDE SUPPORT ────────────────────────────────────────────────────
+  private processIncludes(obj: any, baseDir: string): any {
+    if (typeof obj !== 'object' || obj === null) return obj;
+    
+    if (Array.isArray(obj)) {
+      return obj.map(item => this.processIncludes(item, baseDir));
+    }
+    
+    const result: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (key === '$include' && typeof value === 'string') {
+        // Load and merge the included file
+        const includePath = path.resolve(baseDir, value);
+        try {
+          const includeRaw = fs.readFileSync(includePath, 'utf-8');
+          const includeData = JSON5.parse(includeRaw);
+          return this.processIncludes(includeData, path.dirname(includePath));
+        } catch (e: any) {
+          console.warn(`[Config] Failed to include ${value}:`, e.message);
+          return {};
+        }
+      } else {
+        result[key] = this.processIncludes(value, baseDir);
+      }
+    }
+    return result;
+  }
+
+  // ─── ENV VAR SUBSTITUTION ────────────────────────────────────────────────
+  private substituteEnvVars(obj: any): any {
+    if (typeof obj === 'string') {
+      // Replace ${VAR} with process.env.VAR
+      return obj.replace(/\$\{([^}]+)\}/g, (match, varName) => {
+        return process.env[varName] || match;
+      });
+    }
+    if (Array.isArray(obj)) {
+      return obj.map(item => this.substituteEnvVars(item));
+    }
+    if (typeof obj === 'object' && obj !== null) {
+      const result: any = {};
+      for (const [key, value] of Object.entries(obj)) {
+        result[key] = this.substituteEnvVars(value);
+      }
+      return result;
+    }
+    return obj;
+  }
+
+  // ─── SAVE CONFIG ─────────────────────────────────────────────────────────
   saveConfig(config: IntelligenceConfig): void {
-    const content = yaml.dump(config, {
-      indent: 2,
-      lineWidth: 120,
-      noRefs: true,
-    });
+    const content = JSON.stringify(config, null, 2);
     fs.writeFileSync(CONFIG_PATH, content, 'utf-8');
     this.config = config;
-    this.lastModified = Date.now();
+    this.lastHash = this.hashConfig(content);
+    this.emit('changed', config);
+    console.log('[Config] Saved');
+  }
+
+  // ─── PATCH CONFIG (partial update) ───────────────────────────────────────
+  patchConfig(patch: Partial<IntelligenceConfig>): IntelligenceConfig {
+    const config = this.loadConfig();
+    const merged = this.deepMerge(config, patch);
+    this.saveConfig(merged as IntelligenceConfig);
+    return merged as IntelligenceConfig;
+  }
+
+  private deepMerge(target: any, source: any): any {
+    if (typeof source !== 'object' || source === null) return source;
+    if (Array.isArray(source)) return source;
+    
+    const result = { ...target };
+    for (const [key, value] of Object.entries(source)) {
+      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        result[key] = this.deepMerge(result[key] || {}, value);
+      } else {
+        result[key] = value;
+      }
+    }
+    return result;
+  }
+
+  // ─── HOT RELOAD (watch for changes) ──────────────────────────────────────
+  startWatching(): void {
+    if (this.watcher) return;
+    
+    this.watcher = watch(CONFIG_PATH, { persistent: true });
+    this.watcher.on('change', () => {
+      const raw = fs.readFileSync(CONFIG_PATH, 'utf-8');
+      const newHash = this.hashConfig(raw);
+      
+      if (newHash !== this.lastHash) {
+        console.log('[Config] File changed, reloading...');
+        const newConfig = this.loadConfig();
+        this.emit('changed', newConfig);
+      }
+    });
+    
+    console.log('[Config] Watching for changes...');
+  }
+
+  stopWatching(): void {
+    if (this.watcher) {
+      this.watcher.close();
+      this.watcher = null;
+    }
+  }
+
+  // ─── SCHEMA ──────────────────────────────────────────────────────────────
+  loadSchema(): any {
+    try {
+      this.schema = JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf-8'));
+      return this.schema;
+    } catch {
+      return null;
+    }
   }
 
   getSchema(): any {
-    try {
-      return JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf-8'));
-    } catch {
-      return {};
+    return this.schema || this.loadSchema();
+  }
+
+  // ─── HELPERS ─────────────────────────────────────────────────────────────
+  private hashConfig(content: string): string {
+    let hash = 0;
+    for (let i = 0; i < content.length; i++) {
+      hash = ((hash << 5) - hash) + content.charCodeAt(i);
+      hash |= 0;
     }
+    return hash.toString(16);
   }
 
-  // Partial updates
-  updateSection<K extends keyof IntelligenceConfig>(
-    section: K, 
-    data: IntelligenceConfig[K]
-  ): IntelligenceConfig {
-    const config = this.loadConfig();
-    config[section] = data;
-    this.saveConfig(config);
-    return config;
+  getConfig(): IntelligenceConfig {
+    return this.config || this.loadConfig();
   }
 
-  // Add item to array section
-  addItem(section: 'dataSources' | 'outputs' | 'agents' | 'workflows', item: any): IntelligenceConfig {
-    const config = this.loadConfig();
-    (config[section] as any[]).push(item);
-    this.saveConfig(config);
-    return config;
+  // ─── CONVENIENCE GETTERS ─────────────────────────────────────────────────
+  getEnabledAgents(): AgentConfig[] {
+    return this.getConfig().agents.list.filter(a => a.enabled !== false);
   }
 
-  // Update item in array section
-  updateItem(section: 'dataSources' | 'outputs' | 'agents' | 'workflows', id: string, updates: any): IntelligenceConfig {
-    const config = this.loadConfig();
-    const arr = config[section] as any[];
-    const index = arr.findIndex(item => item.id === id);
-    if (index !== -1) {
-      arr[index] = { ...arr[index], ...updates };
-      this.saveConfig(config);
-    }
-    return config;
+  getEnabledWorkflows(): WorkflowConfig[] {
+    return this.getConfig().workflows.list.filter(w => w.enabled !== false);
   }
 
-  // Delete item from array section
-  deleteItem(section: 'dataSources' | 'outputs' | 'agents' | 'workflows', id: string): IntelligenceConfig {
-    const config = this.loadConfig();
-    const arr = config[section] as any[];
-    const index = arr.findIndex(item => item.id === id);
-    if (index !== -1) {
-      arr.splice(index, 1);
-      this.saveConfig(config);
-    }
-    return config;
+  getEnabledDataSources(): Record<string, DataSourceProvider> {
+    const providers = this.getConfig().dataSources.providers;
+    return Object.fromEntries(
+      Object.entries(providers).filter(([_, p]) => p.enabled !== false)
+    );
   }
 
+  getEnabledOutputs(): Record<string, OutputProvider> {
+    const providers = this.getConfig().outputs.providers;
+    return Object.fromEntries(
+      Object.entries(providers).filter(([_, p]) => p.enabled !== false)
+    );
+  }
+
+  // ─── DEFAULT CONFIG ──────────────────────────────────────────────────────
   private getDefaultConfig(): IntelligenceConfig {
     return {
-      instance: {
-        name: '0711-C Intelligence',
-        primaryColor: '#3B82F6',
-        language: 'de',
+      instance: { name: '0711-C Intelligence', template: 'default', locale: 'de-DE' },
+      dataSources: { providers: {} },
+      outputs: { providers: {} },
+      agents: {
+        defaults: {
+          workspace: '~/.0711/workspace',
+          model: { primary: 'anthropic/claude-sonnet-4-20250514' },
+          thinkingDefault: 'low',
+        },
+        list: [],
       },
-      dataSources: [],
-      outputs: [],
-      agents: [],
-      workflows: [],
-      modules: {
-        dashboard: true,
-        assistant: true,
-        products: true,
-        marketing: false,
-        analytics: true,
-        settings: true,
+      workflows: { list: [] },
+      skills: { bundled: [], workspace: '~/.0711/workspace/skills/' },
+      ui: {
+        template: 'default',
+        theme: 'light',
+        branding: { primaryColor: '#3B82F6' },
+        dashboard: { showKPIs: true, showRecentActivity: true, showQuickActions: true },
       },
+      auth: { mode: 'password' },
     };
   }
 }
 
+// Singleton export
 export const configService = new ConfigService();
 export default configService;
