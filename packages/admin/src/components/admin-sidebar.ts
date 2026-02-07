@@ -43,6 +43,7 @@ const NAV_STRUCTURE: NavGroup[] = [
     title: 'Data',
     items: [
       { id: 'data-sources', iconKey: 'plug', label: 'Datenquellen' },
+      { id: 'widgets', iconKey: 'barChart3', label: 'Widgets' },
       { id: 'outputs', iconKey: 'upload', label: 'Ausgaben' },
       { id: 'template', iconKey: 'palette', label: 'Template & UI' },
     ],

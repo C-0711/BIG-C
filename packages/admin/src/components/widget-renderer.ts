@@ -7,6 +7,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { icons } from '../utils/icons.js';
+import { api } from '../services/index.js';
 
 interface WidgetConfig {
   id: string;
@@ -170,6 +171,32 @@ export class WidgetRenderer extends LitElement {
   @property({ type: Boolean }) loading = false;
   @property({ type: String }) error = '';
   @property({ type: Boolean }) preview = false;
+
+  connectedCallback() {
+    super.connectedCallback();
+    if (this.config?.id && !this.data) {
+      this.fetchData();
+    }
+  }
+
+  private async fetchData() {
+    if (!this.config?.id) return;
+    this.loading = true;
+    this.error = '';
+    
+    try {
+      const response = await api.get(`/widgets/${this.config.id}/data`);
+      if (response.ok && response.data?.success) {
+        this.data = response.data.data;
+      } else {
+        this.error = response.data?.error || 'Failed to load data';
+      }
+    } catch (e: any) {
+      this.error = e.message;
+    }
+    
+    this.loading = false;
+  }
 
   render() {
     return html`
