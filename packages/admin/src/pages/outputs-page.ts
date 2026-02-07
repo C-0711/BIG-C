@@ -1,3 +1,5 @@
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { icons } from '../utils/icons.js';
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { configService, toastService, modalService, api, type Config, type Output } from '../services/index.js';
@@ -295,10 +297,10 @@ export class OutputsPage extends LitElement {
     switch (type) {
       case 'slack': return '💼';
       case 'telegram': return '✈️';
-      case 'email': return '📧';
-      case 'webhook': return '🔗';
+      case 'email': return icons.mail;
+      case 'webhook': return icons.link;
       case 'api': return '🌐';
-      default: return '📤';
+      default: return icons.upload;
     }
   }
 
@@ -399,7 +401,7 @@ export class OutputsPage extends LitElement {
 
       ${entries.length === 0 ? html`
         <div class="empty-state">
-          <div class="icon">📤</div>
+          <div class="icon">${unsafeHTML(icons.upload)}</div>
           <h3>Keine Ausgaben konfiguriert</h3>
           <p>Füge Slack, Telegram, API oder andere Ausgabekanäle hinzu.</p>
         </div>

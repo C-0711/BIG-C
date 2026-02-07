@@ -1,9 +1,11 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { icons } from '../utils/icons.js';
 
 interface NavItem {
   id: string;
-  icon: string;
+  iconKey: string;
   label: string;
 }
 
@@ -16,47 +18,47 @@ const NAV_STRUCTURE: NavGroup[] = [
   {
     title: 'Chat',
     items: [
-      { id: 'chat', icon: '💬', label: 'Chat' },
+      { id: 'chat', iconKey: 'messageSquare', label: 'Chat' },
     ],
   },
   {
     title: 'Control',
     items: [
-      { id: 'overview', icon: '📋', label: 'Overview' },
-      { id: 'channels', icon: '🔗', label: 'Channels' },
-      { id: 'instances', icon: '📡', label: 'Instances' },
-      { id: 'sessions', icon: '📊', label: 'Sessions' },
-      { id: 'cron-jobs', icon: '⏰', label: 'Cron Jobs' },
+      { id: 'overview', iconKey: 'layoutDashboard', label: 'Overview' },
+      { id: 'channels', iconKey: 'link', label: 'Channels' },
+      { id: 'instances', iconKey: 'radio', label: 'Instances' },
+      { id: 'sessions', iconKey: 'activity', label: 'Sessions' },
+      { id: 'cron-jobs', iconKey: 'clock', label: 'Cron Jobs' },
     ],
   },
   {
     title: 'Agent',
     items: [
-      { id: 'agents', icon: '■', label: 'Agents' },
-      { id: 'skills', icon: '✨', label: 'Skills' },
-      { id: 'nodes', icon: '📦', label: 'Nodes' },
+      { id: 'agents', iconKey: 'bot', label: 'Agents' },
+      { id: 'skills', iconKey: 'sparkles', label: 'Skills' },
+      { id: 'nodes', iconKey: 'server', label: 'Nodes' },
     ],
   },
   {
     title: 'Data',
     items: [
-      { id: 'data-sources', icon: '🔌', label: 'Datenquellen' },
-      { id: 'outputs', icon: '📤', label: 'Ausgaben' },
-      { id: 'template', icon: '🎨', label: 'Template & UI' },
+      { id: 'data-sources', iconKey: 'plug', label: 'Datenquellen' },
+      { id: 'outputs', iconKey: 'upload', label: 'Ausgaben' },
+      { id: 'template', iconKey: 'palette', label: 'Template & UI' },
     ],
   },
   {
     title: 'Settings',
     items: [
-      { id: 'config', icon: '⚙️', label: 'Config' },
-      { id: 'debug', icon: '🐛', label: 'Debug' },
-      { id: 'logs', icon: '📋', label: 'Logs' },
+      { id: 'config', iconKey: 'settings', label: 'Config' },
+      { id: 'debug', iconKey: 'bug', label: 'Debug' },
+      { id: 'logs', iconKey: 'fileText', label: 'Logs' },
     ],
   },
   {
     title: 'Resources',
     items: [
-      { id: 'docs', icon: '📚', label: 'Docs' },
+      { id: 'docs', iconKey: 'bookOpen', label: 'Docs' },
     ],
   },
 ];
@@ -67,8 +69,8 @@ export class AdminSidebar extends LitElement {
     :host {
       display: block;
       width: var(--sidebar-width, 220px);
-      background: var(--bg-secondary);
-      border-right: 1px solid var(--border-color);
+      background: var(--bg-secondary, #16161e);
+      border-right: 1px solid var(--border-color, #2a2a3a);
       overflow-y: auto;
       transition: width 0.2s ease;
     }
@@ -89,14 +91,14 @@ export class AdminSidebar extends LitElement {
       padding: 8px 16px 4px;
       font-size: 11px;
       font-weight: 600;
-      color: var(--text-muted);
+      color: var(--text-muted, #6b7280);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     
     .group-divider {
       height: 1px;
-      background: var(--border-subtle);
+      background: var(--border-subtle, #1e1e28);
       margin: 0 16px 8px;
     }
     
@@ -108,27 +110,35 @@ export class AdminSidebar extends LitElement {
       margin: 2px 8px;
       border-radius: 6px;
       cursor: pointer;
-      color: var(--text-secondary);
+      color: var(--text-secondary, #9ca3af);
       text-decoration: none;
       font-size: 13px;
       transition: all 0.15s ease;
     }
     
     .nav-item:hover {
-      background: var(--bg-hover);
-      color: var(--text-primary);
+      background: var(--bg-hover, #252532);
+      color: var(--text-primary, #fff);
     }
     
     .nav-item.active {
-      background: var(--accent-primary);
+      background: var(--accent-primary, #22c55e);
       color: #000;
       font-weight: 500;
     }
     
     .nav-item .icon {
-      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       width: 20px;
-      text-align: center;
+      height: 20px;
+      flex-shrink: 0;
+    }
+    
+    .nav-item .icon svg {
+      width: 18px;
+      height: 18px;
     }
     
     .nav-item .label {
@@ -155,22 +165,32 @@ export class AdminSidebar extends LitElement {
     
     .sidebar-footer {
       padding: 16px;
-      border-top: 1px solid var(--border-color);
+      background: var(--bg-tertiary, #1e1e28);
+      border-top: 1px solid var(--border-color, #2a2a3a);
       margin-top: auto;
     }
     
     .footer-info {
       font-size: 11px;
-      color: var(--text-muted);
-      line-height: 1.4;
+      color: var(--text-muted, #6b7280);
+      line-height: 1.5;
     }
     
     .footer-info .version {
-      color: var(--text-secondary);
+      color: var(--text-secondary, #9ca3af);
+      font-weight: 500;
     }
     
     .footer-info .status {
-      color: var(--accent-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--accent-primary, #22c55e);
+    }
+    
+    .footer-info .status svg {
+      width: 14px;
+      height: 14px;
     }
   `;
 
@@ -198,7 +218,7 @@ export class AdminSidebar extends LitElement {
                 class="nav-item ${this.currentRoute === item.id ? 'active' : ''}"
                 @click=${() => this.navigate(item.id)}
               >
-                <span class="icon">${item.icon}</span>
+                <span class="icon">${unsafeHTML(icons[item.iconKey] || '')}</span>
                 <span class="label">${item.label}</span>
               </a>
             `)}
@@ -209,7 +229,7 @@ export class AdminSidebar extends LitElement {
           <div class="sidebar-footer">
             <div class="footer-info">
               <div class="version">v2026.2.1</div>
-              <div class="status">Gateway: ✅ Running</div>
+              <div class="status">${unsafeHTML(icons.checkCircle)} Running</div>
               <div>${instanceName}</div>
               <div>${agentCount} Agents · ${workflowCount} Workflows</div>
             </div>

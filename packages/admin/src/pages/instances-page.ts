@@ -1,3 +1,5 @@
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { icons } from '../utils/icons.js';
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { configService, type Config } from '../services/index';
@@ -115,7 +117,7 @@ export class InstancesPage extends LitElement {
 
       <div class="instance-card">
         <div class="instance-header">
-          <span class="instance-icon">📊</span>
+          <span class="instance-icon">${unsafeHTML(icons.server)}</span>
           <div class="instance-title">
             <h2>${this.config?.instance?.name || '0711-C-Intelligence'}</h2>
             <div class="status">

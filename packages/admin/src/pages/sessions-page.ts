@@ -1,3 +1,5 @@
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { icons } from '../utils/icons.js';
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
@@ -63,7 +65,7 @@ export class SessionsPage extends LitElement {
       </div>
 
       <div class="empty-state">
-        <div class="icon">💬</div>
+        <div class="icon">${unsafeHTML(icons.messageCircle)}</div>
         <h3>No Active Sessions</h3>
         <p>Chat sessions will appear here when users interact with agents.</p>
       </div>

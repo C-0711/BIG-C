@@ -1,3 +1,5 @@
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { icons } from '../utils/icons.js';
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { configService, toastService, modalService, api, type Config, type DataSource } from '../services/index.js';
@@ -307,12 +309,12 @@ export class DataSourcesPage extends LitElement {
 
   private getIcon(type: string): string {
     switch (type) {
-      case 'postgres': return '🐘';
-      case 'mysql': return '🐬';
-      case 'csv': return '📄';
+      case 'postgres': return icons.database;
+      case 'mysql': return icons.database;
+      case 'csv': return icons.fileSpreadsheet;
       case 'api': return '🌐';
-      case 'mcp': return '🔌';
-      default: return '📦';
+      case 'mcp': return icons.plug;
+      default: return icons.package;
     }
   }
 
@@ -413,7 +415,7 @@ export class DataSourcesPage extends LitElement {
 
       ${entries.length === 0 ? html`
         <div class="empty-state">
-          <div class="icon">🔌</div>
+          <div class="icon">${unsafeHTML(icons.plug)}</div>
           <h3>Keine Datenquellen konfiguriert</h3>
           <p>Füge PostgreSQL, CSV, REST API oder andere Datenquellen hinzu.</p>
         </div>

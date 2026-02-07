@@ -1,3 +1,5 @@
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { icons } from '../utils/icons.js';
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { configService, toastService, type Config } from '../services/index';
@@ -258,7 +260,7 @@ export class SkillsPage extends LitElement {
         ${this.bundledSkills.map(skillId => html`
           <div class="skill-card">
             <div class="skill-header">
-              <span class="skill-icon">✨</span>
+              <span class="skill-icon">${unsafeHTML(icons.sparkles)}</span>
               <div class="skill-info">
                 <h3>${this.formatSkillName(skillId)}</h3>
                 <span class="id">${skillId}</span>

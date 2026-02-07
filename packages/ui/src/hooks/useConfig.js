@@ -83,24 +83,24 @@ export function useIntelligenceConfig() {
     const skills = getSkills();
     return {
       main: [
-        { id: "assistant", icon: "🤖", label: "Assistant", path: "/" },
-        { id: "dashboard", icon: "📊", label: "Dashboard", path: "/dashboard" },
+        { id: "assistant", icon: "Bot", label: "Assistant", path: "/" },
+        { id: "dashboard", icon: "LayoutDashboard", label: "Dashboard", path: "/dashboard" },
       ],
       core: [
-        skills.bundled.length > 0 && { id: "skills", icon: "✨", label: "Skills", path: "/skills" },
-        dataSources.length > 0 && { id: "knowledge", icon: "📚", label: "Knowledge Base", path: "/knowledge" },
-        workflows.filter(w => w.type === "automation").length > 0 && { id: "automation", icon: "⚡", label: "Automation", path: "/automation" },
-        agents.length > 0 && { id: "workspaces", icon: "📁", label: "Workspaces", path: "/workspaces" },
+        skills.bundled.length > 0 && { id: "skills", icon: "Sparkles", label: "Skills", path: "/skills" },
+        dataSources.length > 0 && { id: "knowledge", icon: "BookOpen", label: "Knowledge Base", path: "/knowledge" },
+        workflows.filter(w => w.type === "automation").length > 0 && { id: "automation", icon: "Zap", label: "Automation", path: "/automation" },
+        agents.length > 0 && { id: "workspaces", icon: "FolderOpen", label: "Workspaces", path: "/workspaces" },
       ].filter(Boolean),
       data: [
-        dataSources.length > 0 && { id: "integrations", icon: "🔌", label: "Integrations", path: "/integrations" },
-        outputs.length > 0 && { id: "publishing", icon: "📤", label: "Publishing", path: "/publishing" },
-        workflows.filter(w => w.type === "report").length > 0 && { id: "reports", icon: "📋", label: "Reports", path: "/reports" },
+        dataSources.length > 0 && { id: "integrations", icon: "Plug", label: "Integrations", path: "/integrations" },
+        outputs.length > 0 && { id: "publishing", icon: "Upload", label: "Publishing", path: "/publishing" },
+        workflows.filter(w => w.type === "report").length > 0 && { id: "reports", icon: "FileText", label: "Reports", path: "/reports" },
       ].filter(Boolean),
       business: [
-        agents.find(a => a.id === "content-writer") && { id: "marketing", icon: "📣", label: "Marketing", path: "/marketing" },
-        agents.find(a => a.id === "product-expert") && { id: "product", icon: "📦", label: "Product", path: "/product" },
-        { id: "intelligence", icon: "🧠", label: "Intelligence", path: "/intelligence" },
+        agents.find(a => a.id === "content-writer") && { id: "marketing", icon: "Megaphone", label: "Marketing", path: "/marketing" },
+        agents.find(a => a.id === "product-expert") && { id: "product", icon: "Package", label: "Product", path: "/product" },
+        { id: "intelligence", icon: "Brain", label: "Intelligence", path: "/intelligence" },
       ].filter(Boolean),
     };
   }, [config, getEnabledAgents, getEnabledWorkflows, getDataSources, getOutputs, getSkills]);

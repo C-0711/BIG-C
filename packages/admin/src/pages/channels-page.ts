@@ -1,3 +1,5 @@
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { icons } from '../utils/icons.js';
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { toastService } from '../services/index';
@@ -196,13 +198,13 @@ export class ChannelsPage extends LitElement {
         </div>
 
         <div class="empty-state">
-          <div class="icon">🔗</div>
+          <div class="icon">${unsafeHTML(icons.link)}</div>
           <h3>No Channels Configured</h3>
           <p>Connect messaging platforms to interact with your agents.</p>
           
           <div class="channel-types">
             <div class="channel-type" @click=${() => this.handleAddChannel('webchat')}>
-              <span class="icon">💬</span>
+              <span class="icon">${unsafeHTML(icons.messageSquare)}</span>
               <span class="name">Web Chat</span>
             </div>
             <div class="channel-type" @click=${() => this.handleAddChannel('telegram')}>

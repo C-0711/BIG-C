@@ -1,3 +1,5 @@
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { icons } from '../utils/icons.js';
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { configService, toastService, modalService, api, type Config, type Workflow } from '../services/index.js';
@@ -480,7 +482,7 @@ export class CronJobsPage extends LitElement {
       <div class="table-container">
         ${this.workflows.length === 0 ? html`
           <div class="empty-state">
-            <div class="icon">⏰</div>
+            <div class="icon">${unsafeHTML(icons.clock)}</div>
             <h3>No workflows configured</h3>
             <p>Create scheduled jobs to automate tasks.</p>
           </div>

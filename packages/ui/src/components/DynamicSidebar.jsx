@@ -1,6 +1,11 @@
 import { useState, createContext, useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Settings, User } from 'lucide-react';
+import { 
+  ChevronLeft, ChevronRight, Settings, 
+  Bot, LayoutDashboard, Sparkles, BookOpen, Zap, FolderOpen,
+  Plug, Upload, FileText, Megaphone, Package, Brain, MessageSquare,
+  Activity, Link as LinkIcon, Clock, Server, Palette, Bug, Mail
+} from 'lucide-react';
 import { useIntelligenceConfig } from '../hooks/useConfig';
 
 // Context for sidebar state
@@ -10,11 +15,11 @@ export function useSidebar() {
   return useContext(SidebarContext);
 }
 
-// Icon mapping
+// Icon mapping - Lucide components
 const ICONS = {
-  '🤖': '🤖', '📊': '📊', '✨': '✨', '📚': '📚', '⚡': '⚡', '📁': '📁',
-  '🔌': '🔌', '📤': '📤', '🖼️': '🖼️', '📋': '📋', '📣': '📣', '📦': '📦',
-  '📈': '📈', '🧠': '🧠', '⚙️': '⚙️',
+  Bot, LayoutDashboard, Sparkles, BookOpen, Zap, FolderOpen,
+  Plug, Upload, FileText, Megaphone, Package, Brain, Settings,
+  MessageSquare, Activity, Link: LinkIcon, Clock, Server, Palette, Bug, Mail
 };
 
 function NavItem({ item, expanded }) {
@@ -22,6 +27,8 @@ function NavItem({ item, expanded }) {
   const isActive = item.path === '/' 
     ? location.pathname === '/' 
     : location.pathname.startsWith(item.path);
+
+  const IconComponent = ICONS[item.icon];
 
   return (
     <Link
@@ -35,7 +42,9 @@ function NavItem({ item, expanded }) {
       `}
       title={!expanded ? item.label : undefined}
     >
-      <span className="text-lg flex-shrink-0">{item.icon}</span>
+      <span className="flex-shrink-0">
+        {IconComponent ? <IconComponent size={20} /> : item.icon}
+      </span>
       {expanded && (
         <span className="truncate text-sm">{item.label}</span>
       )}
@@ -49,11 +58,11 @@ function NavGroup({ title, items, expanded }) {
   return (
     <div className="mb-4">
       {expanded && title && (
-        <div className="px-4 py-2 text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+        <div className="px-4 py-2 text-[10px] font-semibold text-gray-500 uppercase tracking-wider bg-[#16161e] mx-2 rounded">
           {title}
         </div>
       )}
-      <div className="space-y-0.5">
+      <div className="space-y-0.5 mt-1">
         {items.map(item => (
           <NavItem key={item.id} item={item} expanded={expanded} />
         ))}
@@ -74,13 +83,13 @@ export function DynamicSidebar() {
     <SidebarContext.Provider value={{ expanded, setExpanded }}>
       <aside 
         className={`
-          flex flex-col bg-[#0f0f0f] border-r border-white/10
+          flex flex-col bg-[#16161e] border-r border-[#2a2a3a]
           transition-all duration-200 ease-in-out
           ${expanded ? 'w-60' : 'w-16'}
         `}
       >
         {/* Header */}
-        <div className="flex items-center gap-3 p-4 border-b border-white/10">
+        <div className="flex items-center gap-3 p-4 border-b border-[#2a2a3a]">
           {instance.logo ? (
             <img src={instance.logo} alt="Logo" className="w-8 h-8 rounded" />
           ) : (
@@ -113,9 +122,9 @@ export function DynamicSidebar() {
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-white/10 p-2">
+        <div className="border-t border-[#2a2a3a] p-2 bg-[#1e1e28]">
           <NavItem 
-            item={{ id: 'settings', icon: '⚙️', label: 'Settings', path: '/settings' }} 
+            item={{ id: 'settings', icon: 'Settings', label: 'Settings', path: '/settings' }} 
             expanded={expanded} 
           />
           
@@ -133,9 +142,9 @@ export function DynamicSidebar() {
         {expanded && (
           <a
             href="/admin"
-            className="m-2 mb-4 px-3 py-2 text-xs text-center text-gray-500 hover:text-gray-400 bg-white/5 rounded-lg transition-colors"
+            className="m-2 mb-4 px-3 py-2 text-xs text-center text-gray-500 hover:text-gray-400 bg-[#1e1e28] border border-[#2a2a3a] rounded-lg transition-colors flex items-center justify-center gap-2"
           >
-            ⚙️ Admin Dashboard
+            <Settings size={14} /> Admin Dashboard
           </a>
         )}
       </aside>

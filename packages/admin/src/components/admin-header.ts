@@ -1,5 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { icons } from '../utils/icons.js';
 import { configService, toastService } from '../services/index';
 
 @customElement('admin-header')
@@ -7,7 +9,7 @@ export class AdminHeader extends LitElement {
   static styles = css`
     :host {
       display: block;
-      background: var(--bg-secondary, #1a1a24);
+      background: var(--bg-secondary, #16161e);
       border-bottom: 1px solid var(--border-color, #2a2a3a);
     }
 
@@ -49,7 +51,19 @@ export class AdminHeader extends LitElement {
     }
 
     .logo-icon {
-      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: var(--accent-primary, #22c55e);
+      border-radius: 8px;
+      color: #000;
+    }
+
+    .logo-icon svg {
+      width: 20px;
+      height: 20px;
     }
 
     .logo-text {
@@ -81,38 +95,49 @@ export class AdminHeader extends LitElement {
       align-items: center;
       gap: 8px;
       padding: 6px 12px;
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
       border-radius: 20px;
       font-size: 12px;
-      color: #10b981;
+      color: #22c55e;
     }
 
     .status-dot {
       width: 6px;
       height: 6px;
-      background: #10b981;
+      background: #22c55e;
       border-radius: 50%;
     }
 
     button {
-      background: var(--bg-tertiary, #2a2a3a);
-      border: 1px solid var(--border-color, #363646);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-tertiary, #1e1e28);
+      border: 1px solid var(--border-color, #2a2a3a);
       color: var(--text-primary, #fff);
       padding: 8px 12px;
       border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
       transition: all 0.2s;
+      min-width: 40px;
+      height: 36px;
+    }
+
+    button svg {
+      width: 18px;
+      height: 18px;
     }
 
     button:hover {
-      background: var(--border-color, #363646);
+      background: var(--bg-hover, #252532);
     }
 
     button.active {
-      background: var(--accent-color, #3b82f6);
-      border-color: var(--accent-color, #3b82f6);
+      background: var(--accent-primary, #22c55e);
+      border-color: var(--accent-primary, #22c55e);
+      color: #000;
     }
 
     .spinner {
@@ -157,7 +182,7 @@ export class AdminHeader extends LitElement {
         <div class="left">
           <button class="menu-btn" @click=${this.handleMenuToggle}>☰</button>
           <div class="logo">
-            <span class="logo-icon">📊</span>
+            <span class="logo-icon">${unsafeHTML(icons.barChart3)}</span>
             <div class="logo-text">
               <span class="logo-title">0711-C INTELLIGENCE</span>
               <span class="logo-subtitle">Gateway Dashboard</span>
@@ -171,10 +196,10 @@ export class AdminHeader extends LitElement {
             Health OK
           </div>
           <button @click=${this.handleThemeToggle} title="Toggle theme">
-            ${this.theme === 'dark' ? '☀️' : '🌙'}
+            ${unsafeHTML(this.theme === 'dark' ? icons.sun : icons.moon)}
           </button>
           <button @click=${this.handleRefresh} title="Refresh data" ?disabled=${this.refreshing}>
-            ${this.refreshing ? html`<span class="spinner"></span>` : '⟳'}
+            ${this.refreshing ? html`<span class="spinner"></span>` : unsafeHTML(icons.refreshCw)}
           </button>
         </div>
       </header>
