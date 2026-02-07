@@ -8,6 +8,8 @@ import '../pages/data-sources-page';
 import '../pages/outputs-page';
 import '../pages/template-page';
 import '../pages/config-page';
+import '../pages/chat-page';
+import '../pages/logs-page';
 
 @customElement('admin-content')
 export class AdminContent extends LitElement {
@@ -51,6 +53,8 @@ export class AdminContent extends LitElement {
     switch (this.route) {
       case 'overview':
         return html`<overview-page .config=${this.config}></overview-page>`;
+      case 'chat':
+        return html`<chat-page .config=${this.config}></chat-page>`;
       case 'agents':
         return html`<agents-page .config=${this.config}></agents-page>`;
       case 'skills':
@@ -65,6 +69,8 @@ export class AdminContent extends LitElement {
         return html`<template-page .config=${this.config}></template-page>`;
       case 'config':
         return html`<config-page .config=${this.config}></config-page>`;
+      case 'logs':
+        return html`<logs-page .config=${this.config}></logs-page>`;
       default:
         return this.renderPlaceholder();
     }
@@ -72,13 +78,11 @@ export class AdminContent extends LitElement {
 
   private renderPlaceholder() {
     const pageInfo: Record<string, { icon: string; title: string }> = {
-      'chat': { icon: '💬', title: 'Chat' },
       'channels': { icon: '🔗', title: 'Channels' },
       'instances': { icon: '📡', title: 'Instances' },
       'sessions': { icon: '📊', title: 'Sessions' },
       'nodes': { icon: '📦', title: 'Nodes' },
       'debug': { icon: '🐛', title: 'Debug' },
-      'logs': { icon: '📋', title: 'Logs' },
       'docs': { icon: '📚', title: 'Docs' },
     };
 
