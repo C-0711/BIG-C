@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import { WebSocket, WebSocketServer } from 'ws';
 import { config as dotenvConfig } from 'dotenv';
+import path from 'path';
 import configService from './services/ConfigService';
 
 dotenvConfig();
@@ -13,7 +14,9 @@ const PORT = process.env.PORT || 7074;
 const OPENCLAW_WS = process.env.OPENCLAW_GATEWAY || 'ws://localhost:18789';
 
 // ─── MIDDLEWARE ────────────────────────────────────────────────────────────
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false,  // Allow inline scripts for dev
+}));
 app.use(cors());
 app.use(compression());
 app.use(express.json({ limit: '50mb' }));
@@ -57,17 +60,36 @@ app.use('/api/workflows', workflowsRouter);
 app.use('/api/entities', entitiesRouter);
 app.use('/api/skills', skillsRouter);
 
+// ─── STATIC FILES: ADMIN UI (/admin) ───────────────────────────────────────
+const adminDistPath = path.join(__dirname, '../../admin/dist');
+app.use('/admin', express.static(adminDistPath));
+app.get('/admin/*', (req, res) => {
+  res.sendFile(path.join(adminDistPath, 'index.html'));
+});
+
+// ─── STATIC FILES: USER UI (/app) ──────────────────────────────────────────
+const appDistPath = path.join(__dirname, '../../ui/dist');
+app.use('/app', express.static(appDistPath));
+app.get('/app/*', (req, res) => {
+  res.sendFile(path.join(appDistPath, 'index.html'));
+});
+
+// ─── ROOT REDIRECT ─────────────────────────────────────────────────────────
+app.get('/', (req, res) => {
+  res.redirect('/app');
+});
+
 // ─── START SERVER ──────────────────────────────────────────────────────────
 const server = app.listen(PORT, () => {
-  console.log(`\n🚀 0711-C-Intelligence API`);
+  console.log(`\n🚀 0711-C-Intelligence Gateway`);
   console.log(`   Port: ${PORT}`);
   console.log(`   Config: ~/.0711/config.json`);
   console.log(`   OpenClaw: ${OPENCLAW_WS}`);
-  console.log(`   Endpoints:`);
-  console.log(`     GET  /api/config          Full config`);
-  console.log(`     GET  /api/config/schema   JSON Schema`);
-  console.log(`     PATCH /api/config         Partial update`);
-  console.log(`     POST /api/config/reload   Force reload`);
+  console.log(`\n   Routes:`);
+  console.log(`     /admin     → Admin UI (Gateway Dashboard)`);
+  console.log(`     /app       → User UI (Config-Driven)`);
+  console.log(`     /api/*     → REST API`);
+  console.log(`     /ws        → WebSocket`);
   console.log(`\n`);
 });
 
@@ -75,89 +97,95 @@ const server = app.listen(PORT, () => {
 const wss = new WebSocketServer({ server, path: '/ws' });
 const clients: Set<WebSocket> = new Set();
 
+function broadcast(message: any) {
+  const data = JSON.stringify(message);
+  clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(data);
+    }
+  });
+}
+
 wss.on('connection', (clientWs) => {
   console.log('[WS] Client connected');
   clients.add(clientWs);
   
-  // Send current config on connect
+  // Send initial config
+  const config = configService.getConfig();
   clientWs.send(JSON.stringify({ 
     type: 'config.init', 
-    config: configService.getConfig() 
+    config,
+    timestamp: new Date().toISOString(),
   }));
-  
-  // Connect to OpenClaw Gateway for proxying
-  let openclawWs: WebSocket | null = null;
-  try {
-    openclawWs = new WebSocket(OPENCLAW_WS);
-    
-    openclawWs.on('open', () => {
-      console.log('[WS] Connected to OpenClaw Gateway');
-      clientWs.send(JSON.stringify({ type: 'openclaw.connected' }));
-    });
-    
-    openclawWs.on('message', (data) => {
-      if (clientWs.readyState === WebSocket.OPEN) {
-        clientWs.send(data.toString());
-      }
-    });
-    
-    openclawWs.on('error', () => {
-      clientWs.send(JSON.stringify({ type: 'openclaw.error', message: 'Gateway not available' }));
-    });
-    
-    openclawWs.on('close', () => {
-      clientWs.send(JSON.stringify({ type: 'openclaw.disconnected' }));
-    });
-  } catch (e) {
-    clientWs.send(JSON.stringify({ type: 'openclaw.error', message: 'Failed to connect to Gateway' }));
-  }
   
   clientWs.on('message', (data) => {
     try {
       const msg = JSON.parse(data.toString());
       
-      // Handle config requests directly
-      if (msg.type === 'config.get') {
-        clientWs.send(JSON.stringify({ type: 'config.data', config: configService.getConfig() }));
-      } else if (msg.type === 'config.patch') {
+      if (msg.type === 'config.patch') {
+        // Apply patch and broadcast
         const updated = configService.patchConfig(msg.patch);
-        clientWs.send(JSON.stringify({ type: 'config.updated', config: updated }));
-      } else if (openclawWs?.readyState === WebSocket.OPEN) {
-        // Forward to OpenClaw
-        openclawWs.send(data.toString());
+        broadcast({ 
+          type: 'config.changed', 
+          config: updated,
+          source: 'websocket',
+          timestamp: new Date().toISOString(),
+        });
       }
     } catch (e) {
-      // Forward raw message to OpenClaw
-      if (openclawWs?.readyState === WebSocket.OPEN) {
-        openclawWs.send(data.toString());
-      }
+      console.error('[WS] Message error:', e);
     }
   });
   
   clientWs.on('close', () => {
     console.log('[WS] Client disconnected');
     clients.delete(clientWs);
-    openclawWs?.close();
   });
 });
 
-// ─── BROADCAST CONFIG CHANGES ──────────────────────────────────────────────
-configService.on('changed', (newConfig) => {
-  console.log('[Config] Broadcasting change to', clients.size, 'clients');
-  const message = JSON.stringify({ type: 'config.changed', config: newConfig });
-  clients.forEach(client => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(message);
-    }
+// Broadcast config changes from file watcher
+configService.on('change', (config) => {
+  console.log('[Config] File changed, broadcasting...');
+  broadcast({ 
+    type: 'config.changed', 
+    config,
+    source: 'file',
+    timestamp: new Date().toISOString(),
   });
 });
 
-// ─── GRACEFUL SHUTDOWN ─────────────────────────────────────────────────────
-process.on('SIGTERM', () => {
-  console.log('Shutting down...');
-  configService.stopWatching();
-  wss.close();
-  server.close();
-});
+// ─── PROXY TO OPENCLAW ─────────────────────────────────────────────────────
+let openClawWs: WebSocket | null = null;
 
-export default app;
+function connectToOpenClaw() {
+  try {
+    openClawWs = new WebSocket(OPENCLAW_WS);
+    
+    openClawWs.on('open', () => {
+      console.log('[OpenClaw] Connected to Gateway');
+    });
+    
+    openClawWs.on('message', (data) => {
+      // Forward OpenClaw messages to clients
+      broadcast({ 
+        type: 'openclaw.message', 
+        data: JSON.parse(data.toString()),
+      });
+    });
+    
+    openClawWs.on('close', () => {
+      console.log('[OpenClaw] Disconnected, reconnecting in 5s...');
+      setTimeout(connectToOpenClaw, 5000);
+    });
+    
+    openClawWs.on('error', () => {
+      // Silently handle errors, will reconnect
+    });
+  } catch (e) {
+    setTimeout(connectToOpenClaw, 5000);
+  }
+}
+
+// connectToOpenClaw();  // Uncomment when OpenClaw is available
+
+export { app, server, wss, broadcast };
