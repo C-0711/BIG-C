@@ -1,547 +1,720 @@
 import { LitElement, html, css } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, state } from 'lit/decorators.js';
+import { configService, toastService, modalService, api, type Config, type Agent } from '../services/index.js';
 
 @customElement('agents-page')
 export class AgentsPage extends LitElement {
   static styles = css`
-    :host { display: block; }
-    
-    .page-header {
+    :host {
+      display: block;
+      padding: 24px;
+    }
+
+    .header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       margin-bottom: 24px;
     }
-    
-    .page-title {
+
+    .header-left h1 {
+      margin: 0 0 8px 0;
       font-size: 24px;
       font-weight: 600;
-      color: var(--text-primary);
-      margin: 0 0 4px;
     }
-    
-    .page-subtitle {
-      font-size: 14px;
-      color: var(--text-secondary);
+
+    .header-left p {
       margin: 0;
+      color: var(--text-secondary, #888);
+      font-size: 14px;
     }
-    
-    .refresh-btn {
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      padding: 8px 16px;
+
+    button {
+      padding: 10px 20px;
       border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
-      font-size: 13px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    
-    .refresh-btn:hover {
-      background: var(--bg-hover);
-      color: var(--text-primary);
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border-color, #363646);
+      color: var(--text-primary, #fff);
     }
-    
-    .master-detail {
+
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--bg-tertiary, #2a2a3a);
+    }
+
+    .btn-primary {
+      background: var(--accent-color, #3b82f6);
+      border: none;
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      filter: brightness(1.1);
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      border: none;
+      color: white;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      filter: brightness(1.1);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .content {
       display: grid;
       grid-template-columns: 280px 1fr;
       gap: 24px;
-      min-height: 600px;
     }
-    
-    /* Master (Agent List) */
-    .master {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+
+    .sidebar {
+      background: var(--bg-secondary, #1e1e2e);
+      border: 1px solid var(--border-color, #363646);
       border-radius: 8px;
       overflow: hidden;
     }
-    
-    .master-header {
+
+    .sidebar-header {
       padding: 16px;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color, #363646);
     }
-    
-    .master-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin: 0 0 4px;
+
+    .sidebar-header h2 {
+      margin: 0 0 4px 0;
+      font-size: 16px;
     }
-    
-    .master-count {
+
+    .sidebar-header span {
       font-size: 12px;
-      color: var(--text-muted);
+      color: var(--text-secondary, #888);
     }
-    
+
     .agent-list {
-      padding: 8px;
+      max-height: 400px;
+      overflow-y: auto;
     }
-    
-    .agent-card {
+
+    .agent-item {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px;
-      border-radius: 6px;
+      padding: 12px 16px;
       cursor: pointer;
-      border: 2px solid transparent;
-      margin-bottom: 4px;
+      transition: background 0.2s;
+      border-bottom: 1px solid var(--border-color, #363646);
     }
-    
-    .agent-card:hover {
-      background: var(--bg-hover);
+
+    .agent-item:hover {
+      background: var(--bg-tertiary, #2a2a3a);
     }
-    
-    .agent-card.selected {
-      border-color: var(--accent-primary);
-      background: var(--bg-tertiary);
+
+    .agent-item.active {
+      background: var(--accent-color, #3b82f6);
     }
-    
-    .agent-emoji {
-      font-size: 24px;
+
+    .agent-item .emoji {
+      font-size: 20px;
     }
-    
-    .agent-info {
+
+    .agent-item .info {
       flex: 1;
       min-width: 0;
     }
-    
-    .agent-name {
-      font-size: 13px;
+
+    .agent-item .name {
+      font-size: 14px;
       font-weight: 500;
-      color: var(--text-primary);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    
-    .agent-badge {
+
+    .agent-item .badge {
       font-size: 10px;
-      color: var(--text-muted);
-      background: var(--bg-primary);
       padding: 2px 6px;
-      border-radius: 3px;
+      background: var(--bg-primary, #121218);
+      border-radius: 4px;
+      color: var(--text-secondary, #888);
     }
-    
-    .agent-status {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent-primary);
+
+    .agent-item.active .badge {
+      background: rgba(255,255,255,0.2);
+      color: white;
     }
-    
-    .agent-status.disabled {
-      background: var(--text-muted);
-    }
-    
+
     .add-agent-btn {
       width: 100%;
-      padding: 12px;
-      margin-top: 8px;
-      background: none;
-      border: 1px dashed var(--border-color);
-      border-radius: 6px;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 13px;
+      justify-content: center;
+      border-radius: 0;
+      border: none;
+      border-top: 1px solid var(--border-color, #363646);
+      padding: 14px;
+      background: var(--bg-tertiary, #2a2a3a);
     }
-    
-    .add-agent-btn:hover {
-      border-color: var(--accent-primary);
-      color: var(--accent-primary);
-    }
-    
-    /* Detail */
+
     .detail {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--bg-secondary, #1e1e2e);
+      border: 1px solid var(--border-color, #363646);
       border-radius: 8px;
-      overflow: hidden;
     }
-    
+
     .detail-header {
-      padding: 20px;
-      border-bottom: 1px solid var(--border-color);
-    }
-    
-    .detail-title {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 12px;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color, #363646);
     }
-    
-    .detail-name {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin: 0;
-    }
-    
-    .detail-id {
-      font-size: 12px;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-    }
-    
-    .detail-desc {
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin: 0;
-    }
-    
-    .tabs {
+
+    .detail-title {
       display: flex;
-      gap: 4px;
-      padding: 0 20px;
-      background: var(--bg-tertiary);
-      border-bottom: 1px solid var(--border-color);
-      overflow-x: auto;
+      align-items: center;
+      gap: 16px;
     }
-    
-    .tab {
-      padding: 12px 16px;
-      font-size: 12px;
-      color: var(--text-secondary);
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      white-space: nowrap;
+
+    .detail-title .emoji {
+      font-size: 32px;
     }
-    
-    .tab:hover {
-      color: var(--text-primary);
+
+    .detail-title h2 {
+      margin: 0 0 4px 0;
+      font-size: 20px;
     }
-    
-    .tab.active {
-      color: var(--accent-primary);
-      border-bottom-color: var(--accent-primary);
+
+    .detail-title .id {
+      font-size: 13px;
+      color: var(--text-secondary, #888);
+      font-family: monospace;
     }
-    
+
+    .detail-actions {
+      display: flex;
+      gap: 8px;
+    }
+
     .detail-content {
-      padding: 20px;
+      padding: 24px;
     }
-    
+
     .info-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
+      gap: 20px;
+      margin-bottom: 24px;
     }
-    
-    .info-card {
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 16px;
-    }
-    
-    .info-card-title {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-bottom: 12px;
+
+    .info-item {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
+      gap: 6px;
     }
-    
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 6px 0;
-      font-size: 13px;
-    }
-    
+
     .info-label {
-      color: var(--text-secondary);
+      font-size: 12px;
+      color: var(--text-secondary, #888);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    
+
     .info-value {
-      color: var(--text-primary);
+      font-size: 14px;
     }
-    
-    .info-value.enabled {
-      color: var(--accent-primary);
-    }
-    
+
     .tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 8px;
+      gap: 8px;
     }
-    
+
     .tag {
-      font-size: 11px;
-      padding: 4px 8px;
-      background: var(--bg-secondary);
+      padding: 4px 10px;
+      background: var(--bg-tertiary, #2a2a3a);
       border-radius: 4px;
-      color: var(--text-secondary);
+      font-size: 12px;
     }
-    
-    .cron-jobs {
-      margin-top: 24px;
+
+    .status-enabled {
+      color: #10b981;
     }
-    
-    .cron-jobs-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 12px;
+
+    .status-disabled {
+      color: #ef4444;
     }
-    
-    .cron-job {
+
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: var(--bg-secondary, #1e1e2e);
+      border: 1px solid var(--border-color, #363646);
+      border-radius: 12px;
+      width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      margin-bottom: 8px;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color, #363646);
     }
-    
-    .cron-job-info {
-      flex: 1;
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 18px;
     }
-    
-    .cron-job-name {
-      font-size: 13px;
-      color: var(--text-primary);
-      margin-bottom: 4px;
-    }
-    
-    .cron-job-schedule {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-    
-    .cron-job-status {
-      font-size: 11px;
-      color: var(--accent-primary);
-      margin-right: 12px;
-    }
-    
-    .run-btn {
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      padding: 6px 12px;
-      border-radius: 4px;
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary, #888);
+      font-size: 24px;
       cursor: pointer;
-      font-size: 12px;
+      padding: 0;
+      line-height: 1;
     }
-    
-    .run-btn:hover {
-      background: var(--accent-primary);
-      color: #000;
-      border-color: var(--accent-primary);
+
+    .modal-body {
+      padding: 24px;
     }
-    
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary, #888);
+    }
+
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--bg-tertiary, #2a2a3a);
+      border: 1px solid var(--border-color, #363646);
+      border-radius: 6px;
+      color: var(--text-primary, #fff);
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent-color, #3b82f6);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 80px;
+      gap: 12px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-color, #363646);
+    }
+
     .empty-state {
       text-align: center;
-      padding: 48px;
-      color: var(--text-muted);
+      padding: 60px 40px;
+      color: var(--text-secondary, #888);
+    }
+
+    .empty-state .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   `;
 
-  @property({ type: Object }) config: any = null;
-  @state() selectedAgentId: string | null = null;
-  @state() activeTab = 'overview';
+  @state() private config: Config | null = null;
+  @state() private agents: Agent[] = [];
+  @state() private selectedAgent: Agent | null = null;
+  @state() private showModal = false;
+  @state() private editingAgent: Agent | null = null;
+  @state() private saving = false;
 
-  private get agents(): any[] {
-    return this.config?.agents?.list || [];
+  // Form state
+  @state() private formId = '';
+  @state() private formName = '';
+  @state() private formEmoji = '🤖';
+  @state() private formTheme = '';
+  @state() private formSkills = '';
+  @state() private formEnabled = true;
+
+  private unsubscribe?: () => void;
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.unsubscribe = configService.subscribe(config => {
+      if (config) {
+        this.config = config;
+        this.agents = config.agents?.list || [];
+        if (!this.selectedAgent && this.agents.length > 0) {
+          this.selectedAgent = this.agents[0];
+        }
+        // Update selected agent if it exists
+        if (this.selectedAgent) {
+          this.selectedAgent = this.agents.find(a => a.id === this.selectedAgent!.id) || this.agents[0] || null;
+        }
+      }
+    });
   }
 
-  private get selectedAgent(): any | null {
-    if (!this.selectedAgentId && this.agents.length > 0) {
-      this.selectedAgentId = this.agents[0].id;
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.unsubscribe?.();
+  }
+
+  private selectAgent(agent: Agent) {
+    this.selectedAgent = agent;
+  }
+
+  private openNewModal() {
+    this.editingAgent = null;
+    this.formId = '';
+    this.formName = '';
+    this.formEmoji = '🤖';
+    this.formTheme = '';
+    this.formSkills = '';
+    this.formEnabled = true;
+    this.showModal = true;
+  }
+
+  private openEditModal(agent: Agent) {
+    this.editingAgent = agent;
+    this.formId = agent.id;
+    this.formName = agent.identity.name;
+    this.formEmoji = agent.identity.emoji;
+    this.formTheme = agent.identity.theme || '';
+    this.formSkills = agent.skills.join(', ');
+    this.formEnabled = agent.enabled;
+    this.showModal = true;
+  }
+
+  private closeModal() {
+    this.showModal = false;
+    this.editingAgent = null;
+  }
+
+  private async handleSaveAgent() {
+    if (!this.formId || !this.formName) {
+      toastService.error('ID and Name are required');
+      return;
     }
-    return this.agents.find(a => a.id === this.selectedAgentId) || null;
+
+    this.saving = true;
+
+    const agentData: Agent = {
+      id: this.formId,
+      identity: {
+        name: this.formName,
+        emoji: this.formEmoji,
+        theme: this.formTheme || undefined,
+      },
+      enabled: this.formEnabled,
+      skills: this.formSkills.split(',').map(s => s.trim()).filter(s => s),
+      dataSources: this.editingAgent?.dataSources || [],
+      outputs: this.editingAgent?.outputs || [],
+    };
+
+    let response;
+    if (this.editingAgent) {
+      response = await api.put(`/agents/${this.editingAgent.id}`, agentData);
+    } else {
+      response = await api.post('/agents', agentData);
+    }
+
+    if (response.ok) {
+      toastService.success(this.editingAgent ? 'Agent updated' : 'Agent created');
+      await configService.load();
+      this.closeModal();
+      this.selectedAgent = agentData;
+    } else {
+      toastService.error(response.error?.message || 'Failed to save agent');
+    }
+
+    this.saving = false;
   }
 
-  private get workflows(): any[] {
-    return this.config?.workflows?.list || [];
+  private async handleDeleteAgent(agent: Agent) {
+    const confirmed = await modalService.confirmDelete(agent.identity.name);
+    if (!confirmed) return;
+
+    const response = await api.delete(`/agents/${agent.id}`);
+    if (response.ok) {
+      toastService.success('Agent deleted');
+      await configService.load();
+      this.selectedAgent = this.agents[0] || null;
+    } else {
+      toastService.error(response.error?.message || 'Failed to delete agent');
+    }
   }
 
-  private getAgentWorkflows(agentId: string): any[] {
-    return this.workflows.filter(w => 
-      w.steps?.some((s: any) => s.agent === agentId)
-    );
+  private async handleToggleEnabled(agent: Agent) {
+    const response = await api.put(`/agents/${agent.id}`, {
+      ...agent,
+      enabled: !agent.enabled,
+    });
+
+    if (response.ok) {
+      toastService.success(`Agent ${agent.enabled ? 'disabled' : 'enabled'}`);
+      await configService.load();
+    } else {
+      toastService.error(response.error?.message || 'Failed to update agent');
+    }
   }
 
   render() {
     return html`
-      <div class="page-header">
-        <div>
-          <h1 class="page-title">Agents</h1>
-          <p class="page-subtitle">Manage agent workspaces, tools, and identities.</p>
+      <div class="header">
+        <div class="header-left">
+          <h1>Agents</h1>
+          <p>Manage agent workspaces, tools, and identities.</p>
         </div>
-        <button class="refresh-btn">⟳ Refresh</button>
+        <button class="btn-secondary" @click=${() => configService.load()}>
+          ⟳ Refresh
+        </button>
       </div>
-      
-      <div class="master-detail">
-        ${this.renderMaster()}
-        ${this.renderDetail()}
-      </div>
-    `;
-  }
 
-  private renderMaster() {
-    return html`
-      <div class="master">
-        <div class="master-header">
-          <h2 class="master-title">Agents</h2>
-          <div class="master-count">${this.agents.length} configured.</div>
-        </div>
-        <div class="agent-list">
-          ${this.agents.map(agent => html`
-            <div 
-              class="agent-card ${this.selectedAgentId === agent.id ? 'selected' : ''}"
-              @click=${() => this.selectedAgentId = agent.id}
-            >
-              <span class="agent-emoji">${agent.identity?.emoji || '🤖'}</span>
-              <div class="agent-info">
-                <div class="agent-name">${agent.id}</div>
-                <span class="agent-badge">DEFAULT</span>
+      <div class="content">
+        <div class="sidebar">
+          <div class="sidebar-header">
+            <h2>Agents</h2>
+            <span>${this.agents.length} configured</span>
+          </div>
+          <div class="agent-list">
+            ${this.agents.map(agent => html`
+              <div 
+                class="agent-item ${this.selectedAgent?.id === agent.id ? 'active' : ''}"
+                @click=${() => this.selectAgent(agent)}
+              >
+                <span class="emoji">${agent.identity.emoji}</span>
+                <div class="info">
+                  <div class="name">${agent.id}</div>
+                </div>
+                <span class="badge">${agent.enabled ? 'ACTIVE' : 'OFF'}</span>
               </div>
-              <div class="agent-status ${agent.enabled === false ? 'disabled' : ''}"></div>
-            </div>
-          `)}
-          <button class="add-agent-btn">+ Neuer Agent</button>
+            `)}
+          </div>
+          <button class="btn-primary add-agent-btn" @click=${this.openNewModal}>
+            + Neuer Agent
+          </button>
         </div>
-      </div>
-    `;
-  }
 
-  private renderDetail() {
-    const agent = this.selectedAgent;
-    
-    if (!agent) {
-      return html`
         <div class="detail">
-          <div class="empty-state">
-            <p>Kein Agent ausgewählt</p>
-          </div>
-        </div>
-      `;
-    }
-
-    const agentWorkflows = this.getAgentWorkflows(agent.id);
-
-    return html`
-      <div class="detail">
-        <div class="detail-header">
-          <div class="detail-title">
-            <div>
-              <h2 class="detail-name">${agent.identity?.name || agent.id}</h2>
-              <div class="detail-id">${agent.id}</div>
-            </div>
-            <span class="agent-badge">DEFAULT</span>
-          </div>
-          <p class="detail-desc">Agent workspace and routing.</p>
-        </div>
-        
-        <div class="tabs">
-          ${['Overview', 'Files', 'Tools', 'Skills', 'Channels', 'Cron Jobs', 'Datenquellen', 'Workflows', 'Ausgaben'].map(tab => html`
-            <div 
-              class="tab ${this.activeTab === tab.toLowerCase() ? 'active' : ''}"
-              @click=${() => this.activeTab = tab.toLowerCase()}
-            >
-              ${tab}
-            </div>
-          `)}
-        </div>
-        
-        <div class="detail-content">
-          ${this.activeTab === 'overview' ? this.renderOverviewTab(agent, agentWorkflows) : html`
-            <div class="empty-state">
-              <p>${this.activeTab} — Coming Soon</p>
-            </div>
-          `}
+          ${this.selectedAgent ? this.renderAgentDetail(this.selectedAgent) : this.renderEmptyState()}
         </div>
       </div>
+
+      ${this.showModal ? this.renderModal() : ''}
     `;
   }
 
-  private renderOverviewTab(agent: any, agentWorkflows: any[]) {
+  private renderAgentDetail(agent: Agent) {
     return html`
-      <div class="info-grid">
-        <div class="info-card">
-          <div class="info-card-title">Agent Context</div>
-          <div class="info-row">
+      <div class="detail-header">
+        <div class="detail-title">
+          <span class="emoji">${agent.identity.emoji}</span>
+          <div>
+            <h2>${agent.identity.name}</h2>
+            <span class="id">${agent.id}</span>
+          </div>
+        </div>
+        <div class="detail-actions">
+          <button class="btn-secondary btn-sm" @click=${() => this.handleToggleEnabled(agent)}>
+            ${agent.enabled ? '⏸ Disable' : '▶ Enable'}
+          </button>
+          <button class="btn-secondary btn-sm" @click=${() => this.openEditModal(agent)}>
+            ✏️ Edit
+          </button>
+          <button class="btn-danger btn-sm" @click=${() => this.handleDeleteAgent(agent)}>
+            🗑 Delete
+          </button>
+        </div>
+      </div>
+      <div class="detail-content">
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Status</span>
+            <span class="info-value ${agent.enabled ? 'status-enabled' : 'status-disabled'}">
+              ${agent.enabled ? '● Enabled' : '○ Disabled'}
+            </span>
+          </div>
+          <div class="info-item">
             <span class="info-label">Workspace</span>
             <span class="info-value">~/.0711/workspace/agents/${agent.id}/</span>
           </div>
-          <div class="info-row">
+          <div class="info-item">
             <span class="info-label">Primary Model</span>
-            <span class="info-value">${agent.model || this.config?.agents?.defaults?.model?.primary || '—'}</span>
+            <span class="info-value">${this.config?.agents?.defaults?.model?.primary || 'default'}</span>
           </div>
-          <div class="info-row">
-            <span class="info-label">Identity Name</span>
-            <span class="info-value">${agent.identity?.name || '—'}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Skills</span>
-          </div>
-          <div class="tags">
-            ${(agent.skills || []).map((s: string) => html`<span class="tag">${s}</span>`)}
-          </div>
-          <div class="info-row">
-            <span class="info-label">Datenquellen</span>
-          </div>
-          <div class="tags">
-            ${(agent.dataSources || []).map((d: string) => html`<span class="tag">${d}</span>`)}
-          </div>
-          <div class="info-row">
-            <span class="info-label">Default</span>
-            <span class="info-value">yes</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">Enabled</span>
-            <span class="info-value enabled">✅ ${agent.enabled !== false ? 'yes' : 'no'}</span>
+          <div class="info-item">
+            <span class="info-label">Theme</span>
+            <span class="info-value">${agent.identity.theme || '(none)'}</span>
           </div>
         </div>
-        
-        <div class="info-card">
-          <div class="info-card-title">
-            Scheduler
-            <button class="refresh-btn" style="padding: 4px 8px; font-size: 11px;">⟳ Refresh</button>
+
+        <div class="info-item" style="margin-bottom: 20px;">
+          <span class="info-label">Skills</span>
+          <div class="tags" style="margin-top: 8px;">
+            ${agent.skills.length > 0 
+              ? agent.skills.map(skill => html`<span class="tag">${skill}</span>`)
+              : html`<span style="color: var(--text-secondary)">No skills assigned</span>`
+            }
           </div>
-          <div class="info-row">
-            <span class="info-label">ENABLED</span>
-            <span class="info-value">Yes</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">JOBS</span>
-            <span class="info-value">${agentWorkflows.length}</span>
-          </div>
-          <div class="info-row">
-            <span class="info-label">NEXT WAKE</span>
-            <span class="info-value">08:00</span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Data Sources</span>
+          <div class="tags" style="margin-top: 8px;">
+            ${agent.dataSources.length > 0 
+              ? agent.dataSources.map(ds => html`<span class="tag">${ds}</span>`)
+              : html`<span style="color: var(--text-secondary)">No data sources assigned</span>`
+            }
           </div>
         </div>
       </div>
-      
-      <div class="cron-jobs">
-        <h3 class="cron-jobs-title">Agent Cron Jobs</h3>
-        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
-          Scheduled jobs targeting this agent.
-        </p>
-        ${agentWorkflows.length === 0 ? html`
-          <div class="empty-state" style="padding: 24px;">
-            <p>No workflows use this agent.</p>
+    `;
+  }
+
+  private renderEmptyState() {
+    return html`
+      <div class="empty-state">
+        <div class="icon">🤖</div>
+        <h3>No Agent Selected</h3>
+        <p>Select an agent from the list or create a new one.</p>
+      </div>
+    `;
+  }
+
+  private renderModal() {
+    return html`
+      <div class="modal-overlay" @click=${this.closeModal}>
+        <div class="modal" @click=${(e: Event) => e.stopPropagation()}>
+          <div class="modal-header">
+            <h3>${this.editingAgent ? 'Edit Agent' : 'New Agent'}</h3>
+            <button class="modal-close" @click=${this.closeModal}>×</button>
           </div>
-        ` : agentWorkflows.map(w => html`
-          <div class="cron-job">
-            <div class="cron-job-info">
-              <div class="cron-job-name">${w.name || w.id}</div>
-              <div class="cron-job-schedule">
-                ${w.trigger?.schedule || w.trigger?.event || 'Manual'}
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Agent ID *</label>
+              <input 
+                type="text" 
+                .value=${this.formId}
+                @input=${(e: Event) => this.formId = (e.target as HTMLInputElement).value}
+                ?disabled=${!!this.editingAgent}
+                placeholder="product-expert"
+              />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Display Name *</label>
+                <input 
+                  type="text" 
+                  .value=${this.formName}
+                  @input=${(e: Event) => this.formName = (e.target as HTMLInputElement).value}
+                  placeholder="Produkt-Experte"
+                />
+              </div>
+              <div class="form-group">
+                <label>Emoji</label>
+                <input 
+                  type="text" 
+                  .value=${this.formEmoji}
+                  @input=${(e: Event) => this.formEmoji = (e.target as HTMLInputElement).value}
+                  placeholder="🤖"
+                />
               </div>
             </div>
-            <span class="cron-job-status">✅ Enabled</span>
-            <button class="run-btn">Run</button>
+            <div class="form-group">
+              <label>Theme / Description</label>
+              <textarea 
+                rows="2"
+                .value=${this.formTheme}
+                @input=${(e: Event) => this.formTheme = (e.target as HTMLTextAreaElement).value}
+                placeholder="What this agent does..."
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label>Skills (comma-separated)</label>
+              <input 
+                type="text" 
+                .value=${this.formSkills}
+                @input=${(e: Event) => this.formSkills = (e.target as HTMLInputElement).value}
+                placeholder="search, describe, compare"
+              />
+            </div>
+            <div class="form-group">
+              <label>
+                <input 
+                  type="checkbox" 
+                  .checked=${this.formEnabled}
+                  @change=${(e: Event) => this.formEnabled = (e.target as HTMLInputElement).checked}
+                />
+                Enabled
+              </label>
+            </div>
           </div>
-        `)}
+          <div class="modal-footer">
+            <button class="btn-secondary" @click=${this.closeModal}>Cancel</button>
+            <button class="btn-primary" @click=${this.handleSaveAgent} ?disabled=${this.saving}>
+              ${this.saving ? html`<span class="spinner"></span>` : ''}
+              ${this.editingAgent ? 'Save Changes' : 'Create Agent'}
+            </button>
+          </div>
+        </div>
       </div>
     `;
   }

@@ -1,76 +1,64 @@
 import { LitElement, html, css } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, state } from 'lit/decorators.js';
+import { configService, toastService, type Config, type Agent } from '../services/index';
 
 @customElement('chat-page')
 export class ChatPage extends LitElement {
   static styles = css`
     :host {
       display: block;
-      height: 100%;
-    }
-    
-    .chat-container {
+      padding: 24px;
+      height: calc(100vh - 120px);
       display: flex;
       flex-direction: column;
-      height: calc(100vh - 120px);
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-color, #363646);
+    }
+
+    .agent-icon {
+      font-size: 32px;
+    }
+
+    .agent-info h2 {
+      margin: 0 0 4px 0;
+      font-size: 18px;
+    }
+
+    .agent-info .status {
+      font-size: 13px;
+      color: #10b981;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    select {
+      padding: 8px 12px;
+      background: var(--bg-secondary, #1e1e2e);
+      border: 1px solid var(--border-color, #363646);
+      border-radius: 6px;
+      color: var(--text-primary, #fff);
+      font-size: 14px;
+      margin-left: auto;
+    }
+
+    .chat-container {
+      flex: 1;
+      background: var(--bg-secondary, #1e1e2e);
+      border: 1px solid var(--border-color, #363646);
       border-radius: 8px;
+      display: flex;
+      flex-direction: column;
       overflow: hidden;
     }
-    
-    .chat-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border-color);
-      background: var(--bg-tertiary);
-    }
-    
-    .agent-selector {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    
-    .agent-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      background: var(--bg-primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-    }
-    
-    .agent-info {
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .agent-name {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-    
-    .agent-status {
-      font-size: 11px;
-      color: var(--accent-primary);
-    }
-    
-    .agent-select {
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 8px 12px;
-      color: var(--text-primary);
-      font-size: 13px;
-      cursor: pointer;
-    }
-    
+
     .messages {
       flex: 1;
       overflow-y: auto;
@@ -79,247 +67,211 @@ export class ChatPage extends LitElement {
       flex-direction: column;
       gap: 16px;
     }
-    
+
     .message {
-      display: flex;
-      gap: 12px;
       max-width: 80%;
-    }
-    
-    .message.user {
-      align-self: flex-end;
-      flex-direction: row-reverse;
-    }
-    
-    .message-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
-      background: var(--bg-tertiary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      flex-shrink: 0;
-    }
-    
-    .message.user .message-avatar {
-      background: var(--accent-primary);
-    }
-    
-    .message-content {
-      background: var(--bg-tertiary);
-      border-radius: 12px;
       padding: 12px 16px;
-    }
-    
-    .message.user .message-content {
-      background: var(--accent-primary);
-      color: #000;
-    }
-    
-    .message-text {
-      font-size: 13px;
+      border-radius: 12px;
+      font-size: 14px;
       line-height: 1.5;
     }
-    
-    .message-time {
-      font-size: 10px;
-      color: var(--text-muted);
-      margin-top: 4px;
+
+    .message.user {
+      align-self: flex-end;
+      background: var(--accent-color, #3b82f6);
+      color: white;
+      border-bottom-right-radius: 4px;
     }
-    
-    .message.user .message-time {
-      color: rgba(0,0,0,0.5);
+
+    .message.agent {
+      align-self: flex-start;
+      background: var(--bg-tertiary, #2a2a3a);
+      border-bottom-left-radius: 4px;
     }
-    
+
+    .message.system {
+      align-self: center;
+      background: transparent;
+      color: var(--text-secondary, #888);
+      font-size: 13px;
+    }
+
     .input-area {
-      padding: 16px 20px;
-      border-top: 1px solid var(--border-color);
-      background: var(--bg-tertiary);
-    }
-    
-    .input-row {
       display: flex;
       gap: 12px;
+      padding: 16px;
+      border-top: 1px solid var(--border-color, #363646);
     }
-    
-    .message-input {
+
+    input {
       flex: 1;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
       padding: 12px 16px;
-      color: var(--text-primary);
+      background: var(--bg-tertiary, #2a2a3a);
+      border: 1px solid var(--border-color, #363646);
+      border-radius: 8px;
+      color: var(--text-primary, #fff);
       font-size: 14px;
-      resize: none;
     }
-    
-    .message-input:focus {
+
+    input:focus {
       outline: none;
-      border-color: var(--accent-primary);
+      border-color: var(--accent-color, #3b82f6);
     }
-    
-    .send-btn {
-      background: var(--accent-primary);
+
+    button {
+      padding: 12px 24px;
+      background: var(--accent-color, #3b82f6);
       border: none;
       border-radius: 8px;
-      padding: 12px 24px;
-      color: #000;
+      color: white;
       font-size: 14px;
       font-weight: 500;
       cursor: pointer;
+      transition: all 0.2s;
     }
-    
-    .send-btn:hover {
-      opacity: 0.9;
+
+    button:hover:not(:disabled) {
+      filter: brightness(1.1);
     }
-    
-    .send-btn:disabled {
+
+    button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
-    
-    .empty-state {
-      flex: 1;
+
+    .typing {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-muted);
-      padding: 40px;
+      gap: 4px;
+      padding: 12px 16px;
+      align-self: flex-start;
     }
-    
-    .empty-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
+
+    .typing span {
+      width: 8px;
+      height: 8px;
+      background: var(--text-secondary, #888);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite;
     }
-    
-    .empty-text {
-      font-size: 14px;
-      text-align: center;
-      max-width: 300px;
+
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-6px); }
     }
   `;
 
-  @property({ type: Object }) config: any = null;
-  @state() selectedAgent = '';
-  @state() messages: Array<{role: string; content: string; time: string}> = [];
-  @state() inputValue = '';
-  @state() sending = false;
+  @state() private config: Config | null = null;
+  @state() private agents: Agent[] = [];
+  @state() private selectedAgent: Agent | null = null;
+  @state() private messages: Array<{ type: 'user' | 'agent' | 'system'; text: string }> = [];
+  @state() private inputText = '';
+  @state() private sending = false;
 
-  private get agents(): any[] {
-    return this.config?.agents?.list?.filter((a: any) => a.enabled !== false) || [];
-  }
+  private unsubscribe?: () => void;
 
   connectedCallback() {
     super.connectedCallback();
-    if (this.agents.length > 0 && !this.selectedAgent) {
-      this.selectedAgent = this.agents[0].id;
-    }
+    this.unsubscribe = configService.subscribe(config => {
+      if (config) {
+        this.config = config;
+        this.agents = config.agents?.list?.filter(a => a.enabled) || [];
+        if (!this.selectedAgent && this.agents.length > 0) {
+          this.selectedAgent = this.agents[0];
+          this.messages = [
+            { type: 'system', text: `Chat with ${this.selectedAgent.identity.name} started` }
+          ];
+        }
+      }
+    });
   }
 
-  private get currentAgent(): any {
-    return this.agents.find(a => a.id === this.selectedAgent);
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.unsubscribe?.();
   }
 
-  private async sendMessage() {
-    if (!this.inputValue.trim() || this.sending) return;
-    
-    const userMessage = this.inputValue.trim();
-    this.inputValue = '';
+  private handleAgentChange(e: Event) {
+    const id = (e.target as HTMLSelectElement).value;
+    this.selectedAgent = this.agents.find(a => a.id === id) || null;
+    this.messages = [
+      { type: 'system', text: `Switched to ${this.selectedAgent?.identity.name}` }
+    ];
+  }
+
+  private async handleSend() {
+    if (!this.inputText.trim() || !this.selectedAgent || this.sending) return;
+
+    const userMessage = this.inputText.trim();
+    this.messages = [...this.messages, { type: 'user', text: userMessage }];
+    this.inputText = '';
     this.sending = true;
-    
-    // Add user message
-    this.messages = [...this.messages, {
-      role: 'user',
-      content: userMessage,
-      time: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
+
+    // Simulate agent response
+    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+
+    const responses = [
+      `I understand you're asking about "${userMessage.slice(0, 30)}...". Let me help you with that.`,
+      `Based on your query, here's what I found regarding "${userMessage.slice(0, 20)}...".`,
+      `I've processed your request. Here's the relevant information.`,
+      `That's a great question! Let me analyze this for you.`,
+    ];
+
+    this.messages = [...this.messages, { 
+      type: 'agent', 
+      text: responses[Math.floor(Math.random() * responses.length)]
     }];
-    
-    // Simulate agent response (replace with actual API call)
-    setTimeout(() => {
-      this.messages = [...this.messages, {
-        role: 'assistant',
-        content: `Ich bin ${this.currentAgent?.identity?.name || this.selectedAgent}. Wie kann ich dir helfen?`,
-        time: new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
-      }];
-      this.sending = false;
-    }, 1000);
+    this.sending = false;
   }
 
   private handleKeyDown(e: KeyboardEvent) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      this.sendMessage();
+      this.handleSend();
     }
   }
 
   render() {
-    const agent = this.currentAgent;
-    
     return html`
-      <div class="chat-container">
-        <div class="chat-header">
-          <div class="agent-selector">
-            <div class="agent-avatar">${agent?.identity?.emoji || '🤖'}</div>
-            <div class="agent-info">
-              <span class="agent-name">${agent?.identity?.name || agent?.id || 'Select Agent'}</span>
-              <span class="agent-status">● Online</span>
-            </div>
-          </div>
-          
-          <select 
-            class="agent-select" 
-            .value=${this.selectedAgent}
-            @change=${(e: Event) => this.selectedAgent = (e.target as HTMLSelectElement).value}
-          >
-            ${this.agents.map(a => html`
-              <option value=${a.id}>${a.identity?.name || a.id}</option>
-            `)}
-          </select>
+      <div class="header">
+        <span class="agent-icon">${this.selectedAgent?.identity.emoji || '🤖'}</span>
+        <div class="agent-info">
+          <h2>${this.selectedAgent?.identity.name || 'Select Agent'}</h2>
+          <div class="status">● Online</div>
         </div>
-        
-        <div class="messages">
-          ${this.messages.length === 0 ? html`
-            <div class="empty-state">
-              <span class="empty-icon">💬</span>
-              <p class="empty-text">
-                Starte eine Konversation mit ${agent?.identity?.name || 'dem Agent'}.
-                Stelle eine Frage oder gib eine Anweisung.
-              </p>
-            </div>
-          ` : this.messages.map(msg => html`
-            <div class="message ${msg.role}">
-              <div class="message-avatar">
-                ${msg.role === 'user' ? '👤' : (agent?.identity?.emoji || '🤖')}
-              </div>
-              <div class="message-content">
-                <div class="message-text">${msg.content}</div>
-                <div class="message-time">${msg.time}</div>
-              </div>
-            </div>
+        <select @change=${this.handleAgentChange} .value=${this.selectedAgent?.id || ''}>
+          ${this.agents.map(agent => html`
+            <option value=${agent.id}>${agent.identity.name}</option>
           `)}
+        </select>
+      </div>
+
+      <div class="chat-container">
+        <div class="messages">
+          ${this.messages.map(msg => html`
+            <div class="message ${msg.type}">${msg.text}</div>
+          `)}
+          ${this.sending ? html`
+            <div class="typing">
+              <span></span><span></span><span></span>
+            </div>
+          ` : ''}
         </div>
-        
+
         <div class="input-area">
-          <div class="input-row">
-            <textarea
-              class="message-input"
-              placeholder="Nachricht eingeben..."
-              rows="1"
-              .value=${this.inputValue}
-              @input=${(e: Event) => this.inputValue = (e.target as HTMLTextAreaElement).value}
-              @keydown=${this.handleKeyDown}
-            ></textarea>
-            <button 
-              class="send-btn" 
-              @click=${this.sendMessage}
-              ?disabled=${!this.inputValue.trim() || this.sending}
-            >
-              ${this.sending ? '...' : 'Senden'}
-            </button>
-          </div>
+          <input
+            type="text"
+            placeholder="Type a message..."
+            .value=${this.inputText}
+            @input=${(e: Event) => this.inputText = (e.target as HTMLInputElement).value}
+            @keydown=${this.handleKeyDown}
+            ?disabled=${this.sending}
+          />
+          <button @click=${this.handleSend} ?disabled=${!this.inputText.trim() || this.sending}>
+            Send
+          </button>
         </div>
       </div>
     `;

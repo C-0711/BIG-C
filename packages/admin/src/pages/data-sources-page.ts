@@ -1,203 +1,548 @@
 import { LitElement, html, css } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, state } from 'lit/decorators.js';
+import { configService, toastService, modalService, api, type Config, type DataSource } from '../services/index.js';
 
 @customElement('data-sources-page')
 export class DataSourcesPage extends LitElement {
   static styles = css`
-    :host { display: block; }
-    
-    .page-header {
+    :host {
+      display: block;
+      padding: 24px;
+    }
+
+    .header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       margin-bottom: 24px;
     }
-    
-    .page-title {
+
+    .header-left h1 {
+      margin: 0 0 8px 0;
       font-size: 24px;
       font-weight: 600;
-      color: var(--text-primary);
-      margin: 0 0 4px;
     }
-    
-    .page-subtitle {
-      font-size: 14px;
-      color: var(--text-secondary);
+
+    .header-left p {
       margin: 0;
+      color: var(--text-secondary, #888);
+      font-size: 14px;
     }
-    
-    .add-btn {
-      background: var(--accent-primary);
-      border: none;
-      color: #000;
+
+    button {
       padding: 10px 20px;
       border-radius: 6px;
-      cursor: pointer;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    
-    .add-btn:hover {
-      opacity: 0.9;
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border-color, #363646);
+      color: var(--text-primary, #fff);
     }
-    
-    .sources-list {
+
+    .btn-secondary:hover:not(:disabled) {
+      background: var(--bg-tertiary, #2a2a3a);
+    }
+
+    .btn-primary {
+      background: var(--accent-color, #3b82f6);
+      border: none;
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      filter: brightness(1.1);
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      border: none;
+      color: white;
+    }
+
+    .btn-success {
+      background: #10b981;
+      border: none;
+      color: white;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .list {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-    }
-    
-    .source-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 20px;
-      display: flex;
-      align-items: center;
       gap: 16px;
     }
-    
-    .source-icon {
-      font-size: 32px;
-      width: 48px;
-      height: 48px;
+
+    .card {
+      background: var(--bg-secondary, #1e1e2e);
+      border: 1px solid var(--border-color, #363646);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .card-title {
       display: flex;
       align-items: center;
-      justify-content: center;
-      background: var(--bg-primary);
-      border-radius: 8px;
+      gap: 12px;
     }
-    
-    .source-info {
-      flex: 1;
+
+    .card-title .icon {
+      font-size: 24px;
     }
-    
-    .source-name {
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--text-primary);
-      margin-bottom: 4px;
+
+    .card-title h3 {
+      margin: 0 0 4px 0;
+      font-size: 16px;
     }
-    
-    .source-type {
+
+    .card-title .type {
       font-size: 12px;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
+      color: var(--text-secondary, #888);
+      font-family: monospace;
     }
-    
-    .source-meta {
-      text-align: right;
-    }
-    
-    .source-status {
-      font-size: 12px;
-      color: var(--accent-primary);
-      margin-bottom: 4px;
-    }
-    
-    .source-schedule {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-    
-    .source-actions {
+
+    .card-actions {
       display: flex;
       gap: 8px;
     }
-    
-    .action-btn {
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
+
+    .card-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
     }
-    
-    .action-btn:hover {
-      background: var(--bg-hover);
-      color: var(--text-primary);
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
-    
-    .action-btn.sync {
-      background: var(--accent-primary);
-      color: #000;
-      border-color: var(--accent-primary);
+
+    .detail-label {
+      font-size: 11px;
+      color: var(--text-secondary, #888);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    
+
+    .detail-value {
+      font-size: 13px;
+      font-family: monospace;
+      word-break: break-all;
+    }
+
     .empty-state {
-      text-align: center;
-      padding: 48px;
-      background: var(--bg-secondary);
-      border: 1px dashed var(--border-color);
+      background: var(--bg-secondary, #1e1e2e);
+      border: 1px solid var(--border-color, #363646);
       border-radius: 8px;
-      color: var(--text-muted);
+      padding: 60px 40px;
+      text-align: center;
+    }
+
+    .empty-state .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .empty-state h3 {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+    }
+
+    .empty-state p {
+      margin: 0;
+      color: var(--text-secondary, #888);
+      font-size: 14px;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: var(--bg-secondary, #1e1e2e);
+      border: 1px solid var(--border-color, #363646);
+      border-radius: 12px;
+      width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color, #363646);
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary, #888);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary, #888);
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--bg-tertiary, #2a2a3a);
+      border: 1px solid var(--border-color, #363646);
+      border-radius: 6px;
+      color: var(--text-primary, #fff);
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: var(--accent-color, #3b82f6);
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-color, #363646);
+    }
+
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   `;
 
-  @property({ type: Object }) config: any = null;
+  @state() private dataSources: Record<string, DataSource> = {};
+  @state() private showModal = false;
+  @state() private editingId: string | null = null;
+  @state() private saving = false;
+  @state() private testing: string | null = null;
 
-  private getTypeIcon(type: string): string {
-    const icons: Record<string, string> = {
-      'postgres': '🐘',
-      'mysql': '🐬',
-      'sqlite': '📦',
-      'csv': '📄',
-      'excel': '📊',
-      'rest-api': '🌐',
-      'graphql': '◈',
-      'mcp': '🔌',
+  // Form state
+  @state() private formId = '';
+  @state() private formType = 'postgres';
+  @state() private formConnectionString = '';
+  @state() private formPath = '';
+
+  private unsubscribe?: () => void;
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.unsubscribe = configService.subscribe(config => {
+      if (config) {
+        this.dataSources = config.dataSources?.providers || {};
+      }
+    });
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.unsubscribe?.();
+  }
+
+  private getIcon(type: string): string {
+    switch (type) {
+      case 'postgres': return '🐘';
+      case 'mysql': return '🐬';
+      case 'csv': return '📄';
+      case 'api': return '🌐';
+      case 'mcp': return '🔌';
+      default: return '📦';
+    }
+  }
+
+  private openNewModal() {
+    this.editingId = null;
+    this.formId = '';
+    this.formType = 'postgres';
+    this.formConnectionString = '';
+    this.formPath = '';
+    this.showModal = true;
+  }
+
+  private openEditModal(id: string, ds: DataSource) {
+    this.editingId = id;
+    this.formId = id;
+    this.formType = ds.type;
+    this.formConnectionString = ds.connectionString || '';
+    this.formPath = ds.path || '';
+    this.showModal = true;
+  }
+
+  private closeModal() {
+    this.showModal = false;
+    this.editingId = null;
+  }
+
+  private async handleSave() {
+    if (!this.formId) {
+      toastService.error('ID is required');
+      return;
+    }
+
+    this.saving = true;
+
+    const dataSource: DataSource = {
+      type: this.formType,
+      ...(this.formConnectionString && { connectionString: this.formConnectionString }),
+      ...(this.formPath && { path: this.formPath }),
     };
-    return icons[type] || '📁';
+
+    let response;
+    if (this.editingId) {
+      response = await api.put(`/datasources/${this.editingId}`, dataSource);
+    } else {
+      response = await api.post('/datasources', { id: this.formId, ...dataSource });
+    }
+
+    if (response.ok) {
+      toastService.success(this.editingId ? 'Data source updated' : 'Data source created');
+      await configService.load();
+      this.closeModal();
+    } else {
+      toastService.error(response.error?.message || 'Failed to save');
+    }
+
+    this.saving = false;
+  }
+
+  private async handleDelete(id: string) {
+    const confirmed = await modalService.confirmDelete(id);
+    if (!confirmed) return;
+
+    const response = await api.delete(`/datasources/${id}`);
+    if (response.ok) {
+      toastService.success('Data source deleted');
+      await configService.load();
+    } else {
+      toastService.error(response.error?.message || 'Failed to delete');
+    }
+  }
+
+  private async handleTest(id: string) {
+    this.testing = id;
+    const response = await api.post(`/datasources/${id}/test`);
+    
+    if (response.ok) {
+      toastService.success('Connection successful!');
+    } else {
+      toastService.error(response.error?.message || 'Connection failed');
+    }
+    
+    this.testing = null;
   }
 
   render() {
-    const providers = this.config?.dataSources?.providers || {};
-    const sources = Object.entries(providers).map(([id, cfg]: [string, any]) => ({
-      id,
-      ...cfg,
-    }));
+    const entries = Object.entries(this.dataSources);
 
     return html`
-      <div class="page-header">
-        <div>
-          <h1 class="page-title">Datenquellen</h1>
-          <p class="page-subtitle">MCP-Verbindungen zu externen Datenquellen</p>
+      <div class="header">
+        <div class="header-left">
+          <h1>Datenquellen</h1>
+          <p>MCP-Verbindungen zu externen Datenquellen</p>
         </div>
-        <button class="add-btn">+ Neue Datenquelle</button>
+        <button class="btn-primary" @click=${this.openNewModal}>
+          + Neue Datenquelle
+        </button>
       </div>
-      
-      ${sources.length === 0 ? html`
+
+      ${entries.length === 0 ? html`
         <div class="empty-state">
-          <p>Keine Datenquellen konfiguriert</p>
-          <p style="font-size: 12px; margin-top: 8px;">
-            Füge PostgreSQL, CSV, REST API oder andere Datenquellen hinzu.
-          </p>
+          <div class="icon">🔌</div>
+          <h3>Keine Datenquellen konfiguriert</h3>
+          <p>Füge PostgreSQL, CSV, REST API oder andere Datenquellen hinzu.</p>
         </div>
       ` : html`
-        <div class="sources-list">
-          ${sources.map(source => html`
-            <div class="source-card">
-              <div class="source-icon">${this.getTypeIcon(source.type)}</div>
-              <div class="source-info">
-                <div class="source-name">${source.id}</div>
-                <div class="source-type">${source.type}</div>
-              </div>
-              <div class="source-meta">
-                <div class="source-status">● Connected</div>
-                <div class="source-schedule">
-                  ${source.sync?.schedule ? `Sync: ${source.sync.schedule}` : 'Manual sync'}
+        <div class="list">
+          ${entries.map(([id, ds]) => html`
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <span class="icon">${this.getIcon(ds.type)}</span>
+                  <div>
+                    <h3>${id}</h3>
+                    <span class="type">${ds.type}</span>
+                  </div>
+                </div>
+                <div class="card-actions">
+                  <button 
+                    class="btn-success btn-sm" 
+                    @click=${() => this.handleTest(id)}
+                    ?disabled=${this.testing === id}
+                  >
+                    ${this.testing === id ? html`<span class="spinner"></span>` : '🔗'} Test
+                  </button>
+                  <button class="btn-secondary btn-sm" @click=${() => this.openEditModal(id, ds)}>
+                    ✏️ Edit
+                  </button>
+                  <button class="btn-danger btn-sm" @click=${() => this.handleDelete(id)}>
+                    🗑 Delete
+                  </button>
                 </div>
               </div>
-              <div class="source-actions">
-                <button class="action-btn sync">Sync</button>
-                <button class="action-btn">Edit</button>
+              <div class="card-details">
+                ${ds.connectionString ? html`
+                  <div class="detail-item">
+                    <span class="detail-label">Connection String</span>
+                    <span class="detail-value">${ds.connectionString}</span>
+                  </div>
+                ` : ''}
+                ${ds.path ? html`
+                  <div class="detail-item">
+                    <span class="detail-label">Path</span>
+                    <span class="detail-value">${ds.path}</span>
+                  </div>
+                ` : ''}
               </div>
             </div>
           `)}
         </div>
       `}
+
+      ${this.showModal ? this.renderModal() : ''}
+    `;
+  }
+
+  private renderModal() {
+    return html`
+      <div class="modal-overlay" @click=${this.closeModal}>
+        <div class="modal" @click=${(e: Event) => e.stopPropagation()}>
+          <div class="modal-header">
+            <h3>${this.editingId ? 'Edit Data Source' : 'New Data Source'}</h3>
+            <button class="modal-close" @click=${this.closeModal}>×</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>ID *</label>
+              <input 
+                type="text" 
+                .value=${this.formId}
+                @input=${(e: Event) => this.formId = (e.target as HTMLInputElement).value}
+                ?disabled=${!!this.editingId}
+                placeholder="my-database"
+              />
+            </div>
+            <div class="form-group">
+              <label>Type</label>
+              <select 
+                .value=${this.formType}
+                @change=${(e: Event) => this.formType = (e.target as HTMLSelectElement).value}
+              >
+                <option value="postgres">PostgreSQL</option>
+                <option value="mysql">MySQL</option>
+                <option value="csv">CSV File</option>
+                <option value="api">REST API</option>
+                <option value="mcp">MCP Server</option>
+              </select>
+            </div>
+            ${this.formType === 'postgres' || this.formType === 'mysql' ? html`
+              <div class="form-group">
+                <label>Connection String</label>
+                <input 
+                  type="text" 
+                  .value=${this.formConnectionString}
+                  @input=${(e: Event) => this.formConnectionString = (e.target as HTMLInputElement).value}
+                  placeholder="postgresql://user:pass@host:5432/db"
+                />
+              </div>
+            ` : ''}
+            ${this.formType === 'csv' || this.formType === 'mcp' ? html`
+              <div class="form-group">
+                <label>Path</label>
+                <input 
+                  type="text" 
+                  .value=${this.formPath}
+                  @input=${(e: Event) => this.formPath = (e.target as HTMLInputElement).value}
+                  placeholder="/data/products.csv"
+                />
+              </div>
+            ` : ''}
+            ${this.formType === 'api' ? html`
+              <div class="form-group">
+                <label>Endpoint URL</label>
+                <input 
+                  type="text" 
+                  .value=${this.formConnectionString}
+                  @input=${(e: Event) => this.formConnectionString = (e.target as HTMLInputElement).value}
+                  placeholder="https://api.example.com/data"
+                />
+              </div>
+            ` : ''}
+          </div>
+          <div class="modal-footer">
+            <button class="btn-secondary" @click=${this.closeModal}>Cancel</button>
+            <button class="btn-primary" @click=${this.handleSave} ?disabled=${this.saving}>
+              ${this.saving ? html`<span class="spinner"></span>` : ''}
+              ${this.editingId ? 'Save Changes' : 'Create'}
+            </button>
+          </div>
+        </div>
+      </div>
     `;
   }
 }

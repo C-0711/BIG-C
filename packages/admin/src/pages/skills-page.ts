@@ -1,206 +1,312 @@
 import { LitElement, html, css } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { customElement, state } from 'lit/decorators.js';
+import { configService, toastService, type Config } from '../services/index';
 
 @customElement('skills-page')
 export class SkillsPage extends LitElement {
   static styles = css`
-    :host { display: block; }
-    
-    .page-header {
+    :host {
+      display: block;
+      padding: 24px;
+    }
+
+    .header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       margin-bottom: 24px;
     }
-    
-    .page-title {
+
+    .header-left h1 {
+      margin: 0 0 8px 0;
       font-size: 24px;
       font-weight: 600;
-      color: var(--text-primary);
-      margin: 0 0 4px;
     }
-    
-    .page-subtitle {
-      font-size: 14px;
-      color: var(--text-secondary);
+
+    .header-left p {
       margin: 0;
+      color: var(--text-secondary, #888);
+      font-size: 14px;
     }
-    
+
     .tabs {
       display: flex;
       gap: 4px;
       margin-bottom: 24px;
-      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-secondary, #1e1e2e);
+      padding: 4px;
+      border-radius: 8px;
+      width: fit-content;
     }
-    
+
     .tab {
-      padding: 12px 20px;
-      font-size: 13px;
-      color: var(--text-secondary);
+      padding: 10px 20px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary, #888);
+      font-size: 14px;
+      font-weight: 500;
       cursor: pointer;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -1px;
+      border-radius: 6px;
+      transition: all 0.2s;
     }
-    
-    .tab:hover { color: var(--text-primary); }
-    
+
+    .tab:hover {
+      color: var(--text-primary, #fff);
+    }
+
     .tab.active {
-      color: var(--accent-primary);
-      border-bottom-color: var(--accent-primary);
+      background: var(--accent-color, #3b82f6);
+      color: white;
     }
-    
+
     .skills-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 16px;
     }
-    
+
     .skill-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--bg-secondary, #1e1e2e);
+      border: 1px solid var(--border-color, #363646);
       border-radius: 8px;
       padding: 20px;
     }
-    
+
     .skill-header {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       gap: 12px;
       margin-bottom: 12px;
     }
-    
+
     .skill-icon {
       font-size: 24px;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--bg-primary);
-      border-radius: 8px;
     }
-    
-    .skill-info { flex: 1; }
-    
-    .skill-name {
-      font-size: 14px;
+
+    .skill-info h3 {
+      margin: 0 0 4px 0;
+      font-size: 15px;
       font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 2px;
     }
-    
-    .skill-id {
-      font-size: 11px;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-    }
-    
-    .skill-desc {
+
+    .skill-info .id {
       font-size: 12px;
-      color: var(--text-secondary);
+      color: var(--text-secondary, #888);
+      font-family: monospace;
+    }
+
+    .skill-desc {
+      font-size: 13px;
+      color: var(--text-secondary, #888);
       line-height: 1.5;
       margin-bottom: 12px;
     }
-    
+
     .skill-tags {
       display: flex;
+      gap: 8px;
       flex-wrap: wrap;
-      gap: 6px;
     }
-    
+
     .tag {
-      font-size: 10px;
-      padding: 3px 8px;
-      background: var(--bg-tertiary);
+      font-size: 11px;
+      padding: 4px 8px;
       border-radius: 4px;
-      color: var(--text-muted);
+      background: var(--bg-tertiary, #2a2a3a);
+      color: var(--text-secondary, #888);
     }
-    
-    .tag.bundled { background: var(--accent-primary); color: #000; }
-    
+
+    .tag.bundled {
+      background: rgba(59, 130, 246, 0.2);
+      color: #3b82f6;
+    }
+
+    .tag.workspace {
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+    }
+
     .empty-state {
+      background: var(--bg-secondary, #1e1e2e);
+      border: 1px solid var(--border-color, #363646);
+      border-radius: 8px;
+      padding: 60px 40px;
       text-align: center;
-      padding: 48px;
-      color: var(--text-muted);
+    }
+
+    .empty-state .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .empty-state h3 {
+      margin: 0 0 8px 0;
+    }
+
+    .empty-state p {
+      margin: 0 0 20px 0;
+      color: var(--text-secondary, #888);
+    }
+
+    button {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent-color, #3b82f6);
+      border: none;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
     }
   `;
 
-  @property({ type: Object }) config: any = null;
-  @state() activeTab = 'bundled';
+  @state() private config: Config | null = null;
+  @state() private activeTab: 'bundled' | 'workspace' = 'bundled';
+  @state() private bundledSkills: string[] = [];
+  @state() private workspaceSkills: any[] = [];
 
-  private getSkillIcon(id: string): string {
-    const icons: Record<string, string> = {
-      'product-search': '🔍',
-      'catalog-browser': '📚',
-      'price-checker': '💰',
-      'stock-status': '📦',
-      'compare-products': '⚖️',
-      'product-details': '📋',
-      'category-nav': '🗂️',
-      'search-filters': '🎯',
-      'bulk-operations': '⚡',
-      'export-data': '📤',
-      'import-data': '📥',
-      'report-generator': '📊',
-      'quality-check': '✅',
+  private unsubscribe?: () => void;
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.unsubscribe = configService.subscribe(config => {
+      if (config) {
+        this.config = config;
+        this.bundledSkills = config.skills?.bundled || [];
+        // Generate some workspace skills for demo
+        this.workspaceSkills = this.generateWorkspaceSkills();
+      }
+    });
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.unsubscribe?.();
+  }
+
+  private generateWorkspaceSkills() {
+    // In real implementation, these would come from the workspace directory
+    return [];
+  }
+
+  private formatSkillName(id: string): string {
+    return id
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
+  private getSkillDescription(id: string): string {
+    const descriptions: Record<string, string> = {
+      'search': 'Search products by name, SKU, or attributes',
+      'describe': 'Generate detailed product descriptions',
+      'compare': 'Compare multiple products side by side',
+      'quality-audit': 'Audit product data for completeness and accuracy',
+      'gap-analysis': 'Identify missing data fields and attributes',
+      'product-description': 'Write compelling product descriptions',
+      'seo-optimization': 'Optimize content for search engines',
+      'multilingual': 'Translate content to multiple languages',
+      'feed-generation': 'Generate marketplace feeds (Amazon, eBay)',
+      'channel-mapping': 'Map products to channel-specific formats',
+      'etim-eclass': 'Classify products using ETIM/ECLASS standards',
+      'auto-categorize': 'Automatically categorize products',
+      'report-generation': 'Generate analytics and status reports',
     };
-    return icons[id] || '✨';
+    return descriptions[id] || `Enterprise skill for ${this.formatSkillName(id).toLowerCase()} operations.`;
   }
 
   render() {
-    const bundled = this.config?.skills?.bundled || [];
-    const workspace = this.config?.skills?.workspace || [];
-    const skills = this.activeTab === 'bundled' ? bundled : workspace;
-
     return html`
-      <div class="page-header">
-        <div>
-          <h1 class="page-title">Skills</h1>
-          <p class="page-subtitle">Agent capabilities and tool definitions</p>
+      <div class="header">
+        <div class="header-left">
+          <h1>Skills</h1>
+          <p>Agent capabilities and tool definitions</p>
         </div>
       </div>
-      
+
       <div class="tabs">
-        <div 
+        <button 
           class="tab ${this.activeTab === 'bundled' ? 'active' : ''}"
           @click=${() => this.activeTab = 'bundled'}
         >
-          Bundled (${bundled.length})
-        </div>
-        <div 
+          Bundled (${this.bundledSkills.length})
+        </button>
+        <button 
           class="tab ${this.activeTab === 'workspace' ? 'active' : ''}"
           @click=${() => this.activeTab = 'workspace'}
         >
-          Workspace (${workspace.length})
-        </div>
+          Workspace (${this.workspaceSkills.length})
+        </button>
       </div>
-      
-      ${skills.length === 0 ? html`
-        <div class="empty-state">
-          <p>No ${this.activeTab} skills found</p>
-        </div>
-      ` : html`
-        <div class="skills-grid">
-          ${skills.map((skill: string) => html`
-            <div class="skill-card">
-              <div class="skill-header">
-                <div class="skill-icon">${this.getSkillIcon(skill)}</div>
-                <div class="skill-info">
-                  <div class="skill-name">${skill.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</div>
-                  <div class="skill-id">${skill}</div>
-                </div>
-              </div>
-              <div class="skill-desc">
-                Enterprise skill for ${skill.replace(/-/g, ' ')} operations.
-              </div>
-              <div class="skill-tags">
-                <span class="tag bundled">BUNDLED</span>
-                <span class="tag">enterprise</span>
+
+      ${this.activeTab === 'bundled' ? this.renderBundledSkills() : this.renderWorkspaceSkills()}
+    `;
+  }
+
+  private renderBundledSkills() {
+    return html`
+      <div class="skills-grid">
+        ${this.bundledSkills.map(skillId => html`
+          <div class="skill-card">
+            <div class="skill-header">
+              <span class="skill-icon">✨</span>
+              <div class="skill-info">
+                <h3>${this.formatSkillName(skillId)}</h3>
+                <span class="id">${skillId}</span>
               </div>
             </div>
-          `)}
+            <p class="skill-desc">${this.getSkillDescription(skillId)}</p>
+            <div class="skill-tags">
+              <span class="tag bundled">BUNDLED</span>
+              <span class="tag">enterprise</span>
+            </div>
+          </div>
+        `)}
+      </div>
+    `;
+  }
+
+  private renderWorkspaceSkills() {
+    if (this.workspaceSkills.length === 0) {
+      return html`
+        <div class="empty-state">
+          <div class="icon">📁</div>
+          <h3>No Workspace Skills</h3>
+          <p>Custom skills will appear here when added to the workspace.</p>
+          <p style="font-size: 12px; color: var(--text-secondary);">
+            Workspace: ${this.config?.skills?.workspace || '~/.0711/workspace/skills/'}
+          </p>
         </div>
-      `}
+      `;
+    }
+
+    return html`
+      <div class="skills-grid">
+        ${this.workspaceSkills.map(skill => html`
+          <div class="skill-card">
+            <div class="skill-header">
+              <span class="skill-icon">🔧</span>
+              <div class="skill-info">
+                <h3>${skill.name}</h3>
+                <span class="id">${skill.id}</span>
+              </div>
+            </div>
+            <p class="skill-desc">${skill.description}</p>
+            <div class="skill-tags">
+              <span class="tag workspace">WORKSPACE</span>
+            </div>
+          </div>
+        `)}
+      </div>
     `;
   }
 }

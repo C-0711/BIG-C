@@ -1,188 +1,162 @@
 import { LitElement, html, css } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, state } from 'lit/decorators.js';
+import { configService, type Config } from '../services/index';
 
 @customElement('instances-page')
 export class InstancesPage extends LitElement {
   static styles = css`
-    :host { display: block; }
-    
-    .page-header {
+    :host {
+      display: block;
+      padding: 24px;
+    }
+
+    .header {
       margin-bottom: 24px;
     }
-    
-    .page-title {
+
+    .header h1 {
+      margin: 0 0 8px 0;
       font-size: 24px;
       font-weight: 600;
-      color: var(--text-primary);
-      margin: 0 0 4px;
     }
-    
-    .page-subtitle {
-      font-size: 14px;
-      color: var(--text-secondary);
+
+    .header p {
       margin: 0;
+      color: var(--text-secondary, #888);
+      font-size: 14px;
     }
-    
-    .instances-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 16px;
-    }
-    
+
     .instance-card {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-color);
+      background: var(--bg-secondary, #1e1e2e);
+      border: 1px solid var(--border-color, #363646);
       border-radius: 8px;
-      overflow: hidden;
+      padding: 24px;
     }
-    
-    .instance-card.primary {
-      border-color: var(--accent-primary);
-    }
-    
+
     .instance-header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
-      background: var(--bg-tertiary);
-      border-bottom: 1px solid var(--border-color);
+      gap: 16px;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border-color, #363646);
     }
-    
-    .instance-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    
+
     .instance-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      background: var(--accent-primary);
+      font-size: 40px;
+    }
+
+    .instance-title h2 {
+      margin: 0 0 4px 0;
+      font-size: 20px;
+    }
+
+    .instance-title .status {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 18px;
-    }
-    
-    .instance-name {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-    
-    .instance-id {
-      font-size: 11px;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-    }
-    
-    .instance-badge {
-      font-size: 10px;
-      padding: 4px 8px;
-      border-radius: 4px;
-      background: var(--accent-primary);
-      color: #000;
-      font-weight: 600;
-    }
-    
-    .instance-body {
-      padding: 16px 20px;
-    }
-    
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--border-subtle);
+      gap: 6px;
       font-size: 13px;
+      color: #10b981;
     }
-    
-    .info-row:last-child { border-bottom: none; }
-    
-    .info-label { color: var(--text-secondary); }
-    .info-value { color: var(--text-primary); }
-    .info-value.online { color: var(--accent-primary); }
-    
-    .instance-footer {
-      padding: 12px 20px;
-      background: var(--bg-tertiary);
-      border-top: 1px solid var(--border-color);
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .info-item {
       display: flex;
-      gap: 8px;
+      flex-direction: column;
+      gap: 6px;
     }
-    
-    .action-btn {
-      flex: 1;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      padding: 8px;
-      border-radius: 4px;
-      cursor: pointer;
+
+    .info-label {
       font-size: 12px;
+      color: var(--text-secondary, #888);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    
-    .action-btn:hover {
-      background: var(--bg-hover);
-      color: var(--text-primary);
+
+    .info-value {
+      font-size: 14px;
+      font-family: monospace;
     }
   `;
 
-  @property({ type: Object }) config: any = null;
+  @state() private config: Config | null = null;
+  private unsubscribe?: () => void;
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.unsubscribe = configService.subscribe(config => {
+      this.config = config;
+    });
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.unsubscribe?.();
+  }
 
   render() {
-    const instanceName = this.config?.instance?.name || '0711-C Intelligence';
-    
     return html`
-      <div class="page-header">
-        <h1 class="page-title">Instances</h1>
-        <p class="page-subtitle">Gateway instances and presence</p>
+      <div class="header">
+        <h1>Instance</h1>
+        <p>Current instance information and status</p>
       </div>
-      
-      <div class="instances-grid">
-        <div class="instance-card primary">
-          <div class="instance-header">
-            <div class="instance-info">
-              <div class="instance-icon">📊</div>
-              <div>
-                <div class="instance-name">${instanceName}</div>
-                <div class="instance-id">primary-001</div>
-              </div>
-            </div>
-            <span class="instance-badge">PRIMARY</span>
-          </div>
-          <div class="instance-body">
-            <div class="info-row">
-              <span class="info-label">Status</span>
-              <span class="info-value online">● Online</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Host</span>
-              <span class="info-value">localhost:7074</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Uptime</span>
-              <span class="info-value">2h 35m</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Version</span>
-              <span class="info-value">2026.2.1</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Agents</span>
-              <span class="info-value">${this.config?.agents?.list?.length || 0}</span>
-            </div>
-            <div class="info-row">
-              <span class="info-label">Active Sessions</span>
-              <span class="info-value">4</span>
+
+      <div class="instance-card">
+        <div class="instance-header">
+          <span class="instance-icon">📊</span>
+          <div class="instance-title">
+            <h2>${this.config?.instance?.name || '0711-C-Intelligence'}</h2>
+            <div class="status">
+              <span class="status-dot"></span>
+              Running
             </div>
           </div>
-          <div class="instance-footer">
-            <button class="action-btn">Restart</button>
-            <button class="action-btn">Logs</button>
-            <button class="action-btn">Config</button>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Instance Name</span>
+            <span class="info-value">${this.config?.instance?.name || '-'}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Template</span>
+            <span class="info-value">${this.config?.instance?.template || 'default'}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Locale</span>
+            <span class="info-value">${this.config?.instance?.locale || 'en-US'}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Auth Mode</span>
+            <span class="info-value">${this.config?.auth?.mode || 'password'}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Agents</span>
+            <span class="info-value">${this.config?.agents?.list?.length || 0} configured</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Workflows</span>
+            <span class="info-value">${this.config?.workflows?.list?.length || 0} configured</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Theme</span>
+            <span class="info-value">${this.config?.ui?.theme || 'light'}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Primary Color</span>
+            <span class="info-value">${this.config?.ui?.branding?.primaryColor || '#3B82F6'}</span>
           </div>
         </div>
       </div>
