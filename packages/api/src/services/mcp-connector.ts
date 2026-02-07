@@ -104,13 +104,16 @@ export class MCPConnector extends EventEmitter {
         },
       }, timeoutMs);
 
-      this.serverInfo = initResult.serverInfo || { name: 'unknown', version: 'unknown' };
+      const serverInfo: MCPServerInfo = initResult.serverInfo && typeof initResult.serverInfo === "object" 
+        ? initResult.serverInfo 
+        : { name: "unknown", version: "unknown" };
+      this.serverInfo = serverInfo;
       
       // Send initialized notification
       this.sendNotification('notifications/initialized');
       this.initialized = true;
 
-      return this.serverInfo;
+      return serverInfo;
     } catch (err) {
       this.dispose();
       throw err;
