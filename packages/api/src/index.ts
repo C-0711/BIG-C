@@ -24,7 +24,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use('/admin', express.static(path.join(__dirname, '../../admin/dist')));
 
 // Serve User UI
-app.use('/app', express.static(path.join(__dirname, '../../app/dist')));
+app.use('/app', express.static(path.join(__dirname, '../../ui/dist')));
 
 // ========================================
 // CONFIG API
@@ -498,7 +498,7 @@ app.get('/admin/*', (req, res) => {
 
 // SPA fallback - serve app for /app/* routes  
 app.get('/app/*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../app/dist/index.html'));
+  res.sendFile(path.join(__dirname, '../../ui/dist/index.html'));
 });
 
 // Root redirect

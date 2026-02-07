@@ -57,13 +57,33 @@ export class AdminApp extends LitElement {
   `;
 
   @state() private sidebarOpen = false;
-  @state() private configLoaded = false;
+  @state() private activePage = 'overview';
 
   async connectedCallback() {
     super.connectedCallback();
     // Load config on app start
     await configService.load();
-    this.configLoaded = true;
+    
+    // Handle URL routing
+    this.handleRoute();
+    window.addEventListener('popstate', () => this.handleRoute());
+  }
+
+  private handleRoute() {
+    const path = window.location.pathname;
+    const match = path.match(/\/admin\/([^\/]+)/);
+    if (match) {
+      this.activePage = match[1];
+    } else {
+      this.activePage = 'overview';
+    }
+  }
+
+  private handleNavigate(e: CustomEvent) {
+    const page = e.detail;
+    this.activePage = page;
+    // Update URL
+    window.history.pushState({}, '', `/admin/${page}`);
   }
 
   private toggleSidebar() {
@@ -75,12 +95,15 @@ export class AdminApp extends LitElement {
       <div class="app-container">
         <admin-header @toggle-sidebar=${this.toggleSidebar}></admin-header>
         <div class="main-layout">
-          <admin-sidebar class="${this.sidebarOpen ? 'open' : ''}"></admin-sidebar>
-          <admin-content></admin-content>
+          <admin-sidebar 
+            class="${this.sidebarOpen ? 'open' : ''}"
+            .currentRoute=${this.activePage}
+            @navigate=${this.handleNavigate}
+          ></admin-sidebar>
+          <admin-content .activePage=${this.activePage}></admin-content>
         </div>
       </div>
       
-      <!-- Global UI components -->
       <toast-container></toast-container>
       <confirm-dialog></confirm-dialog>
     `;

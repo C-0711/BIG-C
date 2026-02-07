@@ -1,23 +1,23 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
-// Import all 16 pages
-import '../pages/overview-page';
-import '../pages/chat-page';
-import '../pages/channels-page';
-import '../pages/instances-page';
-import '../pages/sessions-page';
-import '../pages/cron-jobs-page';
-import '../pages/agents-page';
-import '../pages/skills-page';
-import '../pages/nodes-page';
-import '../pages/data-sources-page';
-import '../pages/outputs-page';
-import '../pages/template-page';
-import '../pages/config-page';
-import '../pages/debug-page';
-import '../pages/logs-page';
-import '../pages/docs-page';
+// Import all pages with .js extensions for ESM
+import '../pages/overview-page.js';
+import '../pages/chat-page.js';
+import '../pages/channels-page.js';
+import '../pages/instances-page.js';
+import '../pages/sessions-page.js';
+import '../pages/cron-jobs-page.js';
+import '../pages/agents-page.js';
+import '../pages/skills-page.js';
+import '../pages/nodes-page.js';
+import '../pages/data-sources-page.js';
+import '../pages/outputs-page.js';
+import '../pages/template-page.js';
+import '../pages/config-page.js';
+import '../pages/debug-page.js';
+import '../pages/logs-page.js';
+import '../pages/docs-page.js';
 
 @customElement('admin-content')
 export class AdminContent extends LitElement {
@@ -27,70 +27,53 @@ export class AdminContent extends LitElement {
       background: var(--bg-primary);
       overflow-y: auto;
     }
-    
-    .content {
-      padding: 24px;
-      max-width: 1400px;
-    }
   `;
 
-  @property({ type: String }) route = 'overview';
-  @property({ type: Object }) config: any = null;
+  @property({ type: String })
+  activePage = 'overview';
 
   private renderPage() {
-    switch (this.route) {
-      // Control
+    switch (this.activePage) {
       case 'overview':
-        return html`<overview-page .config=${this.config}></overview-page>`;
+        return html`<overview-page></overview-page>`;
       case 'chat':
-        return html`<chat-page .config=${this.config}></chat-page>`;
+        return html`<chat-page></chat-page>`;
       case 'channels':
-        return html`<channels-page .config=${this.config}></channels-page>`;
+        return html`<channels-page></channels-page>`;
       case 'instances':
-        return html`<instances-page .config=${this.config}></instances-page>`;
+        return html`<instances-page></instances-page>`;
       case 'sessions':
-        return html`<sessions-page .config=${this.config}></sessions-page>`;
+        return html`<sessions-page></sessions-page>`;
       case 'cron-jobs':
-        return html`<cron-jobs-page .config=${this.config}></cron-jobs-page>`;
-      
-      // Agent
+      case 'workflows':
+        return html`<cron-jobs-page></cron-jobs-page>`;
       case 'agents':
-        return html`<agents-page .config=${this.config}></agents-page>`;
+        return html`<agents-page></agents-page>`;
       case 'skills':
-        return html`<skills-page .config=${this.config}></skills-page>`;
+        return html`<skills-page></skills-page>`;
       case 'nodes':
-        return html`<nodes-page .config=${this.config}></nodes-page>`;
-      
-      // Data
+        return html`<nodes-page></nodes-page>`;
       case 'data-sources':
-        return html`<data-sources-page .config=${this.config}></data-sources-page>`;
+      case 'datasources':
+        return html`<data-sources-page></data-sources-page>`;
       case 'outputs':
-        return html`<outputs-page .config=${this.config}></outputs-page>`;
+        return html`<outputs-page></outputs-page>`;
       case 'template':
-        return html`<template-page .config=${this.config}></template-page>`;
-      
-      // Settings
+        return html`<template-page></template-page>`;
       case 'config':
-        return html`<config-page .config=${this.config}></config-page>`;
+        return html`<config-page></config-page>`;
       case 'debug':
-        return html`<debug-page .config=${this.config}></debug-page>`;
+        return html`<debug-page></debug-page>`;
       case 'logs':
-        return html`<logs-page .config=${this.config}></logs-page>`;
-      
-      // Resources
+        return html`<logs-page></logs-page>`;
       case 'docs':
-        return html`<docs-page .config=${this.config}></docs-page>`;
-      
+        return html`<docs-page></docs-page>`;
       default:
-        return html`<overview-page .config=${this.config}></overview-page>`;
+        return html`<overview-page></overview-page>`;
     }
   }
 
   render() {
-    return html`
-      <div class="content">
-        ${this.renderPage()}
-      </div>
-    `;
+    return this.renderPage();
   }
 }
