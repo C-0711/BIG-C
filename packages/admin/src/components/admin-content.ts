@@ -10,6 +10,9 @@ import '../pages/template-page';
 import '../pages/config-page';
 import '../pages/chat-page';
 import '../pages/logs-page';
+import '../pages/sessions-page';
+import '../pages/debug-page';
+import '../pages/channels-page';
 
 @customElement('admin-content')
 export class AdminContent extends LitElement {
@@ -55,6 +58,10 @@ export class AdminContent extends LitElement {
         return html`<overview-page .config=${this.config}></overview-page>`;
       case 'chat':
         return html`<chat-page .config=${this.config}></chat-page>`;
+      case 'channels':
+        return html`<channels-page .config=${this.config}></channels-page>`;
+      case 'sessions':
+        return html`<sessions-page .config=${this.config}></sessions-page>`;
       case 'agents':
         return html`<agents-page .config=${this.config}></agents-page>`;
       case 'skills':
@@ -69,6 +76,8 @@ export class AdminContent extends LitElement {
         return html`<template-page .config=${this.config}></template-page>`;
       case 'config':
         return html`<config-page .config=${this.config}></config-page>`;
+      case 'debug':
+        return html`<debug-page .config=${this.config}></debug-page>`;
       case 'logs':
         return html`<logs-page .config=${this.config}></logs-page>`;
       default:
@@ -78,12 +87,9 @@ export class AdminContent extends LitElement {
 
   private renderPlaceholder() {
     const pageInfo: Record<string, { icon: string; title: string }> = {
-      'channels': { icon: '🔗', title: 'Channels' },
       'instances': { icon: '📡', title: 'Instances' },
-      'sessions': { icon: '📊', title: 'Sessions' },
       'nodes': { icon: '📦', title: 'Nodes' },
-      'debug': { icon: '🐛', title: 'Debug' },
-      'docs': { icon: '📚', title: 'Docs' },
+      'docs': { icon: '📚', title: 'Documentation' },
     };
 
     const info = pageInfo[this.route] || { icon: '📄', title: this.route };
