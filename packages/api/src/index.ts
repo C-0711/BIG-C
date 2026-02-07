@@ -1,6 +1,7 @@
 import JSON5 from "json5";
 import express from "express";
 import { MCPConnector } from "./services/mcp-connector";
+import { canAccessTool } from "./types/agent";
 import widgetRoutes from "./routes/widgets";
 import cors from "cors";
 import fs from "fs";
@@ -406,6 +407,110 @@ app.post("/api/mcp/:id/call", async (req, res) => {
     connector.dispose();
     res.status(500).json({ success: false, error: error.message });
   }
+});
+
+// ========================================
+// AGENT MCP TOOL ACCESS
+// ========================================
+
+// Agent calls MCP tool (with access control)
+app.post("/api/agents/:agentId/tools/:dataSource/:tool", async (req, res) => {
+  const { agentId, dataSource, tool } = req.params;
+  const { args } = req.body;
+  
+  const config = readConfig();
+  const agent = config.agents?.list?.find((a: any) => a.id === agentId);
+  
+  if (!agent) {
+    return res.status(404).json({ error: "Agent not found" });
+  }
+  
+  // Check MCP access permissions
+  if (!canAccessTool(agent, dataSource, tool)) {
+    return res.status(403).json({ 
+      error: `Agent "${agentId}" has no access to tool "${tool}" on "${dataSource}"` 
+    });
+  }
+  
+  const dsConfig = config.dataSources?.providers?.[dataSource];
+  if (!dsConfig || dsConfig.type !== "mcp") {
+    return res.status(404).json({ error: "MCP data source not found" });
+  }
+  
+  const connector = new MCPConnector({
+    command: dsConfig.command,
+    args: dsConfig.args || [],
+    cwd: dsConfig.cwd,
+    env: dsConfig.env,
+  });
+  
+  try {
+    await connector.connect(10000);
+    const result = await connector.callTool(tool, args || {});
+    connector.dispose();
+    
+    // Parse MCP response
+    let data = result;
+    if (result?.content?.[0]?.text) {
+      try { data = JSON.parse(result.content[0].text); } catch { data = result.content[0].text; }
+    }
+    
+    res.json({ success: true, data });
+  } catch (error: any) {
+    connector.dispose();
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get agent's available tools across all data sources
+app.get("/api/agents/:agentId/available-tools", async (req, res) => {
+  const { agentId } = req.params;
+  const config = readConfig();
+  const agent = config.agents?.list?.find((a: any) => a.id === agentId);
+  
+  if (!agent) {
+    return res.status(404).json({ error: "Agent not found" });
+  }
+  
+  const availableTools: any[] = [];
+  
+  for (const [dsId, access] of Object.entries(agent.mcpAccess || {})) {
+    const dsConfig = config.dataSources?.providers?.[dsId];
+    if (!dsConfig || dsConfig.type !== "mcp") continue;
+    
+    const connector = new MCPConnector({
+      command: dsConfig.command,
+      args: dsConfig.args || [],
+      cwd: dsConfig.cwd,
+      env: dsConfig.env,
+    });
+    
+    try {
+      await connector.connect(10000);
+      const tools = await connector.listTools();
+      connector.dispose();
+      
+      // Filter tools based on allowedTools patterns
+      const accessConfig = access as any;
+      const filtered = tools.filter(t => 
+        accessConfig.allowedTools?.some((pattern: string) => {
+          if (pattern === '*') return true;
+          if (pattern === t.name) return true;
+          if (pattern.endsWith('*') && t.name.startsWith(pattern.slice(0, -1))) return true;
+          return false;
+        })
+      );
+      
+      availableTools.push({
+        dataSource: dsId,
+        tools: filtered
+      });
+    } catch (e) {
+      connector.dispose();
+    }
+  }
+  
+  res.json({ success: true, availableTools });
 });
 
 server.listen(PORT, () => {

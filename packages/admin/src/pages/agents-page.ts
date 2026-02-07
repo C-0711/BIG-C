@@ -494,6 +494,7 @@ export class AgentsPage extends LitElement {
   @state() private formEmoji = '';
   @state() private formTheme = '';
   @state() private formSystemPrompt = '';
+  @state() private formMcpAccess = '{}';
   @state() private formSkills = '';
   @state() private formEnabled = true;
 
@@ -531,6 +532,7 @@ export class AgentsPage extends LitElement {
     this.formEmoji = '';
     this.formTheme = '';
     this.formSystemPrompt = '';
+    this.formMcpAccess = '{}';
     this.formSkills = '';
     this.formEnabled = true;
     this.showModal = true;
@@ -543,6 +545,7 @@ export class AgentsPage extends LitElement {
     this.formEmoji = agent.identity?.emoji || '';
     this.formTheme = agent.identity?.theme || '';
     this.formSystemPrompt = (agent as any).systemPrompt || '';
+    this.formMcpAccess = JSON.stringify((agent as any).mcpAccess || {}, null, 2);
     this.formSkills = (agent.skills || []).join(', ');
     this.formEnabled = agent.enabled !== false;
     this.showModal = true;
@@ -577,6 +580,12 @@ export class AgentsPage extends LitElement {
     // Add system prompt if provided
     if (this.formSystemPrompt.trim()) {
       agentData.systemPrompt = this.formSystemPrompt.trim();
+    }
+    
+    if (this.formMcpAccess.trim()) {
+      try {
+        agentData.mcpAccess = JSON.parse(this.formMcpAccess);
+      } catch {}
     }
 
     let response;
