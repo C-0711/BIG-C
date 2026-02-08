@@ -3,7 +3,7 @@
  * Sprint 12.2 - Client Setup
  */
 
-import { TemplateManager, Template, BundleTemplate } from './TemplateManager';
+import { TemplateManager, Template, ExportedBundleTemplate } from './TemplateManager';
 import { EventBus } from '../events/EventBus';
 
 export interface ClientConfig {

@@ -24,36 +24,36 @@ export interface TemplateMetadata {
   updatedAt: string;
 }
 
-export interface WidgetTemplate extends TemplateMetadata {
+export interface ExportedWidgetTemplate extends TemplateMetadata {
   type: 'widget';
   config: WidgetConfig;
 }
 
-export interface SkillTemplate extends TemplateMetadata {
+export interface ExportedSkillTemplate extends TemplateMetadata {
   type: 'skill';
   definition: SkillDefinition;
 }
 
-export interface AgentTemplate extends TemplateMetadata {
+export interface ExportedAgentTemplate extends TemplateMetadata {
   type: 'agent';
   definition: AgentDefinition;
 }
 
-export interface DashboardTemplate extends TemplateMetadata {
+export interface ExportedDashboardTemplate extends TemplateMetadata {
   type: 'dashboard';
   config: DashboardConfig;
-  widgetTemplates?: WidgetTemplate[];
+  widgetTemplates?: ExportedWidgetTemplate[];
 }
 
-export interface BundleTemplate extends TemplateMetadata {
+export interface ExportedBundleTemplate extends TemplateMetadata {
   type: 'bundle';
-  widgets: WidgetTemplate[];
-  skills: SkillTemplate[];
-  agents: AgentTemplate[];
-  dashboards: DashboardTemplate[];
+  widgets: ExportedWidgetTemplate[];
+  skills: ExportedSkillTemplate[];
+  agents: ExportedAgentTemplate[];
+  dashboards: ExportedDashboardTemplate[];
 }
 
-export type Template = WidgetTemplate | SkillTemplate | AgentTemplate | DashboardTemplate | BundleTemplate;
+export type Template = ExportedWidgetTemplate | ExportedSkillTemplate | ExportedAgentTemplate | ExportedDashboardTemplate | ExportedBundleTemplate;
 
 export interface ExportOptions {
   includeMetadata?: boolean;
@@ -81,8 +81,8 @@ export class TemplateManager {
   /**
    * Export a widget as template
    */
-  exportWidget(config: WidgetConfig, metadata: Partial<TemplateMetadata>): WidgetTemplate {
-    const template: WidgetTemplate = {
+  exportWidget(config: WidgetConfig, metadata: Partial<TemplateMetadata>): ExportedWidgetTemplate {
+    const template: ExportedWidgetTemplate = {
       id: metadata.id || `widget-${config.type}-${Date.now()}`,
       name: metadata.name || config.title || config.type,
       description: metadata.description || `Widget template for ${config.type}`,
@@ -105,8 +105,8 @@ export class TemplateManager {
   /**
    * Export a skill as template
    */
-  exportSkill(definition: SkillDefinition, metadata: Partial<TemplateMetadata>): SkillTemplate {
-    const template: SkillTemplate = {
+  exportSkill(definition: SkillDefinition, metadata: Partial<TemplateMetadata>): ExportedSkillTemplate {
+    const template: ExportedSkillTemplate = {
       id: metadata.id || `skill-${definition.id}-${Date.now()}`,
       name: metadata.name || definition.name,
       description: metadata.description || definition.description,
@@ -129,8 +129,8 @@ export class TemplateManager {
   /**
    * Export an agent as template
    */
-  exportAgent(definition: AgentDefinition, metadata: Partial<TemplateMetadata>): AgentTemplate {
-    const template: AgentTemplate = {
+  exportAgent(definition: AgentDefinition, metadata: Partial<TemplateMetadata>): ExportedAgentTemplate {
+    const template: ExportedAgentTemplate = {
       id: metadata.id || `agent-${definition.id}-${Date.now()}`,
       name: metadata.name || definition.name,
       description: metadata.description || definition.description,
@@ -156,9 +156,9 @@ export class TemplateManager {
   exportDashboard(
     config: DashboardConfig,
     metadata: Partial<TemplateMetadata>,
-    widgetTemplates?: WidgetTemplate[]
-  ): DashboardTemplate {
-    const template: DashboardTemplate = {
+    widgetTemplates?: ExportedWidgetTemplate[]
+  ): ExportedDashboardTemplate {
+    const template: ExportedDashboardTemplate = {
       id: metadata.id || `dashboard-${Date.now()}`,
       name: metadata.name || config.name,
       description: metadata.description || `Dashboard template: ${config.name}`,
@@ -186,13 +186,13 @@ export class TemplateManager {
     name: string,
     description: string,
     items: {
-      widgets?: WidgetTemplate[];
-      skills?: SkillTemplate[];
-      agents?: AgentTemplate[];
-      dashboards?: DashboardTemplate[];
+      widgets?: ExportedWidgetTemplate[];
+      skills?: ExportedSkillTemplate[];
+      agents?: ExportedAgentTemplate[];
+      dashboards?: ExportedDashboardTemplate[];
     },
     metadata?: Partial<TemplateMetadata>
-  ): BundleTemplate {
+  ): ExportedBundleTemplate {
     const allTools = new Set<string>();
     
     items.widgets?.forEach(w => w.requiredTools?.forEach(t => allTools.add(t)));
@@ -200,7 +200,7 @@ export class TemplateManager {
     items.agents?.forEach(a => a.requiredTools?.forEach(t => allTools.add(t)));
     items.dashboards?.forEach(d => d.requiredTools?.forEach(t => allTools.add(t)));
 
-    const template: BundleTemplate = {
+    const template: ExportedBundleTemplate = {
       id: metadata?.id || `bundle-${Date.now()}`,
       name,
       description,
@@ -398,7 +398,7 @@ export class TemplateManager {
    */
   private extractToolsFromDashboard(
     config: DashboardConfig,
-    widgetTemplates?: WidgetTemplate[]
+    widgetTemplates?: ExportedWidgetTemplate[]
   ): string[] {
     const tools = new Set<string>();
     
@@ -417,13 +417,13 @@ export class TemplateManager {
   private stripMetadata(template: Template): unknown {
     switch (template.type) {
       case 'widget':
-        return (template as WidgetTemplate).config;
+        return (template as ExportedWidgetTemplate).config;
       case 'skill':
-        return (template as SkillTemplate).definition;
+        return (template as ExportedSkillTemplate).definition;
       case 'agent':
-        return (template as AgentTemplate).definition;
+        return (template as ExportedAgentTemplate).definition;
       case 'dashboard':
-        return (template as DashboardTemplate).config;
+        return (template as ExportedDashboardTemplate).config;
       default:
         return template;
     }

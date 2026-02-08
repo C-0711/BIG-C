@@ -41,11 +41,16 @@ export interface AgentPersona {
 
 export type TriggerType = 'event' | 'cron' | 'manual' | 'webhook';
 
+export interface ManualTriggerConfig {
+  /** Optional manual trigger settings */
+  requireConfirmation?: boolean;
+}
+
 export interface AgentTrigger {
   /** Trigger type */
   type: TriggerType;
   /** Trigger configuration */
-  config: EventTriggerConfig | CronTriggerConfig | WebhookTriggerConfig;
+  config: EventTriggerConfig | CronTriggerConfig | WebhookTriggerConfig | ManualTriggerConfig;
   /** Whether trigger is enabled */
   enabled?: boolean;
 }
