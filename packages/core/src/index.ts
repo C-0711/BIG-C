@@ -30,3 +30,15 @@ export * from './admin';
 
 // Utilities
 export * from './utils';
+
+// Claude Integration
+export * from './claude';
+
+// Widget Wizard
+export * from './wizard';
+
+// Skills
+export * from './skills';
+
+// Memory
+export * from './memory';
