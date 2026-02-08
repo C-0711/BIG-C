@@ -39,14 +39,14 @@ class WidgetRegistryClass {
    * Register a widget type with a factory function
    */
   registerFactory(type: string, factory: WidgetFactory, metadata?: WidgetRegistration['metadata']): void {
-    this.registry.set(type, { factory, metadata });
+    this.registry.set(type, { factory, metadata } as WidgetRegistration);
   }
 
   /**
    * Register a widget type with lazy loading
    */
   registerLazy(type: string, loader: () => Promise<WidgetConstructor>, metadata?: WidgetRegistration['metadata']): void {
-    this.registry.set(type, { lazyLoader: loader, metadata });
+    this.registry.set(type, { lazyLoader: loader, metadata } as WidgetRegistration);
   }
 
   /**

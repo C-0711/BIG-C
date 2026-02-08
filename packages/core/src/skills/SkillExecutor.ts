@@ -410,7 +410,7 @@ export class SkillExecutor {
    */
   private setValueAtPath(context: SkillExecutionContext, path: string, value: unknown): void {
     const parts = path.replace(/^\$\./, '').split('.');
-    let current: Record<string, unknown> = context as Record<string, unknown>;
+    let current: Record<string, unknown> = context as unknown as Record<string, unknown>;
 
     for (let i = 0; i < parts.length - 1; i++) {
       const part = parts[i];

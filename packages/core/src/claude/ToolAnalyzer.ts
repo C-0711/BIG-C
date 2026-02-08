@@ -53,12 +53,12 @@ export interface SkillSuggestion {
   name: string;
   description: string;
   tools: string[];
-  steps: SkillStep[];
+  steps: SkillStepSuggestion[];
   triggers: string[];
   outputs: string[];
 }
 
-export interface SkillStep {
+export interface SkillStepSuggestion {
   tool: string;
   description: string;
   inputMapping?: Record<string, string>;

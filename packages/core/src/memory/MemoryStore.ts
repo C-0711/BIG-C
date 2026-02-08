@@ -77,7 +77,7 @@ export interface MemoryStoreStats {
 export class InMemoryStore implements MemoryStore {
   private store: Map<string, MemoryEntry> = new Map();
   private config: Required<MemoryStoreConfig>;
-  private stats: { hits: number; misses: number; expirations: number } = {
+  private _stats: { hits: number; misses: number; expirations: number } = {
     hits: 0,
     misses: 0,
     expirations: 0,
@@ -109,10 +109,10 @@ export class InMemoryStore implements MemoryStore {
   async get<T = unknown>(key: string): Promise<T | null> {
     const entry = await this.getEntry<T>(key);
     if (entry) {
-      this.stats.hits++;
+      this._stats.hits++;
       return entry.value;
     }
-    this.stats.misses++;
+    this._stats.misses++;
     return null;
   }
 
@@ -151,7 +151,7 @@ export class InMemoryStore implements MemoryStore {
     if (!entry) return false;
     if (entry.expiresAt && Date.now() > entry.expiresAt) {
       this.store.delete(this.prefixKey(key));
-      this.stats.expirations++;
+      this._stats.expirations++;
       return false;
     }
     return true;
@@ -206,7 +206,7 @@ export class InMemoryStore implements MemoryStore {
     // Check expiration
     if (entry.expiresAt && Date.now() > entry.expiresAt) {
       this.store.delete(this.prefixKey(key));
-      this.stats.expirations++;
+      this._stats.expirations++;
       return null;
     }
     
@@ -237,9 +237,9 @@ export class InMemoryStore implements MemoryStore {
   async stats(): Promise<MemoryStoreStats> {
     return {
       entries: this.store.size,
-      hits: this.stats.hits,
-      misses: this.stats.misses,
-      expirations: this.stats.expirations,
+      hits: this._stats.hits,
+      misses: this._stats.misses,
+      expirations: this._stats.expirations,
     };
   }
 
@@ -262,7 +262,7 @@ export class InMemoryStore implements MemoryStore {
       for (const [key, entry] of this.store) {
         if (entry.expiresAt && now > entry.expiresAt) {
           this.store.delete(key);
-          this.stats.expirations++;
+          this._stats.expirations++;
         }
       }
     }, 60000);

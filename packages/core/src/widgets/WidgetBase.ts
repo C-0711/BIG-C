@@ -91,9 +91,9 @@ export abstract class WidgetBase {
   /**
    * Emit an event from this widget
    */
-  protected emit(event: string, payload?: unknown): void {
+  protected emit(event: string, payload?: Record<string, unknown>): void {
     EventBus.emit(event, {
-      ...payload,
+      ...(payload || {}),
       source: this.id,
       timestamp: Date.now(),
     });
