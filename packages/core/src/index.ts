@@ -18,3 +18,15 @@ export * from './events';
 
 // React Hooks
 export * from './hooks';
+
+// MCP Integration
+export * from './mcp';
+
+// Dashboard
+export * from './dashboard';
+
+// Admin
+export * from './admin';
+
+// Utilities
+export * from './utils';
