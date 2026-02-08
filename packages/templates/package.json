@@ -1,0 +1,23 @@
+{
+  "name": "@0711/templates",
+  "version": "1.0.0",
+  "description": "Standard reusable templates for 0711-BIG-C - widgets, skills, agents, dashboards",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@0711/core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "0711",
+    "templates",
+    "widgets",
+    "mcp"
+  ]
+}
