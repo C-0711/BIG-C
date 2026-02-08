@@ -11,19 +11,28 @@
 
 | Sprint | Name | Status | Notes |
 |--------|------|--------|-------|
-| 1.1 | Widget Framework | ✅ COMPLETE | WidgetBase, WidgetRegistry, WidgetConfig |
-| 1.2 | Event Bus | ✅ COMPLETE | EventBus, EventQueue, EventTypes |
-| 1.3 | Basic Widgets (3) | ✅ COMPLETE | ProductSearch, ProductDetail, SimilarProducts in @0711/templates |
-| 2.1 | Widget Wizard | 🔜 | Claude-assisted widget creation |
+| 1.1 | Widget Framework | ✅ COMPLETE | WidgetBase, WidgetRegistry, WidgetConfig, WidgetRenderer |
+| 1.2 | Event Bus | ✅ COMPLETE | EventBus, EventQueue, EventTypes, useWidgetEvents |
+| 1.3 | Basic Widgets (3) | ✅ COMPLETE | ProductSearch, ProductDetail, SimilarProducts |
+| 2.1 | MCP Integration | ✅ COMPLETE | MCPClient, ToolSchemaParser, ToolExecutor |
+| 2.2 | More Widgets (3) | ✅ COMPLETE | ETIMExplorer, MediaGallery, DocumentCenter |
+| 2.3 | Widget Wiring | ✅ COMPLETE | WidgetWiring, EventBuffer, subscription matrix |
+| 3.1 | Dashboard Basics | ✅ COMPLETE | DashboardManager, Layout, Persistence |
+| 3.2 | Widget Admin | ✅ COMPLETE | WidgetCreator, ConfigEditor, ToolArgumentBuilder |
+| 3.3 | Testing & Polish | ✅ COMPLETE | Tests, ErrorBoundary, LoadingStates |
 
-**Last Updated:** 2026-02-08 11:15
-**Architecture Refactored:** Core is now client-agnostic. Templates in @0711/templates.
+**PHASE 1 COMPLETE!** 🎉
 
-### Recent Changes:
-- Moved Bosch widgets to @0711/templates as standard widgets
-- Widgets now use standard MCP tool names (search_products, not bosch_search_products)
-- Created MCP-CONNECTION.md documenting all 27 standard tools
-- Core package is 100% clean - no client-specific code
+**Last Updated:** 2026-02-08 11:45
+**Architecture:** Core (@0711/core) + Templates (@0711/templates) - fully client-agnostic
+
+### Phase 1 Summary:
+- 6 Standard Widgets in @0711/templates
+- MCP Integration with 27 standard tools
+- Dashboard system with drag-drop, persistence
+- Widget admin utilities
+- Full test coverage for core modules
+- Error handling and loading states
 
 ---
 
