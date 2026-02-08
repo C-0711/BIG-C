@@ -31,52 +31,52 @@ export class AdminContent extends LitElement {
     }
   `;
 
-  @property({ type: String })
-  activePage = 'overview';
+  @property({ type: String }) activePage = 'overview';
+  @property({ type: Object }) config: any = null;
 
   private renderPage() {
     switch (this.activePage) {
       case 'overview':
-        return html`<overview-page></overview-page>`;
+        return html`<overview-page .config=${this.config}></overview-page>`;
       case 'chat':
-        return html`<chat-page></chat-page>`;
+        return html`<chat-page .config=${this.config}></chat-page>`;
       case 'channels':
-        return html`<channels-page></channels-page>`;
+        return html`<channels-page .config=${this.config}></channels-page>`;
       case 'instances':
-        return html`<instances-page></instances-page>`;
+        return html`<instances-page .config=${this.config}></instances-page>`;
       case 'sessions':
-        return html`<sessions-page></sessions-page>`;
+        return html`<sessions-page .config=${this.config}></sessions-page>`;
       case 'cron-jobs':
       case 'workflows':
-        return html`<cron-jobs-page></cron-jobs-page>`;
+        return html`<cron-jobs-page .config=${this.config}></cron-jobs-page>`;
       case 'agents':
-        return html`<agents-page></agents-page>`;
+        return html`<agents-page .config=${this.config}></agents-page>`;
       case 'skills':
-        return html`<skills-page></skills-page>`;
+        return html`<skills-page .config=${this.config}></skills-page>`;
       case 'nodes':
-        return html`<nodes-page></nodes-page>`;
+        return html`<nodes-page .config=${this.config}></nodes-page>`;
       case 'data-sources':
       case 'datasources':
-        return html`<data-sources-page></data-sources-page>`;
+        return html`<data-sources-page .config=${this.config}></data-sources-page>`;
       case 'widgets':
-        return html`<widgets-page></widgets-page>`;
+        return html`<widgets-page .config=${this.config}></widgets-page>`;
       case 'dashboards':
-        return html`<dashboards-page></dashboards-page>`;
-      
+        return html`<dashboards-page .config=${this.config}></dashboards-page>`;
       case 'outputs':
-        return html`<outputs-page></outputs-page>`;
+        return html`<outputs-page .config=${this.config}></outputs-page>`;
       case 'template':
-        return html`<template-page></template-page>`;
+      case 'templates':
+        return html`<template-page .config=${this.config}></template-page>`;
       case 'config':
-        return html`<config-page></config-page>`;
+        return html`<config-page .config=${this.config}></config-page>`;
       case 'debug':
-        return html`<debug-page></debug-page>`;
+        return html`<debug-page .config=${this.config}></debug-page>`;
       case 'logs':
-        return html`<logs-page></logs-page>`;
+        return html`<logs-page .config=${this.config}></logs-page>`;
       case 'docs':
-        return html`<docs-page></docs-page>`;
+        return html`<docs-page .config=${this.config}></docs-page>`;
       default:
-        return html`<overview-page></overview-page>`;
+        return html`<overview-page .config=${this.config}></overview-page>`;
     }
   }
 

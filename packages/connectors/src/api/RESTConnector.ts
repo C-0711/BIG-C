@@ -49,7 +49,7 @@ interface RESTConfig {
  * });
  */
 export class RESTConnector extends BaseConnector {
-  private config: RESTConfig | null = null;
+  private restConfig: RESTConfig | null = null;
   private data: any[] = [];
 
   constructor(id: string, name: string) {
@@ -57,7 +57,8 @@ export class RESTConnector extends BaseConnector {
   }
 
   async connect(config: RESTConfig): Promise<void> {
-    this.config = config;
+    this.restConfig = config;
+    this.config = config as Record<string, any>;
     
     // Test the connection by fetching first page
     await this.fetchData();
@@ -66,25 +67,25 @@ export class RESTConnector extends BaseConnector {
   }
 
   private async fetchData(url?: string): Promise<any> {
-    if (!this.config) throw new Error('Not configured');
+    if (!this.restConfig) throw new Error('Not configured');
     
-    const fetchUrl = url || `${this.config.baseUrl}${this.config.endpoints.list}`;
+    const fetchUrl = url || `${this.restConfig.baseUrl}${this.restConfig.endpoints.list}`;
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...this.config.headers,
+      ...this.restConfig.headers,
     };
     
     // Add auth headers
-    if (this.config.auth) {
-      switch (this.config.auth.type) {
+    if (this.restConfig.auth) {
+      switch (this.restConfig.auth.type) {
         case 'api-key':
-          headers[this.config.auth.apiKeyHeader || 'X-API-Key'] = this.config.auth.apiKey || '';
+          headers[this.restConfig.auth.apiKeyHeader || 'X-API-Key'] = this.restConfig.auth.apiKey || '';
           break;
         case 'bearer':
-          headers['Authorization'] = `Bearer ${this.config.auth.bearerToken}`;
+          headers['Authorization'] = `Bearer ${this.restConfig.auth.bearerToken}`;
           break;
         case 'basic':
-          const credentials = Buffer.from(`${this.config.auth.username}:${this.config.auth.password}`).toString('base64');
+          const credentials = Buffer.from(`${this.restConfig.auth.username}:${this.restConfig.auth.password}`).toString('base64');
           headers['Authorization'] = `Basic ${credentials}`;
           break;
       }
@@ -99,9 +100,9 @@ export class RESTConnector extends BaseConnector {
     const json = await response.json();
     
     // Extract data using responseMapping
-    let data = json;
-    if (this.config.responseMapping?.dataPath) {
-      const path = this.config.responseMapping.dataPath.split('.');
+    let data: any = json;
+    if (this.restConfig.responseMapping?.dataPath) {
+      const path = this.restConfig.responseMapping.dataPath.split('.');
       for (const key of path) {
         data = data?.[key];
       }
@@ -113,7 +114,8 @@ export class RESTConnector extends BaseConnector {
 
   async disconnect(): Promise<void> {
     this.data = [];
-    this.config = null;
+    this.restConfig = null;
+    this.config = {};
     this.connected = false;
   }
 

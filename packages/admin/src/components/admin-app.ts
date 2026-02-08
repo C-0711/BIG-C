@@ -103,7 +103,7 @@ export class AdminApp extends LitElement {
             .config=${this.config}
             @navigate=${this.handleNavigate}
           ></admin-sidebar>
-          <admin-content .activePage=${this.activePage}></admin-content>
+          <admin-content .activePage=${this.activePage} .config=${this.config}></admin-content>
         </div>
       </div>
       
