@@ -50,6 +50,19 @@ export const API_ENDPOINTS = {
   executeCypher: `${API_BASE_URL}/api/query/cypher`,
 };
 
+function getAuthHeaders() {
+  try {
+    const raw = localStorage.getItem('o711_bigc_auth');
+    if (raw) {
+      const auth = JSON.parse(raw);
+      if (auth.access_token && auth.expires_at > Date.now()) {
+        return { 'Authorization': `Bearer ${auth.access_token}` };
+      }
+    }
+  } catch {}
+  return {};
+}
+
 export const API_CONFIG = {
   timeout: 30000, // 30 seconds
   headers: {
@@ -69,6 +82,7 @@ export async function apiFetch(url, options = {}) {
       ...options,
       headers: {
         ...API_CONFIG.headers,
+        ...getAuthHeaders(),
         ...options.headers,
       },
       signal: controller.signal,

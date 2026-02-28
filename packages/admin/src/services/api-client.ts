@@ -21,6 +21,19 @@ class ApiClient {
     this.baseUrl = baseUrl;
   }
 
+  private getAuthHeaders(): Record<string, string> {
+    try {
+      const raw = localStorage.getItem('o711_bigc_auth');
+      if (raw) {
+        const auth = JSON.parse(raw);
+        if (auth.access_token && auth.expires_at > Date.now()) {
+          return { 'Authorization': `Bearer ${auth.access_token}` };
+        }
+      }
+    } catch {}
+    return {};
+  }
+
   private async request<T>(
     method: string,
     path: string,
@@ -32,6 +45,7 @@ class ApiClient {
         method,
         headers: {
           'Content-Type': 'application/json',
+          ...this.getAuthHeaders(),
           ...options.headers,
         },
         body: body ? JSON.stringify(body) : undefined,
@@ -43,6 +57,11 @@ class ApiClient {
       const data = isJson ? await response.json() : await response.text();
 
       if (!response.ok) {
+        // Redirect to login on auth failure
+        if (response.status === 401) {
+          localStorage.removeItem('o711_bigc_auth');
+          window.location.href = '/admin/login';
+        }
         return {
           ok: false,
           error: {

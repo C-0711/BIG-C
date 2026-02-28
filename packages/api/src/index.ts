@@ -8,6 +8,8 @@ import fs from "fs";
 import path from "path";
 import { createServer } from "http";
 import { WebSocketServer, WebSocket } from "ws";
+import { requireAuth } from "./middleware/auth";
+import type { AuthenticatedRequest } from "./middleware/auth";
 
 const app = express();
 const PORT = process.env.PORT || 7075;
@@ -38,14 +40,16 @@ const writeConfig = (config: any) => {
 };
 
 app.use(cors());
+app.use(express.json({ limit: "10mb" }));
 
-// Attach config to request
+// JWT auth on all /api/* routes (health excluded inside middleware)
+app.use("/api", requireAuth as any);
+
+// Attach config to request (after auth)
 app.use((req: any, res, next) => {
   req.config = readConfig();
-  req.isAdmin = req.path.startsWith('/api/admin');
   next();
 });
-app.use(express.json({ limit: "10mb" }));
 
 // Static files
 app.use("/admin", express.static(path.join(__dirname, "../../admin/dist")));

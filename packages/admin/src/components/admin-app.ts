@@ -1,6 +1,8 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { configService } from '../services/index.js';
+import { authService } from '../services/auth-service.js';
+import type { AuthUser } from '../services/auth-service.js';
 
 import './admin-header.js';
 import './admin-sidebar.js';
@@ -59,13 +61,37 @@ export class AdminApp extends LitElement {
   @state() private sidebarOpen = false;
   @state() private config: any = null;
   @state() private activePage = 'overview';
+  @state() private user: AuthUser | null = null;
+  @state() private authReady = false;
 
   async connectedCallback() {
     super.connectedCallback();
-    // Load config on app start
+
+    // Handle OAuth callback first
+    if (window.location.pathname.includes('/oauth/callback')) {
+      const user = await authService.handleCallback();
+      if (user) {
+        this.user = user;
+        this.authReady = true;
+      }
+    }
+
+    // Check auth
+    if (!this.authReady) {
+      if (authService.isAuthenticated()) {
+        this.user = authService.getUser();
+        this.authReady = true;
+      } else {
+        this.authReady = true;
+        // Will show login prompt in render()
+        return;
+      }
+    }
+
+    // Load config on app start (only if authenticated)
     await configService.load();
     configService.subscribe((config) => { this.config = config; });
-    
+
     // Handle URL routing
     this.handleRoute();
     window.addEventListener('popstate', () => this.handleRoute());
@@ -92,12 +118,39 @@ export class AdminApp extends LitElement {
     this.sidebarOpen = !this.sidebarOpen;
   }
 
+  private handleLogin() {
+    authService.login();
+  }
+
+  private handleLogout() {
+    authService.logout();
+  }
+
   render() {
+    // Loading
+    if (!this.authReady) {
+      return html`<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#888">Loading...</div>`;
+    }
+
+    // Not authenticated — show login
+    if (!this.user) {
+      return html`
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:24px">
+          <h1 style="font-size:28px;font-weight:700">0711 BIG-C Admin</h1>
+          <p style="color:#888">Sign in to manage agents, workflows, and data sources.</p>
+          <button @click=${this.handleLogin}
+            style="padding:12px 32px;background:#7c3aed;color:white;border:none;border-radius:8px;font-size:16px;cursor:pointer">
+            Sign in with 0711
+          </button>
+        </div>
+      `;
+    }
+
     return html`
       <div class="app-container">
         <admin-header @toggle-sidebar=${this.toggleSidebar}></admin-header>
         <div class="main-layout">
-          <admin-sidebar 
+          <admin-sidebar
             class="${this.sidebarOpen ? 'open' : ''}"
             .currentRoute=${this.activePage}
             .config=${this.config}
@@ -106,7 +159,7 @@ export class AdminApp extends LitElement {
           <admin-content .activePage=${this.activePage} .config=${this.config}></admin-content>
         </div>
       </div>
-      
+
       <toast-container></toast-container>
       <confirm-dialog></confirm-dialog>
     `;
