@@ -41,7 +41,7 @@ export interface AuthenticatedRequest extends Request {
  */
 export function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   // Skip auth for health check
-  if (req.path === "/api/health") return next();
+  if (req.path === "/health" || req.path === "/api/health") return next();
 
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
