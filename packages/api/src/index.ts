@@ -136,16 +136,108 @@ app.delete("/api/agents/:id", (req, res) => {
 });
 
 // ========================================
-// WORKFLOWS API
+// WORKFLOWS API — proxied to 0711-Flow
 // ========================================
 
-app.get("/api/workflows", (req, res) => {
-  const config = readConfig();
-  res.json(config?.workflows?.list || []);
+const FLOW_API_URL = process.env.FLOW_API_URL || "http://localhost:10604";
+
+async function flowProxy(req: any, res: any, method: string, path: string, body?: any) {
+  try {
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    // Forward the user's JWT to Flow
+    if (req.headers.authorization) {
+      headers["Authorization"] = req.headers.authorization;
+    }
+    const resp = await fetch(`${FLOW_API_URL}${path}`, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    const data = await resp.json().catch(() => ({}));
+    res.status(resp.status).json(data);
+  } catch (err: any) {
+    res.status(502).json({ error: `Flow service unavailable: ${err.message}` });
+  }
+}
+
+app.get("/api/workflows", (req: any, res) => {
+  const tag = req.query.tag;
+  flowProxy(req, res, "GET", `/flow/workflows${tag ? `?tag=${tag}` : ""}`);
 });
 
-app.post("/api/workflows/:id/run", (req, res) => {
-  res.json({ success: true, message: `Workflow ${req.params.id} triggered` });
+app.get("/api/workflows/:id", (req: any, res) => {
+  flowProxy(req, res, "GET", `/flow/workflows/${req.params.id}`);
+});
+
+app.post("/api/workflows", (req: any, res) => {
+  flowProxy(req, res, "POST", "/flow/workflows", req.body);
+});
+
+app.put("/api/workflows/:id", (req: any, res) => {
+  flowProxy(req, res, "PUT", `/flow/workflows/${req.params.id}`, req.body);
+});
+
+app.delete("/api/workflows/:id", (req: any, res) => {
+  flowProxy(req, res, "DELETE", `/flow/workflows/${req.params.id}`);
+});
+
+app.post("/api/workflows/:id/run", (req: any, res) => {
+  flowProxy(req, res, "POST", "/flow/runs", {
+    workflow_id: req.params.id,
+    input_data: req.body.input_data || req.body,
+  });
+});
+
+app.get("/api/workflows/:id/runs", (req: any, res) => {
+  flowProxy(req, res, "GET", `/flow/runs?workflow_id=${req.params.id}`);
+});
+
+// Skills — also from Flow
+app.get("/api/skills", (req: any, res) => {
+  const category = req.query.category;
+  flowProxy(req, res, "GET", `/flow/skills${category ? `?category=${category}` : ""}`);
+});
+
+app.get("/api/skills/categories", (req: any, res) => {
+  flowProxy(req, res, "GET", "/flow/skills/categories");
+});
+
+app.get("/api/skills/:id", (req: any, res) => {
+  flowProxy(req, res, "GET", `/flow/skills/${req.params.id}`);
+});
+
+// ========================================
+// AI GATEWAY — proxied to 0711-AI
+// ========================================
+
+const AI_GATEWAY_URL = process.env.AI_GATEWAY_URL || "http://localhost:10600";
+
+app.post("/api/ai/chat", async (req: any, res) => {
+  try {
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (req.headers.authorization) headers["Authorization"] = req.headers.authorization;
+    const resp = await fetch(`${AI_GATEWAY_URL}/ai/chat`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(req.body),
+    });
+    const data = await resp.json().catch(() => ({}));
+    res.status(resp.status).json(data);
+  } catch (err: any) {
+    res.status(502).json({ error: `AI gateway unavailable: ${err.message}` });
+  }
+});
+
+app.get("/api/ai/models", async (req: any, res) => {
+  try {
+    const headers: Record<string, string> = {};
+    if (req.headers.authorization) headers["Authorization"] = req.headers.authorization;
+    const resp = await fetch(`${AI_GATEWAY_URL}/ai/models`, { headers });
+    const data = await resp.json().catch(() => ({}));
+    res.status(resp.status).json(data);
+  } catch (err: any) {
+    res.status(502).json({ error: `AI gateway unavailable: ${err.message}` });
+  }
 });
 
 // ========================================
