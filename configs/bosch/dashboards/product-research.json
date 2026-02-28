@@ -1,0 +1,74 @@
+{
+  "id": "bosch-product-research",
+  "name": "Product Research",
+  "description": "Complete workspace for researching Bosch products",
+  "columns": 12,
+  "rowHeight": 100,
+  "widgets": [
+    {
+      "id": "search",
+      "config": {
+        "type": "product-search",
+        "title": "Search Bosch Products",
+        "settings": {
+          "placeholder": "Search power tools, accessories...",
+          "showFilters": true
+        }
+      },
+      "layout": { "x": 0, "y": 0, "w": 6, "h": 2 }
+    },
+    {
+      "id": "detail",
+      "config": {
+        "type": "product-detail",
+        "title": "Product Details",
+        "settings": {
+          "showSpecs": true,
+          "showPrice": true
+        }
+      },
+      "layout": { "x": 6, "y": 0, "w": 6, "h": 4 }
+    },
+    {
+      "id": "similar",
+      "config": {
+        "type": "similar-products",
+        "title": "Similar Products",
+        "settings": {
+          "limit": 6
+        }
+      },
+      "layout": { "x": 0, "y": 2, "w": 6, "h": 2 }
+    },
+    {
+      "id": "media",
+      "config": {
+        "type": "media-gallery",
+        "title": "Product Media",
+        "settings": {
+          "showVideos": true
+        }
+      },
+      "layout": { "x": 0, "y": 4, "w": 4, "h": 3 }
+    },
+    {
+      "id": "docs",
+      "config": {
+        "type": "document-center",
+        "title": "Documents & Datasheets",
+        "settings": {
+          "categories": ["datasheet", "manual", "certificate"]
+        }
+      },
+      "layout": { "x": 4, "y": 4, "w": 4, "h": 3 }
+    },
+    {
+      "id": "ecosystem",
+      "config": {
+        "type": "ecosystem-map",
+        "title": "Product Ecosystem"
+      },
+      "layout": { "x": 8, "y": 4, "w": 4, "h": 3 }
+    }
+  ]
+}

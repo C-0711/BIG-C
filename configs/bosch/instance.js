@@ -1,13 +1,15 @@
 // Bosch Intelligence Configuration
+// Used by the UI ConfigProvider for runtime branding
 const instanceConfig = {
   branding: {
     name: "Bosch Intelligence",
-    fullName: "Bosch Intelligence Platform",
+    fullName: "Bosch Product Intelligence",
     tagline: "AI-Powered Product Intelligence",
-    logo: "/assets/bosch-logo.png",
-    favicon: "/favicon-bosch.ico",
-    primaryColor: "#0066CC",
-    secondaryColor: "#004C99",
+    logo: "/assets/bosch-logo.svg",
+    favicon: "/assets/bosch-favicon.ico",
+    primaryColor: "#E20015",
+    secondaryColor: "#005691",
+    accentColor: "#00A651",
   },
   modules: {
     assistant: true,
@@ -15,21 +17,17 @@ const instanceConfig = {
     skills: true,
     knowledgeBase: true,
     automation: true,
-    workspaces: true,
     integrations: true,
     publishing: true,
     gallery: true,
     reports: true,
-    marketing: true,
     product: true,
     analytics: true,
     intelligence: true,
-    productPass: true,
-    service: true,
     settings: true,
   },
   api: {
-    baseUrl: 'http://192.168.145.10:8766/api',
+    baseUrl: '/api',
   },
   features: {
     darkMode: true,

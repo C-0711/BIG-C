@@ -1,0 +1,71 @@
+{
+  "id": "bosch-sales-assistant",
+  "name": "Sales Assistant",
+  "description": "Quick access to product info for sales conversations",
+  "columns": 12,
+  "rowHeight": 100,
+  "widgets": [
+    {
+      "id": "search",
+      "config": {
+        "type": "product-search",
+        "title": "Quick Search",
+        "settings": {
+          "placeholder": "Find product for customer...",
+          "showFilters": false,
+          "compactMode": true
+        }
+      },
+      "layout": { "x": 0, "y": 0, "w": 12, "h": 2 }
+    },
+    {
+      "id": "detail",
+      "config": {
+        "type": "product-detail",
+        "title": "Product Info",
+        "settings": {
+          "showSpecs": true,
+          "showPrice": true,
+          "highlightFeatures": true
+        }
+      },
+      "layout": { "x": 0, "y": 2, "w": 6, "h": 4 }
+    },
+    {
+      "id": "media",
+      "config": {
+        "type": "media-gallery",
+        "title": "Images",
+        "settings": {
+          "showVideos": false,
+          "gridMode": true
+        }
+      },
+      "layout": { "x": 6, "y": 2, "w": 3, "h": 2 }
+    },
+    {
+      "id": "docs",
+      "config": {
+        "type": "document-center",
+        "title": "Datasheets",
+        "settings": {
+          "categories": ["datasheet"],
+          "compactMode": true
+        }
+      },
+      "layout": { "x": 9, "y": 2, "w": 3, "h": 2 }
+    },
+    {
+      "id": "similar",
+      "config": {
+        "type": "similar-products",
+        "title": "Alternatives & Upgrades",
+        "settings": {
+          "limit": 4,
+          "showPrice": true
+        }
+      },
+      "layout": { "x": 6, "y": 4, "w": 6, "h": 2 }
+    }
+  ]
+}

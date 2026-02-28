@@ -1,0 +1,125 @@
+{
+  "id": "bosch",
+  "name": "Bosch Product Intelligence",
+  "version": "1.0.0",
+  "description": "AI-powered product intelligence for Bosch Power Tools",
+
+  "instance": {
+    "name": "Bosch Intelligence",
+    "template": "bosch",
+    "locale": "de-DE"
+  },
+
+  "branding": {
+    "appTitle": "Bosch Product Intelligence",
+    "appSubtitle": "Powered by 0711",
+    "logo": "/assets/bosch-logo.svg",
+    "favicon": "/assets/bosch-favicon.ico",
+    "colors": {
+      "primary": "#E20015",
+      "secondary": "#005691",
+      "accent": "#00A651",
+      "success": "#00A651",
+      "warning": "#FFB800",
+      "error": "#E20015",
+      "background": "#F5F5F5",
+      "surface": "#FFFFFF",
+      "text": "#333333",
+      "textSecondary": "#666666"
+    },
+    "fonts": {
+      "primary": "Bosch Sans, Arial, sans-serif"
+    }
+  },
+
+  "agents": {
+    "defaults": {
+      "model": { "primary": "anthropic/claude-sonnet-4-20250514" },
+      "provider": "anthropic"
+    },
+    "list": "$include:agents/"
+  },
+
+  "workflows": "$include:workflows/",
+
+  "dashboards": {
+    "default": "bosch-product-research",
+    "list": "$include:dashboards/"
+  },
+
+  "dataSources": {
+    "providers": {
+      "bosch-products": {
+        "type": "mcp",
+        "command": "node",
+        "args": ["${MCP_SERVER_PATH}/bosch-mcp-server.js"],
+        "env": {
+          "DATABASE_URL": "${BOSCH_DATABASE_URL}"
+        }
+      }
+    }
+  },
+
+  "skills": {
+    "bundled": [
+      "product-description",
+      "seo-optimizer",
+      "translator",
+      "auto-categorize",
+      "quality-score"
+    ]
+  },
+
+  "mcpTools": [
+    "search_products",
+    "search_similar_products",
+    "find_similar_products",
+    "search_by_etim_group",
+    "search_massive_products",
+    "search_catalogs_semantic",
+    "find_product_in_catalogs",
+    "get_product",
+    "get_related_products",
+    "get_product_media",
+    "get_product_images",
+    "get_product_documents",
+    "get_massive_product",
+    "list_massive_products",
+    "get_factsheet_data",
+    "generate_factsheet_ultimate",
+    "get_etim_groups",
+    "resolve_product_family",
+    "resolve_product_family_advanced",
+    "get_product_class_terminology",
+    "validate_product_terminology",
+    "get_statistics",
+    "aggregate_product_specs",
+    "check_product_compatibility",
+    "get_product_lineage",
+    "analyze_product_ecosystem",
+    "execute_sql",
+    "execute_cypher"
+  ],
+
+  "modules": {
+    "assistant": true,
+    "dashboard": true,
+    "skills": true,
+    "knowledgeBase": true,
+    "automation": true,
+    "integrations": true,
+    "publishing": true,
+    "gallery": true,
+    "reports": true,
+    "product": true,
+    "analytics": true,
+    "intelligence": true,
+    "settings": true
+  },
+
+  "features": {
+    "darkMode": true,
+    "commandPalette": true,
+    "quickAccess": true
+  }
+}

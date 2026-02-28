@@ -10,9 +10,11 @@ import { createServer } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { requireAuth } from "./middleware/auth";
 import type { AuthenticatedRequest } from "./middleware/auth";
+import { loadWorkspace, workspaceToConfig, listWorkspaces } from "./workspace-loader";
 
 const app = express();
 const PORT = process.env.PORT || 7075;
+const WORKSPACE = process.env.BIGC_WORKSPACE || "";
 const CONFIG_PATH = process.env.CONFIG_PATH || path.join(process.env.HOME || "~", ".0711", "config.json");
 
 const resolveConfigPath = (p: string) => {
@@ -299,37 +301,31 @@ app.post("/api/outputs", (req, res) => {
 });
 
 // ========================================
-// SKILLS API
+// WORKSPACE API
 // ========================================
 
-app.get("/api/skills", (req, res) => {
-  const config = readConfig();
-  res.json({
-    bundled: config?.skills?.bundled || [],
-    workspace: config?.skills?.workspace || "~/.0711/workspace/skills/"
-  });
+app.get("/api/workspaces", (req, res) => {
+  const available = listWorkspaces();
+  res.json({ workspaces: available, active: WORKSPACE || null });
+});
 
-app.put("/api/skills/:id", (req, res) => {
+app.get("/api/workspaces/:id", (req, res) => {
+  const ws = loadWorkspace(req.params.id);
+  if (!ws) return res.status(404).json({ error: "Workspace not found" });
+  res.json(ws);
+});
+
+app.post("/api/workspaces/:id/apply", (req, res) => {
   try {
-    const config = readConfig();
-    if (!config) return res.status(500).json({ error: "Config not found" });
-    const { id } = req.params;
-    const skillData = req.body;
-    if (!config.skills) config.skills = { bundled: [], definitions: {} };
-    if (!config.skills.definitions) config.skills.definitions = {};
-    config.skills.definitions[id] = {
-      name: skillData.name,
-      description: skillData.description,
-      prompt: skillData.prompt,
-      tools: skillData.tools || []
-    };
+    const ws = loadWorkspace(req.params.id);
+    if (!ws) return res.status(404).json({ error: "Workspace not found" });
+    const config = workspaceToConfig(ws);
     writeConfig(config);
     broadcast("config.changed", { config });
-    res.json({ success: true, skill: config.skills.definitions[id] });
+    res.json({ success: true, workspace: req.params.id });
   } catch (err: any) {
     res.status(500).json({ error: err.message });
   }
-});
 });
 
 // ========================================
@@ -609,10 +605,22 @@ app.get("/api/agents/:agentId/available-tools", async (req, res) => {
   res.json({ success: true, availableTools });
 });
 
+// Auto-load workspace config on startup if configured and config doesn't exist
+if (WORKSPACE && !fs.existsSync(configPath)) {
+  const ws = loadWorkspace(WORKSPACE);
+  if (ws) {
+    const dir = path.dirname(configPath);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    writeConfig(workspaceToConfig(ws));
+    console.log(`[workspace] Auto-initialized config from "${WORKSPACE}" workspace`);
+  }
+}
+
 server.listen(PORT, () => {
-  console.log(`🚀 0711-C-Intelligence Gateway running on port ${PORT}`);
-  console.log(`📁 Config: ${configPath}`);
-  console.log(`🔧 Admin UI: http://localhost:${PORT}/admin`);
-  console.log(`📱 User UI: http://localhost:${PORT}/app`);
-  console.log(`🔌 WebSocket: ws://localhost:${PORT}/ws`);
+  console.log(`0711-C-Intelligence Gateway running on port ${PORT}`);
+  console.log(`Config: ${configPath}`);
+  if (WORKSPACE) console.log(`Workspace: ${WORKSPACE}`);
+  console.log(`Admin UI: http://localhost:${PORT}/admin`);
+  console.log(`User UI: http://localhost:${PORT}/app`);
+  console.log(`WebSocket: ws://localhost:${PORT}/ws`);
 });

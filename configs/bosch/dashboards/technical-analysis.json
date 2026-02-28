@@ -1,0 +1,84 @@
+{
+  "id": "bosch-technical-analysis",
+  "name": "Technical Analysis",
+  "description": "Deep-dive into specifications and compatibility",
+  "columns": 12,
+  "rowHeight": 100,
+  "widgets": [
+    {
+      "id": "search",
+      "config": {
+        "type": "product-search",
+        "title": "Find Product",
+        "settings": {
+          "placeholder": "Search by model number...",
+          "showFilters": true
+        }
+      },
+      "layout": { "x": 0, "y": 0, "w": 4, "h": 2 }
+    },
+    {
+      "id": "detail",
+      "config": {
+        "type": "product-detail",
+        "title": "Full Specifications",
+        "settings": {
+          "showSpecs": true,
+          "showAllSpecs": true,
+          "technicalView": true
+        }
+      },
+      "layout": { "x": 4, "y": 0, "w": 8, "h": 3 }
+    },
+    {
+      "id": "etim",
+      "config": {
+        "type": "etim-explorer",
+        "title": "ETIM Classification"
+      },
+      "layout": { "x": 0, "y": 2, "w": 4, "h": 4 }
+    },
+    {
+      "id": "comparison",
+      "config": {
+        "type": "comparison-table",
+        "title": "Spec Comparison",
+        "settings": {
+          "highlightDifferences": true
+        }
+      },
+      "layout": { "x": 4, "y": 3, "w": 8, "h": 3 }
+    },
+    {
+      "id": "compatibility",
+      "config": {
+        "type": "compatibility-check",
+        "title": "Compatibility Check"
+      },
+      "layout": { "x": 0, "y": 6, "w": 4, "h": 2 }
+    },
+    {
+      "id": "ecosystem",
+      "config": {
+        "type": "ecosystem-map",
+        "title": "Product Ecosystem",
+        "settings": {
+          "showAccessories": true,
+          "showReplacements": true
+        }
+      },
+      "layout": { "x": 4, "y": 6, "w": 4, "h": 2 }
+    },
+    {
+      "id": "docs",
+      "config": {
+        "type": "document-center",
+        "title": "Technical Documents",
+        "settings": {
+          "categories": ["datasheet", "manual", "cad", "certificate"]
+        }
+      },
+      "layout": { "x": 8, "y": 6, "w": 4, "h": 2 }
+    }
+  ]
+}

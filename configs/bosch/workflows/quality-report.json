@@ -1,0 +1,51 @@
+{
+  "name": "Daily Quality Report",
+  "description": "Generates a quality report for Bosch products with issues",
+  "tags": ["bosch", "quality", "report"],
+  "nodes": [
+    {
+      "id": "trigger",
+      "type": "trigger",
+      "label": "Start"
+    },
+    {
+      "id": "load-products",
+      "type": "data",
+      "label": "Load Products",
+      "config": {
+        "source": "bosch-products",
+        "query": "SELECT * FROM products WHERE updated_at > NOW() - INTERVAL '24 hours' OR description IS NULL OR description = ''",
+        "outputVariable": "products"
+      }
+    },
+    {
+      "id": "analyze",
+      "type": "agent",
+      "label": "Quality Analysis",
+      "config": {
+        "agentId": "quality-checker",
+        "prompt": "Analysiere die Datenqualität folgender Produkte und erstelle einen Bericht:\n\n{{products}}\n\nPrüfe auf:\n- Fehlende Pflichtfelder\n- Leere Beschreibungen\n- Inkonsistente Formatierung\n- Veraltete Informationen\n\nErstelle einen strukturierten Report mit Summary und Details pro Produkt.",
+        "outputVariable": "analysis"
+      }
+    },
+    {
+      "id": "format-report",
+      "type": "transform",
+      "label": "Format Report",
+      "config": {
+        "expression": "{ reportDate: new Date().toISOString().split('T')[0], totalProducts: context.products.length, analysis: context.analysis }"
+      }
+    },
+    {
+      "id": "end",
+      "type": "end",
+      "label": "Complete"
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "trigger", "target": "load-products" },
+    { "id": "e2", "source": "load-products", "target": "analyze" },
+    { "id": "e3", "source": "analyze", "target": "format-report" },
+    { "id": "e4", "source": "format-report", "target": "end" }
+  ]
+}
